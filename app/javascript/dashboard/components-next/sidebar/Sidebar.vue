@@ -611,10 +611,10 @@ const menuItems = computed(() => {
   >
     <section class="grid gap-2 mt-2 mb-4">
       <div class="flex gap-2 items-center px-2 min-w-0">
-        <div class="grid flex-shrink-0 place-content-center size-6">
-          <Logo class="size-4" />
+        <div class="grid flex-shrink-0 place-content-center size-8">
+          <Logo class="size-6" />
         </div>
-        <div class="flex-shrink-0 w-px h-3 bg-n-strong" />
+        <div class="flex-shrink-0 w-px h-4 bg-n-strong" />
         <SidebarAccountSwitcher
           class="flex-grow -mx-1 min-w-0"
           @show-create-account-modal="emit('showCreateAccountModal')"
