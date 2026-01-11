@@ -18,7 +18,7 @@ export function usePolicy() {
     'globalConfig/isACustomBrandedInstance'
   );
 
-  const { isEnterprise, enterprisePlanName } = useConfig();
+  const { isEnterprise } = useConfig();
   const { accountId } = useAccount();
 
   const getUserPermissionsForAccount = () => {
@@ -56,8 +56,7 @@ export function usePolicy() {
   };
 
   const hasPremiumEnterprise = computed(() => {
-    if (isEnterprise) return enterprisePlanName !== 'community';
-
+    // Nokk: Always return true
     return true;
   });
 
@@ -104,25 +103,8 @@ export function usePolicy() {
     return true;
   };
 
-  const shouldShowPaywall = featureFlag => {
-    const flag = unref(featureFlag);
-    if (!flag) return false;
-
-    if (isACustomBrandedInstance.value) {
-      // custom branded instances never show paywall
-      return false;
-    }
-
-    if (isPremiumFeature(flag)) {
-      if (isOnChatwootCloud.value) {
-        return !isFeatureFlagEnabled(flag);
-      }
-
-      if (isEnterprise) {
-        return !hasPremiumEnterprise.value;
-      }
-    }
-
+  const shouldShowPaywall = () => {
+    // Nokk: Never show paywall
     return false;
   };
 

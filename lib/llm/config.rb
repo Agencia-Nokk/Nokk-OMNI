@@ -1,7 +1,7 @@
 require 'ruby_llm'
 
 module Llm::Config
-  DEFAULT_MODEL = 'gpt-4o-mini'.freeze
+  DEFAULT_MODEL = 'gpt-4.1-nano'.freeze
   class << self
     def initialized?
       @initialized ||= false
@@ -38,7 +38,8 @@ module Llm::Config
     end
 
     def system_api_key
-      InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_API_KEY')&.value
+      # Nokk: Prioritize ENV key for all accounts
+      ENV.fetch('OPENAI_API_KEY', InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_API_KEY')&.value)
     end
 
     def openai_endpoint
