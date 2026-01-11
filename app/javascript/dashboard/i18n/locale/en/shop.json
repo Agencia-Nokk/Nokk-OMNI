@@ -1,0 +1,103 @@
+{
+  "SHOP": {
+    "HEADER": "Shop",
+    "PRODUCTS": {
+      "TITLE": "Products",
+      "DESCRIPTION": "Manage your shop's product catalog",
+      "NEW": "New Product",
+      "INACTIVE": "Inactive",
+      "IN_STOCK": "in stock",
+      "EMPTY_STATE": {
+        "TITLE": "No products yet",
+        "MESSAGE": "Start by creating your first product to sell through chat"
+      },
+      "FORM": {
+        "NAME": {
+          "LABEL": "Product Name",
+          "PLACEHOLDER": "e.g. Basic T-Shirt"
+        },
+        "DESCRIPTION": {
+          "LABEL": "Description",
+          "PLACEHOLDER": "Describe the product..."
+        },
+        "PRICE": {
+          "LABEL": "Price",
+          "PLACEHOLDER": "0.00"
+        },
+        "COMPARE_AT_PRICE": {
+          "LABEL": "Compare at Price (Was/Now)",
+          "PLACEHOLDER": "0.00"
+        },
+        "SKU": {
+          "LABEL": "SKU",
+          "PLACEHOLDER": "Auto-generated"
+        },
+        "STOCK": {
+          "LABEL": "Stock Quantity",
+          "PLACEHOLDER": "0"
+        },
+        "TRACK_INVENTORY": {
+          "LABEL": "Track inventory"
+        },
+        "ACTIVE": {
+          "LABEL": "Active product"
+        },
+        "CATEGORY": {
+          "LABEL": "Category",
+          "PLACEHOLDER": "Select a category"
+        },
+        "IMAGES": {
+          "LABEL": "Product Images",
+          "ADD": "Add Image"
+        }
+      }
+    },
+    "CATEGORIES": {
+      "TITLE": "Categories",
+      "DESCRIPTION": "Organize your products into categories",
+      "NEW": "New Category",
+      "EMPTY_STATE": {
+        "TITLE": "No categories yet",
+        "MESSAGE": "Create categories to better organize your products"
+      }
+    },
+    "ORDERS": {
+      "TITLE": "Orders",
+      "DESCRIPTION": "Manage all shop orders",
+      "STATUS": {
+        "PENDING": "Pending",
+        "CONFIRMED": "Confirmed",
+        "PROCESSING": "Processing",
+        "SHIPPED": "Shipped",
+        "DELIVERED": "Delivered",
+        "CANCELLED": "Cancelled"
+      },
+      "EMPTY_STATE": {
+        "TITLE": "No orders yet",
+        "MESSAGE": "Orders will appear here when customers complete a purchase"
+      },
+      "DETAILS": {
+        "ORDER_NUMBER": "Order #",
+        "CUSTOMER": "Customer",
+        "ITEMS": "Items",
+        "SUBTOTAL": "Subtotal",
+        "DISCOUNT": "Discount",
+        "TOTAL": "Total",
+        "CUSTOMER_NOTES": "Customer Notes",
+        "INTERNAL_NOTES": "Internal Notes",
+        "ACTIONS": {
+          "CONFIRM": "Confirm Order",
+          "CANCEL": "Cancel Order"
+        }
+      }
+    },
+    "CART": {
+      "TITLE": "Cart",
+      "EMPTY": "Empty cart",
+      "ADD_PRODUCT": "Add Product",
+      "TOTAL": "Total",
+      "FINALIZE": "Finalize Order"
+    }
+  }
+}
+

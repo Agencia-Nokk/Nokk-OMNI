@@ -73,6 +73,27 @@ Rails.application.routes.draw do
             resources :custom_tools
             resources :documents, only: [:index, :show, :create, :destroy]
           end
+          namespace :shop do
+            resources :categories, only: [:index, :show, :create, :update, :destroy]
+            resources :products, only: [:index, :show, :create, :update, :destroy]
+            resources :carts, only: [:index, :show, :create, :destroy] do
+              member do
+                post :add_item
+                delete 'items/:item_id', action: :remove_item, as: :remove_item
+                patch 'items/:item_id', action: :update_item, as: :update_item
+                post :convert_to_order
+              end
+              collection do
+                get 'conversation/:conversation_id', action: :show_by_conversation, as: :by_conversation
+              end
+            end
+            resources :orders, only: [:index, :show, :update] do
+              member do
+                post :confirm
+                post :cancel
+              end
+            end
+          end
           resource :saml_settings, only: [:show, :create, :update, :destroy]
           resources :agent_bots, only: [:index, :create, :show, :update, :destroy] do
             delete :avatar, on: :member

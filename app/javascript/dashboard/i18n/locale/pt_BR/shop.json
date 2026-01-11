@@ -1,0 +1,103 @@
+{
+  "SHOP": {
+    "HEADER": "Loja",
+    "PRODUCTS": {
+      "TITLE": "Produtos",
+      "DESCRIPTION": "Gerencie o catálogo de produtos da sua loja",
+      "NEW": "Novo Produto",
+      "INACTIVE": "Inativo",
+      "IN_STOCK": "em estoque",
+      "EMPTY_STATE": {
+        "TITLE": "Nenhum produto cadastrado",
+        "MESSAGE": "Comece criando seu primeiro produto para vender através do chat"
+      },
+      "FORM": {
+        "NAME": {
+          "LABEL": "Nome do Produto",
+          "PLACEHOLDER": "Ex: Camiseta Básica"
+        },
+        "DESCRIPTION": {
+          "LABEL": "Descrição",
+          "PLACEHOLDER": "Descreva o produto..."
+        },
+        "PRICE": {
+          "LABEL": "Preço",
+          "PLACEHOLDER": "0,00"
+        },
+        "COMPARE_AT_PRICE": {
+          "LABEL": "Preço Comparativo (De/Por)",
+          "PLACEHOLDER": "0,00"
+        },
+        "SKU": {
+          "LABEL": "SKU",
+          "PLACEHOLDER": "Gerado automaticamente"
+        },
+        "STOCK": {
+          "LABEL": "Quantidade em Estoque",
+          "PLACEHOLDER": "0"
+        },
+        "TRACK_INVENTORY": {
+          "LABEL": "Controlar estoque"
+        },
+        "ACTIVE": {
+          "LABEL": "Produto ativo"
+        },
+        "CATEGORY": {
+          "LABEL": "Categoria",
+          "PLACEHOLDER": "Selecione uma categoria"
+        },
+        "IMAGES": {
+          "LABEL": "Imagens do Produto",
+          "ADD": "Adicionar Imagem"
+        }
+      }
+    },
+    "CATEGORIES": {
+      "TITLE": "Categorias",
+      "DESCRIPTION": "Organize seus produtos em categorias",
+      "NEW": "Nova Categoria",
+      "EMPTY_STATE": {
+        "TITLE": "Nenhuma categoria cadastrada",
+        "MESSAGE": "Crie categorias para organizar melhor seus produtos"
+      }
+    },
+    "ORDERS": {
+      "TITLE": "Pedidos",
+      "DESCRIPTION": "Gerencie todos os pedidos da loja",
+      "STATUS": {
+        "PENDING": "Pendente",
+        "CONFIRMED": "Confirmado",
+        "PROCESSING": "Processando",
+        "SHIPPED": "Enviado",
+        "DELIVERED": "Entregue",
+        "CANCELLED": "Cancelado"
+      },
+      "EMPTY_STATE": {
+        "TITLE": "Nenhum pedido ainda",
+        "MESSAGE": "Os pedidos aparecerão aqui quando os clientes finalizarem uma compra"
+      },
+      "DETAILS": {
+        "ORDER_NUMBER": "Pedido #",
+        "CUSTOMER": "Cliente",
+        "ITEMS": "Itens",
+        "SUBTOTAL": "Subtotal",
+        "DISCOUNT": "Desconto",
+        "TOTAL": "Total",
+        "CUSTOMER_NOTES": "Observações do Cliente",
+        "INTERNAL_NOTES": "Notas Internas",
+        "ACTIONS": {
+          "CONFIRM": "Confirmar Pedido",
+          "CANCEL": "Cancelar Pedido"
+        }
+      }
+    },
+    "CART": {
+      "TITLE": "Carrinho",
+      "EMPTY": "Carrinho vazio",
+      "ADD_PRODUCT": "Adicionar Produto",
+      "TOTAL": "Total",
+      "FINALIZE": "Finalizar Pedido"
+    }
+  }
+}
+

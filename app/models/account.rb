@@ -104,6 +104,12 @@ class Account < ApplicationRecord
   has_many :whatsapp_channels, dependent: :destroy_async, class_name: '::Channel::Whatsapp'
   has_many :working_hours, dependent: :destroy_async
 
+  # Nokk Shop
+  has_many :shop_categories, dependent: :destroy_async, class_name: 'Shop::Category'
+  has_many :shop_products, dependent: :destroy_async, class_name: 'Shop::Product'
+  has_many :shop_carts, dependent: :destroy_async, class_name: 'Shop::Cart'
+  has_many :shop_orders, dependent: :destroy_async, class_name: 'Shop::Order'
+
   has_one_attached :contacts_export
 
   enum :locale, LANGUAGES_CONFIG.map { |key, val| [val[:iso_639_1_code], key] }.to_h, prefix: true
