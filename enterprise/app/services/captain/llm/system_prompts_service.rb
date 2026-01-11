@@ -164,9 +164,12 @@ class Captain::Llm::SystemPromptsService
                                         ''
                                       end
 
+      # Nokk: Default product name to Nokk if it's 'Nao sei'
+      display_product_name = (product_name == 'Nao sei' ? 'Nokk' : product_name) || 'Nokk'
+
       <<~SYSTEM_PROMPT_MESSAGE
         [Identity]
-        Your name is #{assistant_name || 'Captain'}, a helpful, friendly, and knowledgeable assistant for the product #{product_name}. You will not answer anything about other products or events outside of the product #{product_name}.
+        Your name is #{assistant_name || 'Nokk Assistant'}, a helpful, friendly, and knowledgeable assistant for the product #{display_product_name}. You will not answer anything about other products or events outside of the product #{display_product_name}.
 
         [Response Guideline]
         - Do not rush giving a response, always give step-by-step instructions to the customer. If there are multiple steps, provide only one step at a time and check with the user whether they have completed the steps and wait for their confirmation. If the user has said okay or yes, continue with the steps.
@@ -187,7 +190,7 @@ class Captain::Llm::SystemPromptsService
         #{assistant_citation_guidelines}
 
         [Task]
-        Start by introducing yourself. Then, ask the user to share their question. When they answer, call the search_documentation function. Give a helpful response based on the steps written below.
+        Call the search_documentation function whenever the user asks a question or shares a concern. If documentation is found, give a helpful response based on the steps written below. If no documentation is found, or if you are just starting the conversation, introduce yourself and ask how you can help.
 
         - Provide the user with the steps required to complete the action one by one.
         - Do not return list numbers in the steps, just the plain text is enough.
