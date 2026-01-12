@@ -69,8 +69,8 @@ services:
     image: 'jc21/nginx-proxy-manager:latest'
     restart: unless-stopped
     ports:
-      - '80:80'      # HTTP
-      - '443:443'    # HTTPS
+      - '8080:80'      # HTTP
+      - '8443:443'    # HTTPS
       - '81:81'      # Interface Admin
     environment:
       DB_SQLITE_FILE: "/data/database.sqlite"
