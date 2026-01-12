@@ -109,6 +109,7 @@ class Account < ApplicationRecord
   has_many :shop_products, dependent: :destroy_async, class_name: 'Shop::Product'
   has_many :shop_carts, dependent: :destroy_async, class_name: 'Shop::Cart'
   has_many :shop_orders, dependent: :destroy_async, class_name: 'Shop::Order'
+  has_one :shop_setting, dependent: :destroy, class_name: 'Shop::Setting'
 
   has_one_attached :contacts_export
 

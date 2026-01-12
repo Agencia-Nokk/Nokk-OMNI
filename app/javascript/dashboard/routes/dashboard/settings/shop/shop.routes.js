@@ -1,13 +1,13 @@
 import { frontendURL } from '../../../../helper/URLHelper';
 
 const SettingsContent = () => import('../Wrapper.vue');
-const ShopIndex = () => import('./Index.vue');
 const ProductsIndex = () => import('./pages/ProductsIndex.vue');
 const ProductsNew = () => import('./pages/ProductsNew.vue');
 const ProductsEdit = () => import('./pages/ProductsEdit.vue');
 const CategoriesIndex = () => import('./pages/CategoriesIndex.vue');
 const OrdersIndex = () => import('./pages/OrdersIndex.vue');
 const OrdersShow = () => import('./pages/OrdersShow.vue');
+const SettingsIndex = () => import('./pages/SettingsIndex.vue');
 
 export default {
   routes: [
@@ -73,8 +73,15 @@ export default {
             permissions: ['administrator'],
           },
         },
+        {
+          path: 'settings',
+          name: 'shop_settings',
+          component: SettingsIndex,
+          meta: {
+            permissions: ['administrator'],
+          },
+        },
       ],
     },
   ],
 };
-

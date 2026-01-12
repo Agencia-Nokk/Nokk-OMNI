@@ -20,6 +20,8 @@
 #
 
 class Shop::Order < ApplicationRecord
+  self.table_name = 'shop_orders'
+
   belongs_to :account
   belongs_to :conversation, optional: true
   belongs_to :contact

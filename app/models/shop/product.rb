@@ -21,13 +21,19 @@
 #
 
 class Shop::Product < ApplicationRecord
+  self.table_name = 'shop_products'
+
   belongs_to :account
   belongs_to :category, class_name: 'Shop::Category', foreign_key: 'shop_category_id', optional: true
   has_many :variants, class_name: 'Shop::ProductVariant', foreign_key: 'shop_product_id', dependent: :destroy
   has_many :cart_items, class_name: 'Shop::CartItem', foreign_key: 'shop_product_id', dependent: :destroy
   has_many :order_items, class_name: 'Shop::OrderItem', foreign_key: 'shop_product_id', dependent: :restrict_with_error
 
+  has_many_attached :images
+  accepts_nested_attributes_for :variants, allow_destroy: true
+
   validates :name, presence: true
+  validate :images_count_within_limit
   validates :slug, presence: true, uniqueness: { scope: :account_id }
   validates :price, presence: true, numericality: { greater_than_or_equal_to: 0 }
   validates :stock_quantity, numericality: { only_integer: true, greater_than_or_equal_to: 0 }, if: :track_inventory?
@@ -54,7 +60,7 @@ class Shop::Product < ApplicationRecord
   end
 
   def primary_image
-    images&.first
+    images.first if images.attached?
   end
 
   private
@@ -65,5 +71,11 @@ class Shop::Product < ApplicationRecord
 
   def generate_sku
     self.sku = "PROD-#{SecureRandom.hex(4).upcase}"
+  end
+
+  def images_count_within_limit
+    return unless images.attached? && images.count > 20
+
+    errors.add(:images, 'Você pode adicionar no máximo 20 imagens')
   end
 end

@@ -1,3 +1,4 @@
+/* global axios */
 import ApiClient from './ApiClient';
 
 class ShopAPI extends ApiClient {
@@ -5,116 +6,107 @@ class ShopAPI extends ApiClient {
     super('shop', { accountScoped: true });
   }
 
+  // Settings
+  getSettings() {
+    return axios.get(`${this.url}/settings`);
+  }
+
+  updateSettings(settingsData) {
+    return axios.patch(`${this.url}/settings`, settingsData);
+  }
+
   // Categories
-  getCategories(accountId) {
-    return axios.get(`${this.url}/${accountId}/shop/categories`);
+  getCategories() {
+    return axios.get(`${this.url}/categories`);
   }
 
-  createCategory(accountId, categoryData) {
-    return axios.post(`${this.url}/${accountId}/shop/categories`, categoryData);
+  createCategory(categoryData) {
+    return axios.post(`${this.url}/categories`, categoryData);
   }
 
-  updateCategory(accountId, categoryId, categoryData) {
-    return axios.patch(
-      `${this.url}/${accountId}/shop/categories/${categoryId}`,
-      categoryData
-    );
+  updateCategory(categoryId, categoryData) {
+    return axios.patch(`${this.url}/categories/${categoryId}`, categoryData);
   }
 
-  deleteCategory(accountId, categoryId) {
-    return axios.delete(`${this.url}/${accountId}/shop/categories/${categoryId}`);
+  deleteCategory(categoryId) {
+    return axios.delete(`${this.url}/categories/${categoryId}`);
   }
 
   // Products
-  getProducts(accountId, params = {}) {
-    return axios.get(`${this.url}/${accountId}/shop/products`, { params });
+  getProducts(params = {}) {
+    return axios.get(`${this.url}/products`, { params });
   }
 
-  getProduct(accountId, productId) {
-    return axios.get(`${this.url}/${accountId}/shop/products/${productId}`);
+  getProduct(productId) {
+    return axios.get(`${this.url}/products/${productId}`);
   }
 
-  createProduct(accountId, productData) {
-    return axios.post(`${this.url}/${accountId}/shop/products`, productData);
+  createProduct(productData) {
+    return axios.post(`${this.url}/products`, productData);
   }
 
-  updateProduct(accountId, productId, productData) {
-    return axios.patch(
-      `${this.url}/${accountId}/shop/products/${productId}`,
-      productData
-    );
+  updateProduct(productId, productData) {
+    return axios.patch(`${this.url}/products/${productId}`, productData);
   }
 
-  deleteProduct(accountId, productId) {
-    return axios.delete(`${this.url}/${accountId}/shop/products/${productId}`);
+  deleteProduct(productId) {
+    return axios.delete(`${this.url}/products/${productId}`);
   }
 
   // Carts
-  getCarts(accountId) {
-    return axios.get(`${this.url}/${accountId}/shop/carts`);
+  getCarts() {
+    return axios.get(`${this.url}/carts`);
   }
 
-  getCart(accountId, cartId) {
-    return axios.get(`${this.url}/${accountId}/shop/carts/${cartId}`);
+  getCart(cartId) {
+    return axios.get(`${this.url}/carts/${cartId}`);
   }
 
-  getCartByConversation(accountId, conversationId) {
-    return axios.get(
-      `${this.url}/${accountId}/shop/carts/conversation/${conversationId}`
-    );
+  getCartByConversation(conversationId) {
+    return axios.get(`${this.url}/carts/conversation/${conversationId}`);
   }
 
-  addItemToCart(accountId, cartId, itemData) {
+  addItemToCart(cartId, itemData) {
+    return axios.post(`${this.url}/carts/${cartId}/add_item`, itemData);
+  }
+
+  removeItemFromCart(cartId, itemId) {
+    return axios.delete(`${this.url}/carts/${cartId}/items/${itemId}`);
+  }
+
+  updateCartItem(cartId, itemId, quantity) {
+    return axios.patch(`${this.url}/carts/${cartId}/items/${itemId}`, {
+      quantity,
+    });
+  }
+
+  convertCartToOrder(cartId, orderData) {
     return axios.post(
-      `${this.url}/${accountId}/shop/carts/${cartId}/add_item`,
-      itemData
-    );
-  }
-
-  removeItemFromCart(accountId, cartId, itemId) {
-    return axios.delete(
-      `${this.url}/${accountId}/shop/carts/${cartId}/items/${itemId}`
-    );
-  }
-
-  updateCartItem(accountId, cartId, itemId, quantity) {
-    return axios.patch(
-      `${this.url}/${accountId}/shop/carts/${cartId}/items/${itemId}`,
-      { quantity }
-    );
-  }
-
-  convertCartToOrder(accountId, cartId, orderData) {
-    return axios.post(
-      `${this.url}/${accountId}/shop/carts/${cartId}/convert_to_order`,
+      `${this.url}/carts/${cartId}/convert_to_order`,
       orderData
     );
   }
 
   // Orders
-  getOrders(accountId, params = {}) {
-    return axios.get(`${this.url}/${accountId}/shop/orders`, { params });
+  getOrders(params = {}) {
+    return axios.get(`${this.url}/orders`, { params });
   }
 
-  getOrder(accountId, orderId) {
-    return axios.get(`${this.url}/${accountId}/shop/orders/${orderId}`);
+  getOrder(orderId) {
+    return axios.get(`${this.url}/orders/${orderId}`);
   }
 
-  updateOrder(accountId, orderId, orderData) {
-    return axios.patch(
-      `${this.url}/${accountId}/shop/orders/${orderId}`,
-      orderData
-    );
+  updateOrder(orderId, orderData) {
+    return axios.patch(`${this.url}/orders/${orderId}`, orderData);
   }
 
-  confirmOrder(accountId, orderId) {
-    return axios.post(`${this.url}/${accountId}/shop/orders/${orderId}/confirm`);
+  confirmOrder(orderId) {
+    return axios.post(`${this.url}/orders/${orderId}/confirm`);
   }
 
-  cancelOrder(accountId, orderId) {
-    return axios.post(`${this.url}/${accountId}/shop/orders/${orderId}/cancel`);
+  cancelOrder(orderId) {
+    return axios.post(`${this.url}/orders/${orderId}/cancel`);
   }
 }
 
 export default new ShopAPI();
-

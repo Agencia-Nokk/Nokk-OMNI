@@ -5,8 +5,20 @@
       "TITLE": "Produtos",
       "DESCRIPTION": "Gerencie o catálogo de produtos da sua loja",
       "NEW": "Novo Produto",
+      "EDIT": "Editar Produto",
       "INACTIVE": "Inativo",
+      "ACTIVE": "Ativo",
       "IN_STOCK": "em estoque",
+      "SEARCH_PLACEHOLDER": "Buscar produtos...",
+      "ALL_CATEGORIES": "Todas categorias",
+      "FILTER_ALL": "Todos",
+      "FILTER_ACTIVE": "Ativos",
+      "FILTER_INACTIVE": "Inativos",
+      "CLEAR_FILTERS": "Limpar",
+      "PRODUCTS_COUNT": "{count} produto(s)",
+      "NO_PRODUCTS_FOUND": "Nenhum produto encontrado",
+      "TRY_DIFFERENT_FILTERS": "Tente ajustar os filtros de busca",
+      "VARIANTS_COUNT": "{count} variantes",
       "EMPTY_STATE": {
         "TITLE": "Nenhum produto cadastrado",
         "MESSAGE": "Comece criando seu primeiro produto para vender através do chat"
@@ -44,11 +56,51 @@
         },
         "CATEGORY": {
           "LABEL": "Categoria",
-          "PLACEHOLDER": "Selecione uma categoria"
+          "PLACEHOLDER": "Selecione uma categoria",
+          "CREATE_NEW": "+ Criar nova categoria"
         },
         "IMAGES": {
           "LABEL": "Imagens do Produto",
-          "ADD": "Adicionar Imagem"
+          "HELP": "Adicione até 20 imagens (JPG, PNG ou GIF). A primeira será a imagem principal.",
+          "REMOVE": "Remover imagem",
+          "REMOVE_CONFIRM": "Tem certeza que deseja remover esta imagem?",
+          "DROP_HERE": "Solte as imagens aqui",
+          "DRAG_OR_CLICK": "Arraste imagens aqui ou clique no botão para adicionar",
+          "ADD": "Adicionar",
+          "PRIMARY": "Principal",
+          "NEW": "Nova",
+          "COUNTER": "{count}/20 imagens",
+          "REORDER_HINT": "Arraste para reordenar",
+          "PRIMARY_HINT": "Primeira imagem será a principal",
+          "MAX_LIMIT": "Você pode adicionar no máximo 20 imagens",
+          "INVALID_FILES": "Alguns arquivos foram ignorados por não serem imagens"
+        },
+        "VARIANTS": {
+          "TITLE": "Variantes do Produto",
+          "DESCRIPTION": "Adicione variações como tamanho, cor, etc. (Ex: P, M, G)",
+          "ADD": "Adicionar Variante",
+          "VARIANT_NUMBER": "Variante {number}",
+          "NAME_LABEL": "Nome *",
+          "NAME_PLACEHOLDER": "Ex: Tamanho P",
+          "PRICE_LABEL": "Preço (R$)",
+          "PRICE_PLACEHOLDER": "Deixe vazio para usar preço base",
+          "STOCK_LABEL": "Estoque *",
+          "SKU_LABEL": "SKU",
+          "SKU_PLACEHOLDER": "Opcional",
+          "EMPTY": "Nenhuma variante adicionada. O produto terá apenas o preço e estoque base."
+        },
+        "DELETE_PRODUCT": "Excluir Produto",
+        "DELETE_CONFIRM": "Tem certeza que deseja excluir este produto? Esta ação não pode ser desfeita.",
+        "CREATE_SUCCESS": "Produto criado com sucesso!",
+        "CREATE_ERROR": "Erro ao criar produto",
+        "UPDATE_SUCCESS": "Produto atualizado com sucesso!",
+        "UPDATE_ERROR": "Erro ao atualizar produto",
+        "DELETE_SUCCESS": "Produto excluído com sucesso!",
+        "DELETE_ERROR": "Erro ao excluir produto",
+        "BUTTONS": {
+          "CREATE": "Criar Produto",
+          "UPDATE": "Atualizar Produto",
+          "CANCEL": "Cancelar"
         }
       }
     },
@@ -56,14 +108,45 @@
       "TITLE": "Categorias",
       "DESCRIPTION": "Organize seus produtos em categorias",
       "NEW": "Nova Categoria",
+      "EDIT": "Editar Categoria",
+      "INACTIVE": "Inativa",
+      "PRODUCTS_COUNT": "{count} produtos",
+      "REORDER_HINT": "Arraste para reordenar as categorias",
+      "DELETE_CONFIRM": "Tem certeza que deseja excluir esta categoria?",
+      "NO_DESCRIPTION": "Sem descrição",
+      "REORDER_ERROR": "Erro ao reordenar categorias",
+      "CREATE_SUCCESS": "Categoria criada com sucesso!",
+      "UPDATE_SUCCESS": "Categoria atualizada com sucesso!",
+      "DELETE_SUCCESS": "Categoria excluída com sucesso!",
+      "SAVE_ERROR": "Erro ao salvar categoria",
+      "DELETE_ERROR": "Erro ao excluir categoria",
       "EMPTY_STATE": {
         "TITLE": "Nenhuma categoria cadastrada",
         "MESSAGE": "Crie categorias para organizar melhor seus produtos"
+      },
+      "FORM": {
+        "IMAGE_LABEL": "Imagem da Categoria",
+        "IMAGE_DRAG": "Arraste uma imagem ou clique para selecionar",
+        "NAME_LABEL": "Nome",
+        "NAME_PLACEHOLDER": "Ex: Camisetas",
+        "DESCRIPTION_LABEL": "Descrição",
+        "DESCRIPTION_PLACEHOLDER": "Descreva a categoria...",
+        "ACTIVE_LABEL": "Categoria ativa",
+        "CANCEL": "Cancelar",
+        "CREATE": "Criar",
+        "UPDATE": "Atualizar"
       }
     },
     "ORDERS": {
       "TITLE": "Pedidos",
       "DESCRIPTION": "Gerencie todos os pedidos da loja",
+      "TABLE": {
+        "ORDER": "Pedido",
+        "CUSTOMER": "Cliente",
+        "STATUS": "Status",
+        "TOTAL": "Total",
+        "DATE": "Data"
+      },
       "STATUS": {
         "PENDING": "Pendente",
         "CONFIRMED": "Confirmado",
@@ -77,14 +160,23 @@
         "MESSAGE": "Os pedidos aparecerão aqui quando os clientes finalizarem uma compra"
       },
       "DETAILS": {
-        "ORDER_NUMBER": "Pedido #",
+        "ORDER_NUMBER": "Pedido #{number}",
         "CUSTOMER": "Cliente",
-        "ITEMS": "Itens",
+        "CONVERSATION": "Conversa",
+        "CONVERSATION_NUMBER": "Conversa #{number}",
+        "AGENT": "Atendente: {name}",
+        "GO_TO_CONVERSATION": "Ir para conversa",
+        "ITEMS_TITLE": "Itens do Pedido ({count})",
+        "QUANTITY": "{count}x",
         "SUBTOTAL": "Subtotal",
         "DISCOUNT": "Desconto",
         "TOTAL": "Total",
         "CUSTOMER_NOTES": "Observações do Cliente",
+        "NO_NOTES": "Nenhuma observação",
         "INTERNAL_NOTES": "Notas Internas",
+        "CONFIRM_ORDER": "Confirmar Pedido",
+        "CANCEL_ORDER": "Cancelar Pedido",
+        "CONFIRM_ACTION": "Tem certeza que deseja {action} este pedido?",
         "ACTIONS": {
           "CONFIRM": "Confirmar Pedido",
           "CANCEL": "Cancelar Pedido"
@@ -97,7 +189,97 @@
       "ADD_PRODUCT": "Adicionar Produto",
       "TOTAL": "Total",
       "FINALIZE": "Finalizar Pedido"
+    },
+    "SETTINGS": {
+      "TITLE": "Configurações",
+      "DESCRIPTION": "Configure sua loja online",
+      "SAVE": "Salvar Alterações",
+      "FETCH_ERROR": "Erro ao carregar configurações",
+      "SAVE_SUCCESS": "Configurações salvas com sucesso",
+      "SAVE_ERROR": "Erro ao salvar configurações",
+      "URL_COPIED": "URL copiada para a área de transferência",
+      "STORE_URL": "URL da sua loja",
+      "OPEN": "Abrir",
+      "STATUS": {
+        "TITLE": "Status da Loja",
+        "DESCRIPTION": "Ative ou desative sua loja para o público",
+        "ONLINE": "Online",
+        "OFFLINE": "Offline"
+      },
+      "BASIC_INFO": {
+        "TITLE": "Informações Básicas",
+        "NAME_LABEL": "Nome da Loja",
+        "NAME_PLACEHOLDER": "Nome que aparecerá no catálogo",
+        "DESCRIPTION_LABEL": "Descrição",
+        "DESCRIPTION_PLACEHOLDER": "Uma breve descrição sobre sua loja",
+        "LOGO_LABEL": "Logo da Loja",
+        "LOGO_CHOOSE": "Escolher imagem",
+        "LOGO_REMOVE": "Remover",
+        "BANNER_LABEL": "Banner / Capa",
+        "BANNER_CHANGE": "Alterar",
+        "BANNER_REMOVE": "Remover"
+      },
+      "CONTACT": {
+        "TITLE": "Contato e Pedidos",
+        "WHATSAPP_LABEL": "Número do WhatsApp",
+        "WHATSAPP_PLACEHOLDER": "+5511999999999",
+        "WHATSAPP_HELP": "Número para onde os pedidos serão enviados",
+        "EMAIL_LABEL": "Email de Contato",
+        "EMAIL_PLACEHOLDER": "contato@suaempresa.com",
+        "HOURS_LABEL": "Horário de Atendimento",
+        "HOURS_PLACEHOLDER": "Seg-Sex: 9h às 18h | Sáb: 9h às 13h",
+        "MESSAGE_LABEL": "Mensagem Personalizada do Pedido",
+        "MESSAGE_PLACEHOLDER": "Texto adicional que aparecerá na mensagem do WhatsApp...",
+        "MESSAGE_HELP": "Esta mensagem será incluída junto com os itens do pedido"
+      },
+      "DISPLAY": {
+        "TITLE": "Configurações de Exibição",
+        "SHOW_OUT_OF_STOCK": "Mostrar produtos sem estoque",
+        "SHOW_OUT_OF_STOCK_HELP": "Exibe produtos mesmo quando não há estoque disponível",
+        "SHOW_PRICES": "Mostrar preços",
+        "SHOW_PRICES_HELP": "Desative para mostrar \"Consulte\" ao invés do preço",
+        "SHOW_CATEGORIES": "Mostrar barra de categorias",
+        "SHOW_CATEGORIES_HELP": "Exibe filtro de categorias no topo do catálogo",
+        "SORT_LABEL": "Ordenação Padrão",
+        "SORT_OPTIONS": {
+          "NEWEST": "Mais recentes",
+          "OLDEST": "Mais antigos",
+          "PRICE_ASC": "Menor preço",
+          "PRICE_DESC": "Maior preço",
+          "NAME_ASC": "Nome A-Z",
+          "NAME_DESC": "Nome Z-A"
+        },
+        "PRODUCTS_PER_PAGE_LABEL": "Produtos por Página",
+        "PRODUCTS_COUNT": "{count} produtos"
+      },
+      "MINIMUM_ORDER": {
+        "TITLE": "Pedido Mínimo",
+        "VALUE_LABEL": "Valor Mínimo do Pedido",
+        "VALUE_PLACEHOLDER": "0.00",
+        "VALUE_HELP": "Deixe em branco para não ter valor mínimo",
+        "MESSAGE_LABEL": "Mensagem de Valor Mínimo",
+        "MESSAGE_PLACEHOLDER": "Pedido mínimo de R$ 50,00"
+      },
+      "DELIVERY": {
+        "TITLE": "Informações de Entrega",
+        "INFO_LABEL": "Informações de Frete/Entrega",
+        "INFO_PLACEHOLDER": "Ex: Entregamos em toda São Paulo. Frete grátis acima de R$ 100.",
+        "AREAS_LABEL": "Áreas de Entrega",
+        "AREAS_PLACEHOLDER": "Ex: Centro, Zona Sul, Zona Norte...",
+        "AREAS_HELP": "Liste os bairros ou regiões onde você entrega",
+        "PICKUP_LABEL": "Informações de Retirada",
+        "PICKUP_PLACEHOLDER": "Ex: Retirada disponível na Rua X, 123 - Centro"
+      },
+      "APPEARANCE": {
+        "TITLE": "Aparência",
+        "COLOR_LABEL": "Cor Principal",
+        "COLOR_PLACEHOLDER": "#1F93FF",
+        "HEADER_LABEL": "Estilo do Header",
+        "HEADER_STYLES": {
+          "MINIMAL": "Minimalista",
+          "WITH_BANNER": "Com Banner"
+        }
+      }
     }
   }
 }
-

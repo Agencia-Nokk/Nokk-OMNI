@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_01_11_204203) do
+ActiveRecord::Schema[7.1].define(version: 2026_01_12_212216) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -1236,6 +1236,32 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_11_204203) do
     t.index ["sku"], name: "index_shop_products_on_sku"
   end
 
+  create_table "shop_settings", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.string "name"
+    t.text "description"
+    t.string "whatsapp_number"
+    t.text "order_message_template"
+    t.string "contact_email"
+    t.string "business_hours"
+    t.boolean "enabled", default: true
+    t.boolean "show_out_of_stock", default: true
+    t.boolean "show_prices", default: true
+    t.string "default_sort", default: "newest"
+    t.integer "products_per_page", default: 12
+    t.decimal "minimum_order_value", precision: 10, scale: 2
+    t.string "minimum_order_message"
+    t.text "delivery_info"
+    t.text "delivery_areas"
+    t.text "pickup_info"
+    t.string "primary_color", default: "#1F93FF"
+    t.string "header_style", default: "minimal"
+    t.boolean "show_categories_bar", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_shop_settings_on_account_id", unique: true
+  end
+
   create_table "sla_events", force: :cascade do |t|
     t.bigint "applied_sla_id", null: false
     t.bigint "conversation_id", null: false
@@ -1401,6 +1427,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_11_204203) do
   add_foreign_key "shop_product_variants", "shop_products"
   add_foreign_key "shop_products", "accounts"
   add_foreign_key "shop_products", "shop_categories"
+  add_foreign_key "shop_settings", "accounts"
   create_trigger("accounts_after_insert_row_tr", :generated => true, :compatibility => 1).
       on("accounts").
       after(:insert).

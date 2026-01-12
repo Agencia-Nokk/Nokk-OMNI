@@ -38,6 +38,6 @@ class Api::V1::Accounts::Shop::CategoriesController < Api::V1::Accounts::BaseCon
   end
 
   def category_params
-    params.require(:category).permit(:name, :slug, :description, :position, :active)
+    params.require(:category).permit(:name, :slug, :description, :position, :active, :image)
   end
 end

@@ -15,6 +15,8 @@
 #
 
 class Shop::ProductVariant < ApplicationRecord
+  self.table_name = 'shop_product_variants'
+
   belongs_to :product, class_name: 'Shop::Product', foreign_key: 'shop_product_id'
   has_many :cart_items, class_name: 'Shop::CartItem', foreign_key: 'shop_product_variant_id', dependent: :destroy
   has_many :order_items, class_name: 'Shop::OrderItem', foreign_key: 'shop_product_variant_id', dependent: :restrict_with_error

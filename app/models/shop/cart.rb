@@ -13,6 +13,8 @@
 #
 
 class Shop::Cart < ApplicationRecord
+  self.table_name = 'shop_carts'
+
   belongs_to :account
   belongs_to :conversation, optional: true
   belongs_to :contact, optional: true

@@ -3,4 +3,5 @@ json.meta do
   json.assigned_count @conversations_count[:assigned_count]
   json.unassigned_count @conversations_count[:unassigned_count]
   json.all_count @conversations_count[:all_count]
+  json.pending_count @conversations_count[:pending_count]
 end

@@ -40,7 +40,12 @@ json.items @order.items do |item|
   
   json.product do
     json.id item.product.id
-    json.primary_image item.product.primary_image
+    json.primary_image do
+      if item.product.images.attached? && item.product.images.first
+        json.url url_for(item.product.images.first)
+        json.thumbnail_url url_for(item.product.images.first.variant(resize_to_limit: [300, 300]))
+      end
+    end
   end
 end
 

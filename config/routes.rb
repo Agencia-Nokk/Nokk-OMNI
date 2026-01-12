@@ -74,6 +74,7 @@ Rails.application.routes.draw do
             resources :documents, only: [:index, :show, :create, :destroy]
           end
           namespace :shop do
+            resource :settings, only: [:show, :update]
             resources :categories, only: [:index, :show, :create, :update, :destroy]
             resources :products, only: [:index, :show, :create, :update, :destroy]
             resources :carts, only: [:index, :show, :create, :destroy] do
@@ -536,6 +537,12 @@ Rails.application.routes.draw do
       end
     end
   end
+
+  # Public Shop routes
+  get 'loja/:account_slug', to: 'public/shop#index', as: :public_shop
+  get 'loja/:account_slug/produto/:product_slug', to: 'public/shop#show', as: :public_shop_product
+  get 'loja/:account_slug/carrinho', to: 'public/shop#cart', as: :public_shop_cart
+  get 'loja/:account_slug/categoria/:category_slug', to: 'public/shop#category', as: :public_shop_category
 
   get 'hc/:slug', to: 'public/api/v1/portals#show'
   get 'hc/:slug/sitemap.xml', to: 'public/api/v1/portals#sitemap'

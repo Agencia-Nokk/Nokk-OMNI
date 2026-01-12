@@ -17,15 +17,23 @@ class Api::V1::Accounts::Shop::ProductsController < Api::V1::Accounts::BaseContr
     if @product.save
       render :show, status: :created
     else
-      render json: { errors: @product.errors }, status: :unprocessable_entity
+      render json: { errors: @product.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
   def update
+    # Deletar imagens marcadas para remoção
+    if params[:product][:delete_images].present?
+      params[:product][:delete_images].each do |image_id|
+        image = @product.images.find(image_id)
+        image.purge if image
+      end
+    end
+
     if @product.update(product_params)
       render :show
     else
-      render json: { errors: @product.errors }, status: :unprocessable_entity
+      render json: { errors: @product.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
@@ -44,7 +52,8 @@ class Api::V1::Accounts::Shop::ProductsController < Api::V1::Accounts::BaseContr
     params.require(:product).permit(
       :name, :slug, :description, :price, :compare_at_price,
       :sku, :stock_quantity, :track_inventory, :active,
-      :shop_category_id, images: [], metadata: {}
+      :shop_category_id, images: [], delete_images: [], metadata: {},
+                         variants_attributes: [:id, :name, :price, :stock_quantity, :sku, :active, :_destroy]
     )
   end
 end
