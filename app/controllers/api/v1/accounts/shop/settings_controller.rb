@@ -42,10 +42,22 @@ class Api::V1::Accounts::Shop::SettingsController < Api::V1::Accounts::BaseContr
       :delivery_info,
       :delivery_areas,
       :pickup_info,
-      # Aparência/Tema
+      # Aparência/Tema - Cores
       :primary_color,
+      :background_color,
+      :text_color,
+      :secondary_color,
+      # Aparência/Tema - Layout
       :header_style,
-      :show_categories_bar
+      :show_categories_bar,
+      :products_per_row,
+      :card_style,
+      # Badge de Destaque
+      :show_featured_badge,
+      :featured_badge_text,
+      # Informações Extras
+      :address,
+      :footer_text
     )
   end
 end

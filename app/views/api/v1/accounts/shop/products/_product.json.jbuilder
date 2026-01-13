@@ -1,4 +1,4 @@
-json.extract! product, :id, :name, :slug, :description, :price, :compare_at_price, :sku, :stock_quantity, :track_inventory, :active, :created_at, :updated_at
+json.extract! product, :id, :name, :slug, :description, :price, :compare_at_price, :sku, :stock_quantity, :track_inventory, :active, :featured, :created_at, :updated_at
 
 json.category do
   if product.category

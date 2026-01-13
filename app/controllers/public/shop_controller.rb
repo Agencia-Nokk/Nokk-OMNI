@@ -41,7 +41,7 @@ class Public::ShopController < ApplicationController
   def check_shop_enabled
     return if @settings.enabled?
 
-    render file: Rails.public_path.join('404.html'), status: :not_found, layout: false
+    render :unavailable, layout: false, status: :service_unavailable
   end
 
   def set_categories

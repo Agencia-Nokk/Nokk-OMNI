@@ -23,6 +23,15 @@
 #  primary_color          :string           default("#1F93FF")
 #  header_style           :string           default("minimal")
 #  show_categories_bar    :boolean          default(TRUE)
+#  background_color       :string           default("#FFFFFF")
+#  text_color             :string           default("#1F2937")
+#  secondary_color        :string           default("#6B7280")
+#  products_per_row       :integer          default(3)
+#  card_style             :string           default("shadow")
+#  show_featured_badge    :boolean          default(TRUE)
+#  featured_badge_text    :string           default("Destaque")
+#  address                :text
+#  footer_text            :text
 #  created_at             :datetime         not null
 #  updated_at             :datetime         not null
 #
@@ -45,12 +54,18 @@ class Shop::Setting < ApplicationRecord
   validates :products_per_page, numericality: { only_integer: true, greater_than: 0, less_than_or_equal_to: 48 }
   validates :minimum_order_value, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
   validates :primary_color, format: { with: /\A#[0-9A-Fa-f]{6}\z/, message: 'deve ser uma cor hexadecimal válida' }, allow_blank: true
+  validates :background_color, format: { with: /\A#[0-9A-Fa-f]{6}\z/, message: 'deve ser uma cor hexadecimal válida' }, allow_blank: true
+  validates :text_color, format: { with: /\A#[0-9A-Fa-f]{6}\z/, message: 'deve ser uma cor hexadecimal válida' }, allow_blank: true
+  validates :secondary_color, format: { with: /\A#[0-9A-Fa-f]{6}\z/, message: 'deve ser uma cor hexadecimal válida' }, allow_blank: true
+  validates :products_per_row, numericality: { only_integer: true, greater_than_or_equal_to: 2, less_than_or_equal_to: 4 }
 
   SORT_OPTIONS = %w[newest oldest price_asc price_desc name_asc name_desc].freeze
   HEADER_STYLES = %w[minimal with_banner].freeze
+  CARD_STYLES = %w[shadow border minimal].freeze
 
   validates :default_sort, inclusion: { in: SORT_OPTIONS }
   validates :header_style, inclusion: { in: HEADER_STYLES }
+  validates :card_style, inclusion: { in: CARD_STYLES }
 
   # Retorna o nome da loja ou fallback para nome da conta
   def display_name

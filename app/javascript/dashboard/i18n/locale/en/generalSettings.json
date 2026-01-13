@@ -104,6 +104,17 @@
           "ERROR": "Failed to update audio transcription setting"
         }
       },
+      "SHOP_MODULE": {
+        "TITLE": "Nokk Shop",
+        "NOTE": "Enable Nokk Shop to manage products, categories, orders and have your own online catalog. When disabled, shop features are hidden but your data is preserved.",
+        "ENABLED_HINT": "Shop is active. Access Products, Categories, Orders and Settings from the sidebar menu.",
+        "DISABLED_HINT": "Shop is currently disabled. Enable it to access shop features. Your existing data will be preserved.",
+        "API": {
+          "ENABLED": "Nokk Shop enabled successfully",
+          "DISABLED": "Nokk Shop disabled successfully",
+          "ERROR": "Failed to update shop settings"
+        }
+      },
       "AUTO_RESOLVE_DURATION": {
         "LABEL": "Inactivity duration for resolution",
         "HELP": "Duration after a conversation should auto resolve if there is no activity",

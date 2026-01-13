@@ -23,6 +23,7 @@ const form = ref({
   shop_category_id: null,
   track_inventory: true,
   active: true,
+  featured: false,
 });
 
 const categories = ref([]);
@@ -67,6 +68,7 @@ const fetchProduct = async () => {
       shop_category_id: product.category?.id,
       track_inventory: product.track_inventory,
       active: product.active,
+      featured: product.featured || false,
     };
 
     existingImages.value = product.images || [];
@@ -643,19 +645,36 @@ const confirmDelete = async () => {
             </div>
 
             <!-- Ativo -->
-            <div class="flex items-center">
-              <input
-                id="active"
-                v-model="form.active"
-                type="checkbox"
-                class="mr-2"
-              />
-              <label
-                for="active"
-                class="text-sm text-slate-700 dark:text-slate-300"
-              >
-                {{ $t('SHOP.PRODUCTS.FORM.ACTIVE.LABEL') }}
-              </label>
+            <div class="flex items-center gap-6">
+              <div class="flex items-center">
+                <input
+                  id="active"
+                  v-model="form.active"
+                  type="checkbox"
+                  class="mr-2"
+                />
+                <label
+                  for="active"
+                  class="text-sm text-slate-700 dark:text-slate-300"
+                >
+                  {{ $t('SHOP.PRODUCTS.FORM.ACTIVE.LABEL') }}
+                </label>
+              </div>
+
+              <div class="flex items-center">
+                <input
+                  id="featured"
+                  v-model="form.featured"
+                  type="checkbox"
+                  class="mr-2"
+                />
+                <label
+                  for="featured"
+                  class="text-sm text-slate-700 dark:text-slate-300"
+                >
+                  {{ $t('SHOP.PRODUCTS.FORM.FEATURED.LABEL') }}
+                </label>
+              </div>
             </div>
 
             <!-- Variantes -->

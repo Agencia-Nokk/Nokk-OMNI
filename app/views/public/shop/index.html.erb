@@ -40,11 +40,27 @@
 
   <!-- Grid de Produtos -->
   <% if @products.any? %>
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+    <%
+      # Define grid columns based on products_per_row setting
+      grid_cols = case @settings.products_per_row
+                  when 2 then 'grid-cols-1 sm:grid-cols-2'
+                  when 4 then 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4'
+                  else 'grid-cols-2 sm:grid-cols-3' # default: 3
+                  end
+
+      # Define card style classes
+      card_class = case @settings.card_style
+                   when 'border' then 'border-2 border-slate-200 hover:border-slate-400'
+                   when 'minimal' then ''
+                   else 'shadow-sm hover:shadow-lg' # default: shadow
+                   end
+    %>
+    <div class="grid <%= grid_cols %> gap-4 sm:gap-6" data-products-grid>
       <% @products.each do |product| %>
         <a
           href="<%= public_shop_product_path(account_slug: account_slug_param, product_slug: product.slug) %>"
-          class="group bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-slate-300 hover:shadow-lg transition-all duration-300"
+          class="group bg-white rounded-2xl overflow-hidden transition-all duration-300 <%= card_class %>"
+          data-product-card
         >
           <!-- Imagem -->
           <div class="aspect-square bg-slate-100 relative overflow-hidden">
@@ -61,9 +77,16 @@
               </div>
             <% end %>
 
+            <!-- Badge de Destaque -->
+            <% if product.featured? %>
+              <div class="absolute top-3 left-3 px-2 py-1 text-white text-xs font-bold rounded-lg bg-shop-primary" data-featured-badge style="<%= @settings.show_featured_badge? ? '' : 'display:none' %>">
+                <span data-featured-badge-text><%= @settings.featured_badge_text.presence || 'Destaque' %></span>
+              </div>
+            <% end %>
+
             <!-- Badge de Promoção -->
             <% if product.on_sale? && product.discount_percentage.present? %>
-              <div class="absolute top-3 left-3 px-2 py-1 bg-red-500 text-white text-xs font-bold rounded-lg">
+              <div class="absolute top-3 <%= product.featured? && @settings.show_featured_badge? ? 'right-3' : 'left-3' %> px-2 py-1 bg-red-500 text-white text-xs font-bold rounded-lg">
                 -<%= product.discount_percentage %>%
               </div>
             <% end %>
@@ -71,23 +94,20 @@
 
           <!-- Info -->
           <div class="p-4">
-            <h3 class="font-medium text-slate-900 text-sm sm:text-base line-clamp-2 mb-2 group-hover:text-woot-600 transition-colors">
+            <h3 class="font-medium text-slate-900 text-sm sm:text-base line-clamp-2 mb-2 group-hover:text-shop-primary transition-colors">
               <%= product.name %>
             </h3>
 
             <div class="flex items-baseline gap-2 flex-wrap">
-              <% if @settings.show_prices? %>
-                <span class="text-lg font-bold text-slate-900">
-                  <%= number_to_currency(product.price, unit: "R$ ", separator: ",", delimiter: ".") %>
+              <span class="text-lg font-bold text-slate-900" data-product-price style="<%= @settings.show_prices? ? '' : 'display:none' %>">
+                <%= number_to_currency(product.price, unit: "R$ ", separator: ",", delimiter: ".") %>
+              </span>
+              <% if product.compare_at_price.present? && product.compare_at_price > product.price %>
+                <span class="text-sm text-slate-400 line-through" data-product-price style="<%= @settings.show_prices? ? '' : 'display:none' %>">
+                  <%= number_to_currency(product.compare_at_price, unit: "R$ ", separator: ",", delimiter: ".") %>
                 </span>
-                <% if product.compare_at_price.present? && product.compare_at_price > product.price %>
-                  <span class="text-sm text-slate-400 line-through">
-                    <%= number_to_currency(product.compare_at_price, unit: "R$ ", separator: ",", delimiter: ".") %>
-                  </span>
-                <% end %>
-              <% else %>
-                <span class="text-lg font-medium text-woot-600">Consulte</span>
               <% end %>
+              <span class="text-lg font-medium text-shop-primary" data-contact-price style="<%= @settings.show_prices? ? 'display:none' : '' %>">Consulte</span>
             </div>
           </div>
         </a>

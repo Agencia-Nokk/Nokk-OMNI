@@ -51,7 +51,7 @@ class Api::V1::Accounts::Shop::ProductsController < Api::V1::Accounts::BaseContr
   def product_params
     params.require(:product).permit(
       :name, :slug, :description, :price, :compare_at_price,
-      :sku, :stock_quantity, :track_inventory, :active,
+      :sku, :stock_quantity, :track_inventory, :active, :featured,
       :shop_category_id, images: [], delete_images: [], metadata: {},
                          variants_attributes: [:id, :name, :price, :stock_quantity, :sku, :active, :_destroy]
     )

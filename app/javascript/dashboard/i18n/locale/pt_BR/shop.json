@@ -54,6 +54,9 @@
         "ACTIVE": {
           "LABEL": "Produto ativo"
         },
+        "FEATURED": {
+          "LABEL": "Produto em destaque"
+        },
         "CATEGORY": {
           "LABEL": "Categoria",
           "PLACEHOLDER": "Selecione uma categoria",
@@ -194,12 +197,19 @@
       "TITLE": "Configurações",
       "DESCRIPTION": "Configure sua loja online",
       "SAVE": "Salvar Alterações",
+      "TABS": {
+        "BASIC": "Geral",
+        "DISPLAY": "Exibição",
+        "APPEARANCE": "Aparência",
+        "DELIVERY": "Entrega"
+      },
       "FETCH_ERROR": "Erro ao carregar configurações",
       "SAVE_SUCCESS": "Configurações salvas com sucesso",
       "SAVE_ERROR": "Erro ao salvar configurações",
       "URL_COPIED": "URL copiada para a área de transferência",
       "STORE_URL": "URL da sua loja",
       "OPEN": "Abrir",
+      "COPY": "Copiar",
       "STATUS": {
         "TITLE": "Status da Loja",
         "DESCRIPTION": "Ative ou desative sua loja para o público",
@@ -271,14 +281,62 @@
         "PICKUP_PLACEHOLDER": "Ex: Retirada disponível na Rua X, 123 - Centro"
       },
       "APPEARANCE": {
-        "TITLE": "Aparência",
-        "COLOR_LABEL": "Cor Principal",
+        "TITLE": "Cores",
+        "PRIMARY_COLOR": "Cor Primária (botões, links)",
+        "BACKGROUND_COLOR": "Cor de Fundo",
+        "TEXT_COLOR": "Cor do Texto",
+        "SECONDARY_COLOR": "Cor Secundária",
         "COLOR_PLACEHOLDER": "#1F93FF",
         "HEADER_LABEL": "Estilo do Header",
         "HEADER_STYLES": {
           "MINIMAL": "Minimalista",
           "WITH_BANNER": "Com Banner"
-        }
+        },
+        "PREVIEW": "Preview das cores",
+        "PREVIEW_SECONDARY": "Este é um texto com a cor secundária",
+        "PREVIEW_BUTTON": "Botão de Exemplo"
+      },
+      "LAYOUT": {
+        "TITLE": "Layout",
+        "PRODUCTS_PER_ROW": "Produtos por Linha",
+        "COLUMNS_2": "2 colunas",
+        "COLUMNS_3": "3 colunas",
+        "COLUMNS_4": "4 colunas",
+        "CARD_STYLE": "Estilo dos Cards",
+        "CARD_SHADOW": "Com sombra",
+        "CARD_BORDER": "Com borda",
+        "CARD_MINIMAL": "Minimalista",
+        "PREVIEW": "Preview do layout"
+      },
+      "BADGE": {
+        "TITLE": "Badge de Destaque",
+        "SHOW_BADGE": "Mostrar badge em produtos em destaque",
+        "SHOW_BADGE_HELP": "Exibe um badge especial em produtos marcados como destaque",
+        "TEXT_LABEL": "Texto do Badge",
+        "TEXT_PLACEHOLDER": "Ex: Destaque, Novidade, Promoção",
+        "PREVIEW": "Preview:"
+      },
+      "EXTRA_INFO": {
+        "TITLE": "Informações Extras",
+        "ADDRESS_LABEL": "Endereço / Localização",
+        "ADDRESS_PLACEHOLDER": "Ex: Rua das Flores, 123 - Centro\nSão Paulo - SP",
+        "FOOTER_LABEL": "Texto do Rodapé",
+        "FOOTER_PLACEHOLDER": "Ex: Todos os direitos reservados. Política de privacidade.",
+        "FOOTER_HELP": "Este texto aparecerá no rodapé da loja"
+      },
+      "PREVIEW": {
+        "TITLE": "Preview da Loja",
+        "TOGGLE": "Preview",
+        "MOBILE": "Mobile",
+        "TABLET": "Tablet",
+        "DESKTOP": "Desktop",
+        "OPEN_STORE": "Abrir Loja",
+        "REFRESH": "Atualizar preview",
+        "LOADING": "Carregando loja...",
+        "STORE_NAME": "Minha Loja",
+        "BANNER_PLACEHOLDER": "Seu banner aqui",
+        "ALL": "Todos",
+        "CONTACT": "Consulte"
       }
     }
   }

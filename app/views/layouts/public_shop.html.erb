@@ -6,20 +6,79 @@
     <title><%= @settings.display_name %> - Catálogo</title>
     <meta name="description" content="<%= @settings.description.presence || "Catálogo de produtos de #{@settings.display_name}" %>">
     <%= csrf_meta_tags %>
+    <%= vite_stylesheet_tag 'portal' rescue nil %>
     <%= vite_client_tag %>
-    <%= vite_javascript_tag 'portal' %>
+    <%= vite_javascript_tag 'portal', defer: true %>
     <style>
       :root {
         --shop-primary: <%= @settings.primary_color || '#1F93FF' %>;
+        --shop-background: <%= @settings.background_color || '#FFFFFF' %>;
+        --shop-text: <%= @settings.text_color || '#1F2937' %>;
+        --shop-secondary: <%= @settings.secondary_color || '#6B7280' %>;
       }
       .bg-shop-primary { background-color: var(--shop-primary); }
       .text-shop-primary { color: var(--shop-primary); }
       .border-shop-primary { border-color: var(--shop-primary); }
       .from-shop-primary { --tw-gradient-from: var(--shop-primary); }
       .to-shop-primary { --tw-gradient-to: var(--shop-primary); }
+      .bg-shop-background { background-color: var(--shop-background); }
+      .text-shop-text { color: var(--shop-text); }
+      .text-shop-secondary { color: var(--shop-secondary); }
+
+      /* Loading screen - previne FOUC */
+      .shop-loading {
+        position: fixed;
+        inset: 0;
+        background-color: var(--shop-background);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        transition: opacity 0.3s ease-out;
+      }
+      .shop-loading.hide {
+        opacity: 0;
+        pointer-events: none;
+      }
+      .shop-loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid rgba(0,0,0,0.1);
+        border-top-color: var(--shop-primary);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+      /* CSS crítico inline para evitar FOUC */
+      body { margin: 0; }
+      .min-h-screen { min-height: 100vh; }
+      .flex { display: flex; }
+      .flex-col { flex-direction: column; }
+      .flex-1 { flex: 1 1 0%; }
+      .items-center { align-items: center; }
+      .justify-between { justify-content: space-between; }
+      .sticky { position: sticky; }
+      .top-0 { top: 0; }
+      .z-50 { z-index: 50; }
+      .bg-white { background-color: #fff; }
+      .border-b { border-bottom-width: 1px; }
+      .border-slate-200 { border-color: #e2e8f0; }
+      .h-16 { height: 4rem; }
+      .px-4 { padding-left: 1rem; padding-right: 1rem; }
+      .max-w-6xl { max-width: 72rem; }
+      .mx-auto { margin-left: auto; margin-right: auto; }
+      .gap-3 { gap: 0.75rem; }
+      .hidden { display: none; }
+      @media (min-width: 640px) { .sm\\:block { display: block; } .sm\\:px-6 { padding-left: 1.5rem; padding-right: 1.5rem; } }
     </style>
   </head>
-  <body class="bg-white min-h-screen flex flex-col">
+  <body class="min-h-screen flex flex-col" style="background-color: var(--shop-background); color: var(--shop-text);">
+    <!-- Loading Screen -->
+    <div id="shop-loading" class="shop-loading">
+      <div class="shop-loading-spinner"></div>
+    </div>
     <!-- Banner (se configurado) -->
     <% if @settings.header_style == 'with_banner' && @settings.banner.attached? %>
       <div class="w-full h-32 sm:h-48 bg-slate-200 relative overflow-hidden">
@@ -39,10 +98,10 @@
                   class: "h-10 max-w-[120px] object-contain" %>
             <% else %>
               <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-lg bg-shop-primary">
-                <%= @settings.display_name.first.upcase %>
+                <span data-shop-initial><%= @settings.display_name.first.upcase %></span>
               </div>
             <% end %>
-            <span class="text-lg font-semibold text-slate-900 hidden sm:block"><%= @settings.display_name %></span>
+            <span class="text-lg font-semibold text-slate-900 hidden sm:block" data-shop-name><%= @settings.display_name %></span>
           </a>
 
           <div class="flex items-center gap-2">
@@ -82,11 +141,11 @@
                   class: "h-8 max-w-[100px] object-contain" %>
             <% else %>
               <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm bg-shop-primary">
-                <%= @settings.display_name.first.upcase %>
+                <span data-shop-initial><%= @settings.display_name.first.upcase %></span>
               </div>
             <% end %>
             <div>
-              <span class="text-sm font-medium text-slate-700"><%= @settings.display_name %></span>
+              <span class="text-sm font-medium text-slate-700" data-shop-name><%= @settings.display_name %></span>
               <% if @settings.business_hours.present? %>
                 <p class="text-xs text-slate-500"><%= @settings.business_hours %></p>
               <% end %>
@@ -99,19 +158,31 @@
               </a>
             <% end %>
             <p class="text-sm text-slate-500">
-              &copy; <%= Time.current.year %> <%= @settings.display_name %>
+              &copy; <%= Time.current.year %> <span data-shop-name><%= @settings.display_name %></span>
             </p>
           </div>
         </div>
 
+        <% if @settings.address.present? %>
+          <div class="mt-4 pt-4 border-t border-slate-200 text-center">
+            <p class="text-sm text-slate-600 whitespace-pre-line"><%= @settings.address %></p>
+          </div>
+        <% end %>
+
         <% if @settings.delivery_info.present? || @settings.pickup_info.present? %>
-          <div class="mt-6 pt-6 border-t border-slate-200 text-center">
+          <div class="mt-4 pt-4 border-t border-slate-200 text-center">
             <% if @settings.delivery_info.present? %>
               <p class="text-sm text-slate-600"><%= @settings.delivery_info %></p>
             <% end %>
             <% if @settings.pickup_info.present? %>
               <p class="text-sm text-slate-500 mt-1"><%= @settings.pickup_info %></p>
             <% end %>
+          </div>
+        <% end %>
+
+        <% if @settings.footer_text.present? %>
+          <div class="mt-4 pt-4 border-t border-slate-200 text-center">
+            <p class="text-sm text-slate-500 whitespace-pre-line"><%= @settings.footer_text %></p>
           </div>
         <% end %>
       </div>
@@ -298,14 +369,96 @@
         }
       };
 
-      // Initialize cart count on page load
+      // Hide loading screen and show content
+      function hideLoading() {
+        const loading = document.getElementById('shop-loading');
+        if (loading) {
+          loading.classList.add('hide');
+          setTimeout(() => loading.remove(), 300);
+        }
+      }
+
+      // Initialize cart count immediately when DOM is ready
       document.addEventListener('DOMContentLoaded', function() {
         window.Shop.updateCartCount();
       });
 
+      // Hide loading only after ALL resources (CSS, images, etc) are loaded
+      window.addEventListener('load', hideLoading);
+
+      // Fallback: hide loading after max 3 seconds
+      setTimeout(hideLoading, 3000);
+
       // Also update on turbolinks load
       document.addEventListener('turbolinks:load', function() {
         window.Shop.updateCartCount();
+        hideLoading();
+      });
+
+      // Preview mode: Listen for postMessage from dashboard settings
+      window.addEventListener('message', function(event) {
+        if (event.data?.type !== 'SHOP_PREVIEW_UPDATE') return;
+
+        const s = event.data.settings;
+        const root = document.documentElement;
+
+        // Update CSS variables
+        if (s.primary_color) root.style.setProperty('--shop-primary', s.primary_color);
+        if (s.background_color) root.style.setProperty('--shop-background', s.background_color);
+        if (s.text_color) root.style.setProperty('--shop-text', s.text_color);
+        if (s.secondary_color) root.style.setProperty('--shop-secondary', s.secondary_color);
+
+        // Update background and text colors on body
+        if (s.background_color) document.body.style.backgroundColor = s.background_color;
+        if (s.text_color) document.body.style.color = s.text_color;
+
+        // Update store name in header
+        if (s.name) {
+          const nameElements = document.querySelectorAll('[data-shop-name]');
+          nameElements.forEach(el => { el.textContent = s.name; });
+          const initialElements = document.querySelectorAll('[data-shop-initial]');
+          initialElements.forEach(el => { el.textContent = s.name.charAt(0).toUpperCase(); });
+        }
+
+        // Update prices visibility
+        if (typeof s.show_prices !== 'undefined') {
+          const priceElements = document.querySelectorAll('[data-product-price]');
+          const contactElements = document.querySelectorAll('[data-contact-price]');
+          priceElements.forEach(el => { el.style.display = s.show_prices ? '' : 'none'; });
+          contactElements.forEach(el => { el.style.display = s.show_prices ? 'none' : ''; });
+        }
+
+        // Update featured badge
+        if (typeof s.show_featured_badge !== 'undefined') {
+          const badgeElements = document.querySelectorAll('[data-featured-badge]');
+          badgeElements.forEach(el => { el.style.display = s.show_featured_badge ? '' : 'none'; });
+        }
+        if (s.featured_badge_text) {
+          const badgeTextElements = document.querySelectorAll('[data-featured-badge-text]');
+          badgeTextElements.forEach(el => { el.textContent = s.featured_badge_text; });
+        }
+
+        // Update card style
+        if (s.card_style) {
+          const cards = document.querySelectorAll('[data-product-card]');
+          cards.forEach(card => {
+            card.classList.remove('shadow-md', 'hover:shadow-lg', 'border-2', 'border-slate-200');
+            if (s.card_style === 'shadow') {
+              card.classList.add('shadow-md', 'hover:shadow-lg');
+            } else if (s.card_style === 'border') {
+              card.classList.add('border-2', 'border-slate-200');
+            }
+          });
+        }
+
+        // Update products per row
+        if (s.products_per_row) {
+          const grid = document.querySelector('[data-products-grid]');
+          if (grid) {
+            grid.classList.remove('sm:grid-cols-2', 'sm:grid-cols-3', 'sm:grid-cols-4');
+            grid.classList.add('sm:grid-cols-' + s.products_per_row);
+          }
+        }
       });
     </script>
   </body>

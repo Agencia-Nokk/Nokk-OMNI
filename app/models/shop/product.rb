@@ -14,6 +14,7 @@
 #  stock_quantity    :integer          default(0)
 #  track_inventory   :boolean          default(TRUE)
 #  active            :boolean          default(TRUE)
+#  featured          :boolean          default(FALSE)
 #  images            :json             default([])
 #  metadata          :json             default({})
 #  created_at        :datetime         not null
@@ -44,6 +45,7 @@ class Shop::Product < ApplicationRecord
   scope :active, -> { where(active: true) }
   scope :in_stock, -> { where('stock_quantity > 0 OR track_inventory = false') }
   scope :by_category, ->(category_id) { where(shop_category_id: category_id) }
+  scope :featured, -> { where(featured: true) }
 
   def in_stock?
     !track_inventory || stock_quantity.positive?

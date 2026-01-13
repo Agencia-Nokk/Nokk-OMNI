@@ -54,6 +54,9 @@
         "ACTIVE": {
           "LABEL": "Active product"
         },
+        "FEATURED": {
+          "LABEL": "Featured product"
+        },
         "CATEGORY": {
           "LABEL": "Category",
           "PLACEHOLDER": "Select a category",
@@ -194,12 +197,19 @@
       "TITLE": "Settings",
       "DESCRIPTION": "Configure your online shop",
       "SAVE": "Save Changes",
+      "TABS": {
+        "BASIC": "General",
+        "DISPLAY": "Display",
+        "APPEARANCE": "Appearance",
+        "DELIVERY": "Delivery"
+      },
       "FETCH_ERROR": "Error loading settings",
       "SAVE_SUCCESS": "Settings saved successfully",
       "SAVE_ERROR": "Error saving settings",
       "URL_COPIED": "URL copied to clipboard",
       "STORE_URL": "Your store URL",
       "OPEN": "Open",
+      "COPY": "Copy",
       "STATUS": {
         "TITLE": "Store Status",
         "DESCRIPTION": "Enable or disable your store for the public",
@@ -271,14 +281,62 @@
         "PICKUP_PLACEHOLDER": "e.g. Pickup available at 123 Main St - Downtown"
       },
       "APPEARANCE": {
-        "TITLE": "Appearance",
-        "COLOR_LABEL": "Primary Color",
+        "TITLE": "Colors",
+        "PRIMARY_COLOR": "Primary Color (buttons, links)",
+        "BACKGROUND_COLOR": "Background Color",
+        "TEXT_COLOR": "Text Color",
+        "SECONDARY_COLOR": "Secondary Color",
         "COLOR_PLACEHOLDER": "#1F93FF",
         "HEADER_LABEL": "Header Style",
         "HEADER_STYLES": {
           "MINIMAL": "Minimal",
           "WITH_BANNER": "With Banner"
-        }
+        },
+        "PREVIEW": "Color preview",
+        "PREVIEW_SECONDARY": "This is text with secondary color",
+        "PREVIEW_BUTTON": "Example Button"
+      },
+      "LAYOUT": {
+        "TITLE": "Layout",
+        "PRODUCTS_PER_ROW": "Products per Row",
+        "COLUMNS_2": "2 columns",
+        "COLUMNS_3": "3 columns",
+        "COLUMNS_4": "4 columns",
+        "CARD_STYLE": "Card Style",
+        "CARD_SHADOW": "With shadow",
+        "CARD_BORDER": "With border",
+        "CARD_MINIMAL": "Minimal",
+        "PREVIEW": "Layout preview"
+      },
+      "BADGE": {
+        "TITLE": "Featured Badge",
+        "SHOW_BADGE": "Show badge on featured products",
+        "SHOW_BADGE_HELP": "Display a special badge on products marked as featured",
+        "TEXT_LABEL": "Badge Text",
+        "TEXT_PLACEHOLDER": "e.g. Featured, New, Sale",
+        "PREVIEW": "Preview:"
+      },
+      "EXTRA_INFO": {
+        "TITLE": "Extra Information",
+        "ADDRESS_LABEL": "Address / Location",
+        "ADDRESS_PLACEHOLDER": "e.g. 123 Main St - Downtown\nNew York, NY",
+        "FOOTER_LABEL": "Footer Text",
+        "FOOTER_PLACEHOLDER": "e.g. All rights reserved. Privacy policy.",
+        "FOOTER_HELP": "This text will appear in the store footer"
+      },
+      "PREVIEW": {
+        "TITLE": "Store Preview",
+        "TOGGLE": "Preview",
+        "MOBILE": "Mobile",
+        "TABLET": "Tablet",
+        "DESKTOP": "Desktop",
+        "OPEN_STORE": "Open Store",
+        "REFRESH": "Refresh preview",
+        "LOADING": "Loading store...",
+        "STORE_NAME": "My Store",
+        "BANNER_PLACEHOLDER": "Your banner here",
+        "ALL": "All",
+        "CONTACT": "Contact us"
       }
     }
   }

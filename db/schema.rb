@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_01_12_212216) do
+ActiveRecord::Schema[7.1].define(version: 2026_01_12_234446) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -1230,6 +1230,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_12_212216) do
     t.json "metadata", default: {}
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "featured", default: false
     t.index ["account_id", "slug"], name: "index_shop_products_on_account_id_and_slug", unique: true
     t.index ["account_id"], name: "index_shop_products_on_account_id"
     t.index ["shop_category_id"], name: "index_shop_products_on_shop_category_id"
@@ -1244,7 +1245,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_12_212216) do
     t.text "order_message_template"
     t.string "contact_email"
     t.string "business_hours"
-    t.boolean "enabled", default: true
+    t.boolean "enabled", default: false
     t.boolean "show_out_of_stock", default: true
     t.boolean "show_prices", default: true
     t.string "default_sort", default: "newest"
@@ -1259,6 +1260,15 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_12_212216) do
     t.boolean "show_categories_bar", default: true
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "background_color", default: "#FFFFFF"
+    t.string "text_color", default: "#1F2937"
+    t.string "secondary_color", default: "#6B7280"
+    t.integer "products_per_row", default: 3
+    t.string "card_style", default: "shadow"
+    t.boolean "show_featured_badge", default: true
+    t.string "featured_badge_text", default: "Destaque"
+    t.text "address"
+    t.text "footer_text"
     t.index ["account_id"], name: "index_shop_settings_on_account_id", unique: true
   end
 
