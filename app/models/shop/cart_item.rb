@@ -16,9 +16,9 @@
 class Shop::CartItem < ApplicationRecord
   self.table_name = 'shop_cart_items'
 
-  belongs_to :cart, class_name: 'Shop::Cart', foreign_key: 'shop_cart_id'
-  belongs_to :product, class_name: 'Shop::Product', foreign_key: 'shop_product_id'
-  belongs_to :variant, class_name: 'Shop::ProductVariant', foreign_key: 'shop_product_variant_id', optional: true
+  belongs_to :cart, class_name: 'Shop::Cart', foreign_key: 'shop_cart_id', inverse_of: :items
+  belongs_to :product, class_name: 'Shop::Product', foreign_key: 'shop_product_id', inverse_of: :cart_items
+  belongs_to :variant, class_name: 'Shop::ProductVariant', foreign_key: 'shop_product_variant_id', optional: true, inverse_of: :cart_items
 
   validates :quantity, presence: true, numericality: { only_integer: true, greater_than: 0 }
   validates :unit_price, presence: true, numericality: { greater_than_or_equal_to: 0 }

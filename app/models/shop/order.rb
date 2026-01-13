@@ -26,7 +26,7 @@ class Shop::Order < ApplicationRecord
   belongs_to :conversation, optional: true
   belongs_to :contact
   belongs_to :user, optional: true
-  has_many :items, class_name: 'Shop::OrderItem', foreign_key: 'shop_order_id', dependent: :destroy
+  has_many :items, class_name: 'Shop::OrderItem', foreign_key: 'shop_order_id', dependent: :destroy, inverse_of: :order
 
   validates :order_number, presence: true, uniqueness: { scope: :account_id }
   validates :status, inclusion: { in: %w[pending confirmed processing shipped delivered cancelled] }
@@ -56,20 +56,24 @@ class Shop::Order < ApplicationRecord
 
   def cancel!
     transaction do
-      # Devolver estoque
-      items.each do |item|
-        if item.variant
-          item.variant.increment!(:stock_quantity, item.quantity)
-        elsif item.product.track_inventory?
-          item.product.increment!(:stock_quantity, item.quantity)
-        end
-      end
-
+      restore_stock_for_items
       update!(status: 'cancelled')
     end
   end
 
   def total_items
     items.sum(:quantity)
+  end
+
+  private
+
+  def restore_stock_for_items
+    items.each do |item|
+      if item.variant
+        item.variant.update!(stock_quantity: item.variant.stock_quantity + item.quantity)
+      elsif item.product.track_inventory?
+        item.product.update!(stock_quantity: item.product.stock_quantity + item.quantity)
+      end
+    end
   end
 end

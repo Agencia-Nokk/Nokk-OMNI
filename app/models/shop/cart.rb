@@ -18,7 +18,7 @@ class Shop::Cart < ApplicationRecord
   belongs_to :account
   belongs_to :conversation, optional: true
   belongs_to :contact, optional: true
-  has_many :items, class_name: 'Shop::CartItem', foreign_key: 'shop_cart_id', dependent: :destroy
+  has_many :items, class_name: 'Shop::CartItem', foreign_key: 'shop_cart_id', dependent: :destroy, inverse_of: :cart
 
   validates :status, inclusion: { in: %w[active converted abandoned] }
 
@@ -63,32 +63,31 @@ class Shop::Cart < ApplicationRecord
 
   def convert_to_order!(user: nil, customer_notes: nil)
     transaction do
-      order = Shop::Order.create!(
-        account: account,
-        conversation: conversation,
-        contact: contact,
-        user: user,
-        order_number: Shop::Order.generate_order_number(account),
-        subtotal: subtotal,
-        total: subtotal,
-        customer_notes: customer_notes,
-        status: 'pending'
-      )
-
-      items.each do |cart_item|
-        order.items.create!(
-          shop_product_id: cart_item.shop_product_id,
-          shop_product_variant_id: cart_item.shop_product_variant_id,
-          product_name: cart_item.product.name,
-          variant_name: cart_item.variant&.name,
-          quantity: cart_item.quantity,
-          unit_price: cart_item.unit_price,
-          total_price: cart_item.unit_price * cart_item.quantity
-        )
-      end
-
+      order = create_order_from_cart(user, customer_notes)
+      copy_items_to_order(order)
       update!(status: 'converted')
       order
+    end
+  end
+
+  private
+
+  def create_order_from_cart(user, customer_notes)
+    Shop::Order.create!(
+      account: account, conversation: conversation, contact: contact, user: user,
+      order_number: Shop::Order.generate_order_number(account),
+      subtotal: subtotal, total: subtotal, customer_notes: customer_notes, status: 'pending'
+    )
+  end
+
+  def copy_items_to_order(order)
+    items.each do |cart_item|
+      order.items.create!(
+        shop_product_id: cart_item.shop_product_id, shop_product_variant_id: cart_item.shop_product_variant_id,
+        product_name: cart_item.product.name, variant_name: cart_item.variant&.name,
+        quantity: cart_item.quantity, unit_price: cart_item.unit_price,
+        total_price: cart_item.unit_price * cart_item.quantity
+      )
     end
   end
 end

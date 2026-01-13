@@ -17,7 +17,7 @@ class Shop::Category < ApplicationRecord
   self.table_name = 'shop_categories'
 
   belongs_to :account
-  has_many :products, class_name: 'Shop::Product', foreign_key: 'shop_category_id', dependent: :nullify
+  has_many :products, class_name: 'Shop::Product', foreign_key: 'shop_category_id', dependent: :nullify, inverse_of: :category
   has_one_attached :image
 
   validates :name, presence: true

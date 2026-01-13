@@ -19,9 +19,9 @@
 class Shop::OrderItem < ApplicationRecord
   self.table_name = 'shop_order_items'
 
-  belongs_to :order, class_name: 'Shop::Order', foreign_key: 'shop_order_id'
-  belongs_to :product, class_name: 'Shop::Product', foreign_key: 'shop_product_id'
-  belongs_to :variant, class_name: 'Shop::ProductVariant', foreign_key: 'shop_product_variant_id', optional: true
+  belongs_to :order, class_name: 'Shop::Order', foreign_key: 'shop_order_id', inverse_of: :items
+  belongs_to :product, class_name: 'Shop::Product', foreign_key: 'shop_product_id', inverse_of: :order_items
+  belongs_to :variant, class_name: 'Shop::ProductVariant', foreign_key: 'shop_product_variant_id', optional: true, inverse_of: :order_items
 
   validates :product_name, presence: true
   validates :quantity, presence: true, numericality: { only_integer: true, greater_than: 0 }
