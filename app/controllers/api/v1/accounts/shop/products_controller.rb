@@ -25,8 +25,7 @@ class Api::V1::Accounts::Shop::ProductsController < Api::V1::Accounts::BaseContr
     # Deletar imagens marcadas para remoção
     if params[:product][:delete_images].present?
       params[:product][:delete_images].each do |image_id|
-        image = @product.images.find(image_id)
-        image.purge if image
+        @product.images.find(image_id)&.purge
       end
     end
 

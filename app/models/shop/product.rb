@@ -25,10 +25,10 @@ class Shop::Product < ApplicationRecord
   self.table_name = 'shop_products'
 
   belongs_to :account
-  belongs_to :category, class_name: 'Shop::Category', foreign_key: 'shop_category_id', optional: true
-  has_many :variants, class_name: 'Shop::ProductVariant', foreign_key: 'shop_product_id', dependent: :destroy
-  has_many :cart_items, class_name: 'Shop::CartItem', foreign_key: 'shop_product_id', dependent: :destroy
-  has_many :order_items, class_name: 'Shop::OrderItem', foreign_key: 'shop_product_id', dependent: :restrict_with_error
+  belongs_to :category, class_name: 'Shop::Category', foreign_key: 'shop_category_id', optional: true, inverse_of: :products
+  has_many :variants, class_name: 'Shop::ProductVariant', foreign_key: 'shop_product_id', dependent: :destroy, inverse_of: :product
+  has_many :cart_items, class_name: 'Shop::CartItem', foreign_key: 'shop_product_id', dependent: :destroy, inverse_of: :product
+  has_many :order_items, class_name: 'Shop::OrderItem', foreign_key: 'shop_product_id', dependent: :restrict_with_error, inverse_of: :product
 
   has_many_attached :images
   accepts_nested_attributes_for :variants, allow_destroy: true

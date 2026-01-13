@@ -31,6 +31,9 @@
 
 en:
   hello: 'Hello world'
+  public_shop:
+    product_not_found: 'Product not found'
+    category_not_found: 'Category not found'
   inbox:
     reauthorization:
       success: 'Channel reauthorized successfully'

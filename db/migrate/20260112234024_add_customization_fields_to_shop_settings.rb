@@ -10,7 +10,7 @@ class AddCustomizationFieldsToShopSettings < ActiveRecord::Migration[7.1]
     add_column :shop_settings, :card_style, :string, default: 'shadow'
 
     # Badge de destaque
-    add_column :shop_settings, :show_featured_badge, :boolean, default: true
+    add_column :shop_settings, :show_featured_badge, :boolean, default: true, null: false
     add_column :shop_settings, :featured_badge_text, :string, default: 'Destaque'
 
     # Informações extras

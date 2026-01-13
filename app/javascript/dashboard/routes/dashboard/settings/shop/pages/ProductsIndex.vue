@@ -1,12 +1,15 @@
 <script setup>
 import { ref, computed, onMounted, onActivated } from 'vue';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { useAlert } from 'dashboard/composables';
 import ShopAPI from 'dashboard/api/shop';
 import Button from 'dashboard/components-next/button/Button.vue';
 import Spinner from 'shared/components/Spinner.vue';
+import SingleSelect from 'dashboard/components-next/filter/inputs/SingleSelect.vue';
 
 const router = useRouter();
+const { t } = useI18n();
 
 const products = ref([]);
 const categories = ref([]);
@@ -14,10 +17,8 @@ const searchQuery = ref('');
 const currentPage = ref(1);
 const itemsPerPage = 12;
 
-const filters = ref({
-  categoryId: null,
-  active: null,
-});
+const selectedCategory = ref(null);
+const selectedStatus = ref(null);
 
 const uiFlags = ref({
   isFetching: false,
@@ -55,6 +56,19 @@ onActivated(() => {
   fetchProducts();
 });
 
+// Options for SingleSelect components
+const categoryOptions = computed(() => {
+  return categories.value.map(category => ({
+    id: category.id,
+    name: category.name,
+  }));
+});
+
+const statusOptions = computed(() => [
+  { id: 'active', name: t('SHOP.PRODUCTS.FILTER_ACTIVE') },
+  { id: 'inactive', name: t('SHOP.PRODUCTS.FILTER_INACTIVE') },
+]);
+
 // Filtered products based on search and filters
 const filteredProducts = computed(() => {
   let result = products.value;
@@ -72,15 +86,16 @@ const filteredProducts = computed(() => {
   }
 
   // Category filter
-  if (filters.value.categoryId) {
+  if (selectedCategory.value) {
     result = result.filter(
-      product => product.category?.id === filters.value.categoryId
+      product => product.category?.id === selectedCategory.value.id
     );
   }
 
   // Active filter
-  if (filters.value.active !== null) {
-    result = result.filter(product => product.active === filters.value.active);
+  if (selectedStatus.value) {
+    const isActive = selectedStatus.value.id === 'active';
+    result = result.filter(product => product.active === isActive);
   }
 
   return result;
@@ -133,8 +148,8 @@ const visiblePages = computed(() => {
 const hasActiveFilters = computed(() => {
   return (
     searchQuery.value ||
-    filters.value.categoryId !== null ||
-    filters.value.active !== null
+    selectedCategory.value !== null ||
+    selectedStatus.value !== null
   );
 });
 
@@ -145,10 +160,6 @@ const debouncedSearch = () => {
   }, 300);
 };
 
-const applyFilters = () => {
-  currentPage.value = 1;
-};
-
 const clearSearch = () => {
   searchQuery.value = '';
   currentPage.value = 1;
@@ -156,10 +167,8 @@ const clearSearch = () => {
 
 const clearFilters = () => {
   searchQuery.value = '';
-  filters.value = {
-    categoryId: null,
-    active: null,
-  };
+  selectedCategory.value = null;
+  selectedStatus.value = null;
   currentPage.value = 1;
 };
 
@@ -183,14 +192,12 @@ const formatCurrency = value => {
 
 <template>
   <div class="flex flex-col h-full">
-    <div
-      class="flex items-center justify-between p-4 border-b border-slate-75 dark:border-slate-800"
-    >
+    <div class="flex items-center justify-between p-4 border-b border-n-weak">
       <div>
-        <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-25">
+        <h2 class="text-xl font-semibold text-n-slate-12">
           {{ $t('SHOP.PRODUCTS.TITLE') }}
         </h2>
-        <p class="text-sm text-slate-600 dark:text-slate-400">
+        <p class="text-sm text-n-slate-11">
           {{ $t('SHOP.PRODUCTS.DESCRIPTION') }}
         </p>
       </div>
@@ -201,78 +208,65 @@ const formatCurrency = value => {
       />
     </div>
 
-    <div
-      class="p-4 border-b border-slate-75 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 space-y-3"
-    >
+    <div class="p-4 border-b border-n-weak space-y-3">
       <div class="relative w-full">
+        <span
+          class="absolute i-lucide-search size-4 top-2.5 left-3 text-n-slate-10"
+        />
         <input
           v-model="searchQuery"
-          type="text"
-          class="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+          type="search"
+          class="reset-base w-full h-10 py-2 pl-10 pr-10 text-sm focus:outline-none border-none rounded-xl bg-n-alpha-black2 dark:bg-n-solid-1 text-n-slate-12 placeholder:text-n-slate-10"
           :placeholder="$t('SHOP.PRODUCTS.SEARCH_PLACEHOLDER')"
           @input="debouncedSearch"
         />
         <button
           v-if="searchQuery"
-          class="absolute inset-y-0 right-3 flex items-center"
+          type="button"
+          class="absolute top-2.5 right-3 text-n-slate-10 hover:text-n-slate-12 transition-colors"
           @click="clearSearch"
         >
-          <div class="i-lucide-x size-4 text-slate-400 hover:text-slate-600" />
+          <span class="i-lucide-x size-4" />
         </button>
       </div>
 
-      <div class="flex flex-wrap items-center gap-2">
-        <select
-          v-model="filters.categoryId"
-          class="custom-select h-9 pl-3 pr-8 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 cursor-pointer"
-          @change="applyFilters"
-        >
-          <option :value="null">
-            {{ $t('SHOP.PRODUCTS.ALL_CATEGORIES') }}
-          </option>
-          <option
-            v-for="category in categories"
-            :key="category.id"
-            :value="category.id"
-          >
-            {{ category.name }}
-          </option>
-        </select>
+      <div class="flex flex-wrap items-center gap-3">
+        <SingleSelect
+          v-model="selectedCategory"
+          :options="categoryOptions"
+          :placeholder="$t('SHOP.PRODUCTS.ALL_CATEGORIES')"
+          placeholder-icon="i-lucide-folder"
+          :search-placeholder="$t('SHOP.PRODUCTS.SEARCH_CATEGORY')"
+        />
 
-        <select
-          v-model="filters.active"
-          class="custom-select h-9 pl-3 pr-8 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 cursor-pointer"
-          @change="applyFilters"
-        >
-          <option :value="null">
-            {{ $t('SHOP.PRODUCTS.FILTER_ALL') }}
-          </option>
-          <option :value="true">
-            {{ $t('SHOP.PRODUCTS.FILTER_ACTIVE') }}
-          </option>
-          <option :value="false">
-            {{ $t('SHOP.PRODUCTS.FILTER_INACTIVE') }}
-          </option>
-        </select>
+        <SingleSelect
+          v-model="selectedStatus"
+          :options="statusOptions"
+          :placeholder="$t('SHOP.PRODUCTS.FILTER_ALL')"
+          placeholder-icon="i-lucide-filter"
+          disable-search
+        />
 
         <button
           v-if="hasActiveFilters"
-          class="px-3 py-2 text-sm text-woot-600 hover:text-woot-700 flex items-center gap-1"
+          type="button"
+          class="h-8 px-3 text-sm text-n-blue-text hover:bg-n-alpha-2 rounded-lg flex items-center gap-1.5 transition-colors"
           @click="clearFilters"
         >
-          <div class="i-lucide-x size-4" />
+          <span class="i-lucide-x size-3.5" />
           <span class="hidden sm:inline">{{
             $t('SHOP.PRODUCTS.CLEAR_FILTERS')
           }}</span>
         </button>
 
-        <span class="text-sm text-slate-600 dark:text-slate-400 ml-auto">
-          {{
+        <div class="ml-auto flex items-center gap-1.5 text-sm text-n-slate-11">
+          <span class="i-lucide-package size-4" />
+          <span>{{
             $t('SHOP.PRODUCTS.PRODUCTS_COUNT', {
               count: filteredProducts.length,
             })
-          }}
-        </span>
+          }}</span>
+        </div>
       </div>
     </div>
 
@@ -287,17 +281,15 @@ const formatCurrency = value => {
       v-else-if="!filteredProducts.length"
       class="flex flex-col items-center justify-center h-full p-8"
     >
-      <div class="i-lucide-shopping-bag text-6xl text-slate-400 mb-4" />
-      <h3 class="text-lg font-medium text-slate-700 dark:text-slate-300 mb-2">
+      <span class="i-lucide-shopping-bag text-6xl text-n-slate-9 mb-4" />
+      <h3 class="text-lg font-medium text-n-slate-12 mb-2">
         {{
           hasActiveFilters
             ? $t('SHOP.PRODUCTS.NO_PRODUCTS_FOUND')
             : $t('SHOP.PRODUCTS.EMPTY_STATE.TITLE')
         }}
       </h3>
-      <p
-        class="text-sm text-slate-600 dark:text-slate-400 mb-6 text-center max-w-md"
-      >
+      <p class="text-sm text-n-slate-11 mb-6 text-center max-w-md">
         {{
           hasActiveFilters
             ? $t('SHOP.PRODUCTS.TRY_DIFFERENT_FILTERS')
@@ -325,10 +317,10 @@ const formatCurrency = value => {
         <div
           v-for="product in paginatedProducts"
           :key="product.id"
-          class="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
+          class="bg-n-solid-2 rounded-xl border border-n-weak overflow-hidden hover:shadow-lg hover:border-n-slate-6 transition-all cursor-pointer"
           @click="editProduct(product.id)"
         >
-          <div class="aspect-square bg-slate-100 dark:bg-slate-800 relative">
+          <div class="aspect-square bg-n-alpha-2 relative">
             <img
               v-if="product.primary_image && product.primary_image.url"
               :src="product.primary_image.url"
@@ -336,57 +328,53 @@ const formatCurrency = value => {
               class="w-full h-full object-cover"
             />
             <div v-else class="flex items-center justify-center h-full">
-              <div class="i-lucide-image text-6xl text-slate-400" />
+              <span class="i-lucide-image text-6xl text-n-slate-9" />
             </div>
 
             <div
               v-if="product.images && product.images.length > 1"
-              class="absolute bottom-2 right-2 px-2 py-1 bg-slate-900/80 text-white text-xs rounded flex items-center"
+              class="absolute bottom-2 right-2 px-2 py-1 bg-n-solid-3/90 backdrop-blur-sm text-n-slate-12 text-xs rounded-md flex items-center gap-1"
             >
-              <div class="i-lucide-images text-xs mr-1" />
+              <span class="i-lucide-images size-3" />
               {{ product.images.length }}
             </div>
 
             <div
               v-if="!product.active"
-              class="absolute top-2 right-2 px-2 py-1 bg-slate-900/80 text-white text-xs rounded"
+              class="absolute top-2 right-2 px-2 py-1 bg-n-solid-3/90 backdrop-blur-sm text-n-slate-11 text-xs rounded-md"
             >
               {{ $t('SHOP.PRODUCTS.INACTIVE') }}
             </div>
             <div
               v-if="product.on_sale"
-              class="absolute top-2 left-2 px-2 py-1 bg-woot-500 text-white text-xs rounded font-medium"
+              class="absolute top-2 left-2 px-2 py-1 bg-n-brand text-white text-xs rounded-md font-medium"
             >
               -{{ product.discount_percentage }}%
             </div>
           </div>
 
           <div class="p-4">
-            <h3
-              class="font-medium text-slate-900 dark:text-slate-100 truncate mb-1"
-            >
+            <h3 class="font-medium text-n-slate-12 truncate mb-1">
               {{ product.name }}
             </h3>
-            <p
-              class="text-sm text-slate-600 dark:text-slate-400 line-clamp-2 mb-2"
-            >
+            <p class="text-sm text-n-slate-11 line-clamp-2 mb-2">
               {{ product.description }}
             </p>
 
             <div class="flex items-center justify-between">
               <div>
-                <span class="text-lg font-semibold text-woot-500">
+                <span class="text-lg font-semibold text-n-blue-text">
                   {{ formatCurrency(product.price) }}
                 </span>
                 <span
                   v-if="product.compare_at_price"
-                  class="text-sm text-slate-500 line-through ml-2"
+                  class="text-sm text-n-slate-10 line-through ml-2"
                 >
                   {{ formatCurrency(product.compare_at_price) }}
                 </span>
               </div>
 
-              <div class="text-sm text-slate-600 dark:text-slate-400">
+              <div class="flex items-center gap-1 text-sm text-n-slate-11">
                 <span v-if="product.variants && product.variants.length > 0">
                   {{
                     $t('SHOP.PRODUCTS.VARIANTS_COUNT', {
@@ -394,10 +382,10 @@ const formatCurrency = value => {
                     })
                   }}
                 </span>
-                <span v-else-if="product.track_inventory">
-                  {{ product.stock_quantity }}
-                  {{ $t('SHOP.PRODUCTS.IN_STOCK') }}
-                </span>
+                <template v-else-if="product.track_inventory">
+                  <span class="i-lucide-package size-3.5" />
+                  <span>{{ product.stock_quantity }}</span>
+                </template>
               </div>
             </div>
           </div>
@@ -406,25 +394,27 @@ const formatCurrency = value => {
 
       <div
         v-if="totalPages > 1"
-        class="flex items-center justify-center gap-2 mt-6 pb-4"
+        class="flex items-center justify-center gap-1.5 mt-6 pb-4"
       >
         <button
-          class="px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
+          type="button"
+          class="size-8 flex items-center justify-center text-sm border border-n-weak rounded-lg hover:bg-n-alpha-2 text-n-slate-11 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           :disabled="currentPage === 1"
           @click="goToPage(currentPage - 1)"
         >
-          <div class="i-lucide-chevron-left size-4" />
+          <span class="i-lucide-chevron-left size-4" />
         </button>
 
         <template v-for="page in visiblePages" :key="page">
-          <span v-if="page === '...'" class="px-2 text-slate-500">...</span>
+          <span v-if="page === '...'" class="px-2 text-n-slate-10">...</span>
           <button
             v-else
-            class="px-3 py-2 text-sm border rounded-lg"
+            type="button"
+            class="size-8 flex items-center justify-center text-sm border rounded-lg transition-colors"
             :class="
               page === currentPage
-                ? 'border-woot-500 bg-woot-500 text-white'
-                : 'border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800'
+                ? 'border-n-brand bg-n-brand text-white'
+                : 'border-n-weak hover:bg-n-alpha-2 text-n-slate-11'
             "
             @click="goToPage(page)"
           >
@@ -433,25 +423,14 @@ const formatCurrency = value => {
         </template>
 
         <button
-          class="px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
+          type="button"
+          class="size-8 flex items-center justify-center text-sm border border-n-weak rounded-lg hover:bg-n-alpha-2 text-n-slate-11 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           :disabled="currentPage === totalPages"
           @click="goToPage(currentPage + 1)"
         >
-          <div class="i-lucide-chevron-right size-4" />
+          <span class="i-lucide-chevron-right size-4" />
         </button>
       </div>
     </div>
   </div>
 </template>
-
-<style>
-.custom-select {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-  background-repeat: no-repeat;
-  background-position: right 0.5rem center;
-  background-size: 1rem;
-}
-</style>

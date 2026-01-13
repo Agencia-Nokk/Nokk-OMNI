@@ -49,14 +49,14 @@ class Shop::Setting < ApplicationRecord
   validate :acceptable_logo
   validate :acceptable_banner
 
-  validates :whatsapp_number, format: { with: /\A\+?\d{10,15}\z/, message: 'deve ser um número válido' }, allow_blank: true
+  validates :whatsapp_number, format: { with: /\A\+?\d{10,15}\z/ }, allow_blank: true
   validates :contact_email, format: { with: URI::MailTo::EMAIL_REGEXP }, allow_blank: true
   validates :products_per_page, numericality: { only_integer: true, greater_than: 0, less_than_or_equal_to: 48 }
   validates :minimum_order_value, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
-  validates :primary_color, format: { with: /\A#[0-9A-Fa-f]{6}\z/, message: 'deve ser uma cor hexadecimal válida' }, allow_blank: true
-  validates :background_color, format: { with: /\A#[0-9A-Fa-f]{6}\z/, message: 'deve ser uma cor hexadecimal válida' }, allow_blank: true
-  validates :text_color, format: { with: /\A#[0-9A-Fa-f]{6}\z/, message: 'deve ser uma cor hexadecimal válida' }, allow_blank: true
-  validates :secondary_color, format: { with: /\A#[0-9A-Fa-f]{6}\z/, message: 'deve ser uma cor hexadecimal válida' }, allow_blank: true
+  validates :primary_color, format: { with: /\A#[0-9A-Fa-f]{6}\z/ }, allow_blank: true
+  validates :background_color, format: { with: /\A#[0-9A-Fa-f]{6}\z/ }, allow_blank: true
+  validates :text_color, format: { with: /\A#[0-9A-Fa-f]{6}\z/ }, allow_blank: true
+  validates :secondary_color, format: { with: /\A#[0-9A-Fa-f]{6}\z/ }, allow_blank: true
   validates :products_per_row, numericality: { only_integer: true, greater_than_or_equal_to: 2, less_than_or_equal_to: 4 }
 
   SORT_OPTIONS = %w[newest oldest price_asc price_desc name_asc name_desc].freeze

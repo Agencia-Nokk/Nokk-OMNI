@@ -52,13 +52,13 @@ class Public::ShopController < ApplicationController
   def set_product
     @product = @account.shop_products.active.find_by!(slug: params[:product_slug])
   rescue ActiveRecord::RecordNotFound
-    redirect_to public_shop_path(account_slug: account_slug_param), alert: 'Produto não encontrado'
+    redirect_to public_shop_path(account_slug: account_slug_param), alert: I18n.t('public_shop.product_not_found')
   end
 
   def set_category
     @category = @account.shop_categories.active.find_by!(slug: params[:category_slug])
   rescue ActiveRecord::RecordNotFound
-    redirect_to public_shop_path(account_slug: account_slug_param), alert: 'Categoria não encontrada'
+    redirect_to public_shop_path(account_slug: account_slug_param), alert: I18n.t('public_shop.category_not_found')
   end
 
   def base_products_query
