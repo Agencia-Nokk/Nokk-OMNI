@@ -114,6 +114,20 @@ export const FORMATTING = {
     nodes: [],
     menu: [],
   },
+  'Channel::Uazapi': {
+    marks: ['strong', 'em', 'code', 'strike'],
+    nodes: ['bulletList', 'orderedList', 'codeBlock'],
+    menu: [
+      'strong',
+      'em',
+      'code',
+      'strike',
+      'bulletList',
+      'orderedList',
+      'undo',
+      'redo',
+    ],
+  },
   // Special contexts (not actual channels)
   'Context::Default': {
     marks: ['strong', 'em', 'code', 'link', 'strike'],

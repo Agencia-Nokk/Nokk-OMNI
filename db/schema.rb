@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_01_12_234446) do
+ActiveRecord::Schema[7.1].define(version: 2026_01_13_112543) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -535,6 +535,16 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_12_234446) do
     t.datetime "updated_at", precision: nil, null: false
     t.boolean "tweets_enabled", default: true
     t.index ["account_id", "profile_id"], name: "index_channel_twitter_profiles_on_account_id_and_profile_id", unique: true
+  end
+
+  create_table "channel_uazapi", force: :cascade do |t|
+    t.integer "account_id", null: false
+    t.string "phone_number", null: false
+    t.jsonb "provider_config", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_channel_uazapi_on_account_id"
+    t.index ["phone_number"], name: "index_channel_uazapi_on_phone_number", unique: true
   end
 
   create_table "channel_voice", force: :cascade do |t|

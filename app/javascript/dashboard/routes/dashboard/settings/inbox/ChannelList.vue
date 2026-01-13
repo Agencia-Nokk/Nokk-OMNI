@@ -42,6 +42,12 @@ const channelList = computed(() => {
       icon: 'i-woot-whatsapp',
     },
     {
+      key: 'uazapi',
+      title: t('INBOX_MGMT.ADD.AUTH.CHANNEL.UAZAPI.TITLE'),
+      description: t('INBOX_MGMT.ADD.AUTH.CHANNEL.UAZAPI.DESCRIPTION'),
+      icon: 'i-woot-whatsapp',
+    },
+    {
       key: 'sms',
       title: t('INBOX_MGMT.ADD.AUTH.CHANNEL.SMS.TITLE'),
       description: t('INBOX_MGMT.ADD.AUTH.CHANNEL.SMS.DESCRIPTION'),

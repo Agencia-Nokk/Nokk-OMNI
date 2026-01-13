@@ -436,6 +436,36 @@
           "ERROR_MESSAGE": "Não foi possível salvar o canal de e-mail"
         }
       },
+      "UAZAPI": {
+        "TITLE": "Canal UAZAPI WhatsApp",
+        "DESC": "Integre com a UAZAPI e comece a atender seus clientes pelo WhatsApp.",
+        "INBOX_NAME": {
+          "LABEL": "Nome da Caixa de Entrada",
+          "PLACEHOLDER": "Digite um nome para a caixa de entrada",
+          "ERROR": "Este campo é obrigatório"
+        },
+        "PHONE_NUMBER": {
+          "LABEL": "Número de telefone",
+          "PLACEHOLDER": "Digite o número de telefone (ex: +5511999999999)",
+          "ERROR": "Por favor, forneça um número de telefone válido que comece com o símbolo \"+\" e não contenha espaços."
+        },
+        "API_URL": {
+          "LABEL": "URL da API",
+          "PLACEHOLDER": "https://sua-instancia.uazapi.com",
+          "SUBTITLE": "Digite a URL da sua instância UAZAPI.",
+          "ERROR": "Este campo é obrigatório"
+        },
+        "API_TOKEN": {
+          "LABEL": "Token da API",
+          "PLACEHOLDER": "Digite seu token da UAZAPI",
+          "SUBTITLE": "O token da sua instância UAZAPI.",
+          "ERROR": "Este campo é obrigatório"
+        },
+        "SUBMIT_BUTTON": "Criar Canal UAZAPI",
+        "API": {
+          "ERROR_MESSAGE": "Não foi possível salvar o canal UAZAPI"
+        }
+      },
       "AUTH": {
         "TITLE": "Escolha um canal",
         "DESC": "O Chatwoot suporta widgets de chats ao vivo, Facebook Messenger, perfis do Twitter, WhatsApp, E-mails, etc., como canais. Se você quiser criar um canal personalizado, você pode criá-lo usando o canal API. Para começar, escolha um dos canais abaixo.",
@@ -485,6 +515,10 @@
           "VOICE": {
             "TITLE": "Voz",
             "DESCRIPTION": "Integre com o Twilio Voice"
+          },
+          "UAZAPI": {
+            "TITLE": "UAZAPI",
+            "DESCRIPTION": "Conecte WhatsApp via UAZAPI"
           }
         }
       },
@@ -1051,7 +1085,8 @@
       "API": "Canal da API",
       "INSTAGRAM": "Instagram",
       "TIKTOK": "TikTok",
-      "VOICE": "Voz"
+      "VOICE": "Voz",
+      "UAZAPI": "UAZAPI"
     }
   }
 }
