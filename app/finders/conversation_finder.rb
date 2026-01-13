@@ -39,7 +39,7 @@ class ConversationFinder
   def perform
     set_up
 
-    mine_count, unassigned_count, all_count, = set_count_for_all_conversations
+    mine_count, unassigned_count, all_count, pending_count = set_count_for_all_conversations
     assigned_count = all_count - unassigned_count
 
     filter_by_assignee_type
@@ -50,7 +50,8 @@ class ConversationFinder
         mine_count: mine_count,
         assigned_count: assigned_count,
         unassigned_count: unassigned_count,
-        all_count: all_count
+        all_count: all_count,
+        pending_count: pending_count
       }
     }
   end
@@ -63,6 +64,8 @@ class ConversationFinder
     set_assignee_type
 
     find_all_conversations
+    # Store base conversations before status filter for pending count
+    @base_conversations = @conversations
     filter_by_status unless params[:q]
     filter_by_team
     filter_by_labels
@@ -114,6 +117,9 @@ class ConversationFinder
       @conversations = @conversations.unassigned
     when 'assigned'
       @conversations = @conversations.assigned
+    when 'pending'
+      # No assignee filter for pending tab - status filter handles it
+      @conversations
     end
     @conversations
   end
@@ -170,7 +176,9 @@ class ConversationFinder
     [
       @conversations.assigned_to(current_user).count,
       @conversations.unassigned.count,
-      @conversations.count
+      @conversations.count,
+      # Use base_conversations (before status filter) to count pending
+      @base_conversations.pending.count
     ]
   end
 

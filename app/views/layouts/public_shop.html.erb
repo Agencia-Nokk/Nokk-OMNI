@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="light">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= @settings.display_name %> - Catálogo</title>
+    <meta name="description" content="<%= @settings.description.presence || "Catálogo de produtos de #{@settings.display_name}" %>">
+    <%= csrf_meta_tags %>
+    <%= vite_stylesheet_tag 'portal' rescue nil %>
+    <%= vite_client_tag %>
+    <%= vite_javascript_tag 'portal', defer: true %>
+    <style>
+      :root {
+        --shop-primary: <%= @settings.primary_color || '#1F93FF' %>;
+        --shop-background: <%= @settings.background_color || '#FFFFFF' %>;
+        --shop-text: <%= @settings.text_color || '#1F2937' %>;
+        --shop-secondary: <%= @settings.secondary_color || '#6B7280' %>;
+      }
+      .bg-shop-primary { background-color: var(--shop-primary); }
+      .text-shop-primary { color: var(--shop-primary); }
+      .border-shop-primary { border-color: var(--shop-primary); }
+      .from-shop-primary { --tw-gradient-from: var(--shop-primary); }
+      .to-shop-primary { --tw-gradient-to: var(--shop-primary); }
+      .bg-shop-background { background-color: var(--shop-background); }
+      .text-shop-text { color: var(--shop-text); }
+      .text-shop-secondary { color: var(--shop-secondary); }
+
+      /* Loading screen - previne FOUC */
+      .shop-loading {
+        position: fixed;
+        inset: 0;
+        background-color: var(--shop-background);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        transition: opacity 0.3s ease-out;
+      }
+      .shop-loading.hide {
+        opacity: 0;
+        pointer-events: none;
+      }
+      .shop-loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid rgba(0,0,0,0.1);
+        border-top-color: var(--shop-primary);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+      /* CSS crítico inline para evitar FOUC */
+      body { margin: 0; }
+      .min-h-screen { min-height: 100vh; }
+      .flex { display: flex; }
+      .flex-col { flex-direction: column; }
+      .flex-1 { flex: 1 1 0%; }
+      .items-center { align-items: center; }
+      .justify-between { justify-content: space-between; }
+      .sticky { position: sticky; }
+      .top-0 { top: 0; }
+      .z-50 { z-index: 50; }
+      .bg-white { background-color: #fff; }
+      .border-b { border-bottom-width: 1px; }
+      .border-slate-200 { border-color: #e2e8f0; }
+      .h-16 { height: 4rem; }
+      .px-4 { padding-left: 1rem; padding-right: 1rem; }
+      .max-w-6xl { max-width: 72rem; }
+      .mx-auto { margin-left: auto; margin-right: auto; }
+      .gap-3 { gap: 0.75rem; }
+      .hidden { display: none; }
+      @media (min-width: 640px) { .sm\\:block { display: block; } .sm\\:px-6 { padding-left: 1.5rem; padding-right: 1.5rem; } }
+    </style>
+  </head>
+  <body class="min-h-screen flex flex-col" style="background-color: var(--shop-background); color: var(--shop-text);">
+    <!-- Loading Screen -->
+    <div id="shop-loading" class="shop-loading">
+      <div class="shop-loading-spinner"></div>
+    </div>
+    <!-- Banner (se configurado) -->
+    <% if @settings.header_style == 'with_banner' && @settings.banner.attached? %>
+      <div class="w-full h-32 sm:h-48 bg-slate-200 relative overflow-hidden">
+        <%= image_tag rails_storage_proxy_path(@settings.banner), alt: @settings.display_name, class: "w-full h-full object-cover" %>
+        <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+      </div>
+    <% end %>
+
+    <!-- Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6">
+        <div class="flex items-center justify-between h-16">
+          <a href="<%= public_shop_path(account_slug: account_slug_param) %>" class="flex items-center gap-3">
+            <% if @settings.logo.attached? %>
+              <%= image_tag rails_storage_proxy_path(@settings.logo),
+                  alt: @settings.display_name,
+                  class: "h-10 max-w-[120px] object-contain" %>
+            <% else %>
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-lg bg-shop-primary">
+                <span data-shop-initial><%= @settings.display_name.first.upcase %></span>
+              </div>
+            <% end %>
+            <span class="text-lg font-semibold text-slate-900 hidden sm:block" data-shop-name><%= @settings.display_name %></span>
+          </a>
+
+          <div class="flex items-center gap-2">
+            <!-- Carrinho -->
+            <a
+              href="<%= public_shop_cart_path(account_slug: account_slug_param) %>"
+              class="relative flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 transition-colors"
+              id="cart-icon"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+              </svg>
+              <span class="text-sm font-medium text-slate-700 hidden sm:block">Carrinho</span>
+              <span
+                id="cart-count"
+                class="absolute -top-1 -right-1 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center hidden bg-shop-primary"
+              >0</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1">
+      <%= yield %>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-50 border-t border-slate-200 mt-12">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <% if @settings.logo.attached? %>
+              <%= image_tag rails_storage_proxy_path(@settings.logo),
+                  alt: @settings.display_name,
+                  class: "h-8 max-w-[100px] object-contain" %>
+            <% else %>
+              <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm bg-shop-primary">
+                <span data-shop-initial><%= @settings.display_name.first.upcase %></span>
+              </div>
+            <% end %>
+            <div>
+              <span class="text-sm font-medium text-slate-700" data-shop-name><%= @settings.display_name %></span>
+              <% if @settings.business_hours.present? %>
+                <p class="text-xs text-slate-500"><%= @settings.business_hours %></p>
+              <% end %>
+            </div>
+          </div>
+          <div class="flex flex-col items-center sm:items-end gap-1">
+            <% if @settings.contact_email.present? %>
+              <a href="mailto:<%= @settings.contact_email %>" class="text-sm text-slate-500 hover:text-slate-700">
+                <%= @settings.contact_email %>
+              </a>
+            <% end %>
+            <p class="text-sm text-slate-500">
+              &copy; <%= Time.current.year %> <span data-shop-name><%= @settings.display_name %></span>
+            </p>
+          </div>
+        </div>
+
+        <% if @settings.address.present? %>
+          <div class="mt-4 pt-4 border-t border-slate-200 text-center">
+            <p class="text-sm text-slate-600 whitespace-pre-line"><%= @settings.address %></p>
+          </div>
+        <% end %>
+
+        <% if @settings.delivery_info.present? || @settings.pickup_info.present? %>
+          <div class="mt-4 pt-4 border-t border-slate-200 text-center">
+            <% if @settings.delivery_info.present? %>
+              <p class="text-sm text-slate-600"><%= @settings.delivery_info %></p>
+            <% end %>
+            <% if @settings.pickup_info.present? %>
+              <p class="text-sm text-slate-500 mt-1"><%= @settings.pickup_info %></p>
+            <% end %>
+          </div>
+        <% end %>
+
+        <% if @settings.footer_text.present? %>
+          <div class="mt-4 pt-4 border-t border-slate-200 text-center">
+            <p class="text-sm text-slate-500 whitespace-pre-line"><%= @settings.footer_text %></p>
+          </div>
+        <% end %>
+      </div>
+    </footer>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2"></div>
+
+    <!-- Cart JavaScript -->
+    <script>
+      window.Shop = {
+        accountSlug: '<%= account_slug_param %>',
+        cartUrl: '<%= public_shop_cart_path(account_slug: account_slug_param) %>',
+        whatsappNumber: '<%= @settings.whatsapp_number.presence || '' %>',
+        minimumOrderValue: <%= @settings.minimum_order_value || 0 %>,
+        minimumOrderMessage: '<%= j(@settings.minimum_order_message.presence || "Pedido mínimo não atingido") %>',
+        showPrices: <%= @settings.show_prices? %>,
+        orderMessageTemplate: '<%= j(@settings.order_message_template.presence || '') %>',
+
+        getCart: function() {
+          try {
+            const cart = localStorage.getItem('shop_cart_' + this.accountSlug);
+            return cart ? JSON.parse(cart) : { items: [] };
+          } catch (e) {
+            return { items: [] };
+          }
+        },
+
+        saveCart: function(cart) {
+          try {
+            localStorage.setItem('shop_cart_' + this.accountSlug, JSON.stringify(cart));
+          } catch (e) {
+            console.error('Erro ao salvar carrinho:', e);
+          }
+          this.updateCartCount();
+        },
+
+        addToCart: function(product) {
+          const cart = this.getCart();
+          const existingIndex = cart.items.findIndex(item =>
+            item.id === product.id && item.variantId === product.variantId
+          );
+
+          if (existingIndex >= 0) {
+            cart.items[existingIndex].quantity += (product.quantity || 1);
+          } else {
+            cart.items.push({
+              id: product.id,
+              variantId: product.variantId || null,
+              name: product.name,
+              variantName: product.variantName || null,
+              price: parseFloat(product.price),
+              image: product.image || '',
+              quantity: product.quantity || 1
+            });
+          }
+
+          this.saveCart(cart);
+          this.showToast('Produto adicionado ao carrinho!', 'success');
+        },
+
+        removeFromCart: function(index) {
+          const cart = this.getCart();
+          cart.items.splice(index, 1);
+          this.saveCart(cart);
+        },
+
+        updateQuantity: function(index, quantity) {
+          const cart = this.getCart();
+          if (quantity <= 0) {
+            cart.items.splice(index, 1);
+          } else {
+            cart.items[index].quantity = parseInt(quantity);
+          }
+          this.saveCart(cart);
+        },
+
+        clearCart: function() {
+          localStorage.removeItem('shop_cart_' + this.accountSlug);
+          this.updateCartCount();
+        },
+
+        getTotal: function() {
+          const cart = this.getCart();
+          return cart.items.reduce((total, item) => total + (parseFloat(item.price) * item.quantity), 0);
+        },
+
+        getItemCount: function() {
+          const cart = this.getCart();
+          return cart.items.reduce((count, item) => count + item.quantity, 0);
+        },
+
+        updateCartCount: function() {
+          const count = this.getItemCount();
+          const badges = document.querySelectorAll('#cart-count');
+          badges.forEach(badge => {
+            badge.textContent = count;
+            if (count > 0) {
+              badge.classList.remove('hidden');
+            } else {
+              badge.classList.add('hidden');
+            }
+          });
+        },
+
+        checkMinimumOrder: function() {
+          if (this.minimumOrderValue <= 0) return true;
+          return this.getTotal() >= this.minimumOrderValue;
+        },
+
+        showToast: function(message, type = 'info') {
+          const container = document.getElementById('toast-container');
+          if (!container) return;
+
+          const colors = {
+            success: 'bg-green-500',
+            error: 'bg-red-500',
+            info: 'bg-shop-primary'
+          };
+
+          const toast = document.createElement('div');
+          toast.className = `${colors[type] || colors.info} text-white px-4 py-3 rounded-xl shadow-lg transform translate-x-full opacity-0 transition-all duration-300 flex items-center gap-2`;
+          toast.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            <span class="font-medium">${message}</span>
+          `;
+          container.appendChild(toast);
+
+          // Animate in
+          requestAnimationFrame(() => {
+            toast.classList.remove('translate-x-full', 'opacity-0');
+          });
+
+          // Remove after 3s
+          setTimeout(() => {
+            toast.classList.add('translate-x-full', 'opacity-0');
+            setTimeout(() => toast.remove(), 300);
+          }, 3000);
+        },
+
+        formatCurrency: function(value) {
+          return new Intl.NumberFormat('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
+          }).format(value);
+        },
+
+        generateWhatsAppMessage: function() {
+          const cart = this.getCart();
+          if (cart.items.length === 0) return '';
+
+          let message = 'Olá! Gostaria de finalizar meu pedido:\n\n';
+
+          cart.items.forEach(item => {
+            message += `• ${item.quantity}x ${item.name}`;
+            if (item.variantName) message += ` (${item.variantName})`;
+            message += ` - ${this.formatCurrency(item.price * item.quantity)}\n`;
+          });
+
+          message += `\n*Total: ${this.formatCurrency(this.getTotal())}*`;
+
+          // Adiciona mensagem personalizada se configurada
+          if (this.orderMessageTemplate) {
+            message += `\n\n${this.orderMessageTemplate}`;
+          }
+
+          return encodeURIComponent(message);
+        },
+
+        getWhatsAppUrl: function() {
+          const message = this.generateWhatsAppMessage();
+          if (!message) return null;
+
+          if (this.whatsappNumber) {
+            // Remove caracteres não numéricos
+            const cleanNumber = this.whatsappNumber.replace(/\D/g, '');
+            return `https://wa.me/${cleanNumber}?text=${message}`;
+          }
+
+          // Fallback: abre sem número específico
+          return `https://wa.me/?text=${message}`;
+        }
+      };
+
+      // Hide loading screen and show content
+      function hideLoading() {
+        const loading = document.getElementById('shop-loading');
+        if (loading) {
+          loading.classList.add('hide');
+          setTimeout(() => loading.remove(), 300);
+        }
+      }
+
+      // Initialize cart count immediately when DOM is ready
+      document.addEventListener('DOMContentLoaded', function() {
+        window.Shop.updateCartCount();
+      });
+
+      // Hide loading only after ALL resources (CSS, images, etc) are loaded
+      window.addEventListener('load', hideLoading);
+
+      // Fallback: hide loading after max 3 seconds
+      setTimeout(hideLoading, 3000);
+
+      // Also update on turbolinks load
+      document.addEventListener('turbolinks:load', function() {
+        window.Shop.updateCartCount();
+        hideLoading();
+      });
+
+      // Preview mode: Listen for postMessage from dashboard settings
+      window.addEventListener('message', function(event) {
+        if (event.data?.type !== 'SHOP_PREVIEW_UPDATE') return;
+
+        const s = event.data.settings;
+        const root = document.documentElement;
+
+        // Update CSS variables
+        if (s.primary_color) root.style.setProperty('--shop-primary', s.primary_color);
+        if (s.background_color) root.style.setProperty('--shop-background', s.background_color);
+        if (s.text_color) root.style.setProperty('--shop-text', s.text_color);
+        if (s.secondary_color) root.style.setProperty('--shop-secondary', s.secondary_color);
+
+        // Update background and text colors on body
+        if (s.background_color) document.body.style.backgroundColor = s.background_color;
+        if (s.text_color) document.body.style.color = s.text_color;
+
+        // Update store name in header
+        if (s.name) {
+          const nameElements = document.querySelectorAll('[data-shop-name]');
+          nameElements.forEach(el => { el.textContent = s.name; });
+          const initialElements = document.querySelectorAll('[data-shop-initial]');
+          initialElements.forEach(el => { el.textContent = s.name.charAt(0).toUpperCase(); });
+        }
+
+        // Update prices visibility
+        if (typeof s.show_prices !== 'undefined') {
+          const priceElements = document.querySelectorAll('[data-product-price]');
+          const contactElements = document.querySelectorAll('[data-contact-price]');
+          priceElements.forEach(el => { el.style.display = s.show_prices ? '' : 'none'; });
+          contactElements.forEach(el => { el.style.display = s.show_prices ? 'none' : ''; });
+        }
+
+        // Update featured badge
+        if (typeof s.show_featured_badge !== 'undefined') {
+          const badgeElements = document.querySelectorAll('[data-featured-badge]');
+          badgeElements.forEach(el => { el.style.display = s.show_featured_badge ? '' : 'none'; });
+        }
+        if (s.featured_badge_text) {
+          const badgeTextElements = document.querySelectorAll('[data-featured-badge-text]');
+          badgeTextElements.forEach(el => { el.textContent = s.featured_badge_text; });
+        }
+
+        // Update card style
+        if (s.card_style) {
+          const cards = document.querySelectorAll('[data-product-card]');
+          cards.forEach(card => {
+            card.classList.remove('shadow-md', 'hover:shadow-lg', 'border-2', 'border-slate-200');
+            if (s.card_style === 'shadow') {
+              card.classList.add('shadow-md', 'hover:shadow-lg');
+            } else if (s.card_style === 'border') {
+              card.classList.add('border-2', 'border-slate-200');
+            }
+          });
+        }
+
+        // Update products per row
+        if (s.products_per_row) {
+          const grid = document.querySelector('[data-products-grid]');
+          if (grid) {
+            grid.classList.remove('sm:grid-cols-2', 'sm:grid-cols-3', 'sm:grid-cols-4');
+            grid.classList.add('sm:grid-cols-' + s.products_per_row);
+          }
+        }
+      });
+    </script>
+  </body>
+</html>

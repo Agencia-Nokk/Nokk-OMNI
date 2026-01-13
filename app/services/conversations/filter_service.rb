@@ -9,7 +9,7 @@ class Conversations::FilterService < FilterService
   def perform
     validate_query_operator
     @conversations = query_builder(@filters['conversations'])
-    mine_count, unassigned_count, all_count, = set_count_for_all_conversations
+    mine_count, unassigned_count, all_count, pending_count = set_count_for_all_conversations
     assigned_count = all_count - unassigned_count
 
     {
@@ -18,7 +18,8 @@ class Conversations::FilterService < FilterService
         mine_count: mine_count,
         assigned_count: assigned_count,
         unassigned_count: unassigned_count,
-        all_count: all_count
+        all_count: all_count,
+        pending_count: pending_count
       }
     }
   end
@@ -48,5 +49,15 @@ class Conversations::FilterService < FilterService
 
   def conversations
     @conversations.sort_on_last_activity_at.page(current_page)
+  end
+
+  def set_count_for_all_conversations
+    [
+      @conversations.assigned_to(@user).count,
+      @conversations.unassigned.count,
+      @conversations.count,
+      # Use base_relation (without filters) to count pending
+      base_relation.pending.count
+    ]
   end
 end

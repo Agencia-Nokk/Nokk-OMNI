@@ -1,0 +1,344 @@
+{
+  "SHOP": {
+    "HEADER": "Shop",
+    "PRODUCTS": {
+      "TITLE": "Products",
+      "DESCRIPTION": "Manage your shop's product catalog",
+      "NEW": "New Product",
+      "EDIT": "Edit Product",
+      "INACTIVE": "Inactive",
+      "ACTIVE": "Active",
+      "IN_STOCK": "in stock",
+      "SEARCH_PLACEHOLDER": "Search products...",
+      "ALL_CATEGORIES": "All categories",
+      "SEARCH_CATEGORY": "Search category...",
+      "FILTER_ALL": "All",
+      "FILTER_ACTIVE": "Active",
+      "FILTER_INACTIVE": "Inactive",
+      "CLEAR_FILTERS": "Clear",
+      "PRODUCTS_COUNT": "{count} product(s)",
+      "NO_PRODUCTS_FOUND": "No products found",
+      "TRY_DIFFERENT_FILTERS": "Try adjusting your search filters",
+      "VARIANTS_COUNT": "{count} variants",
+      "EMPTY_STATE": {
+        "TITLE": "No products yet",
+        "MESSAGE": "Start by creating your first product to sell through chat"
+      },
+      "FORM": {
+        "NAME": {
+          "LABEL": "Product Name",
+          "PLACEHOLDER": "e.g. Basic T-Shirt"
+        },
+        "DESCRIPTION": {
+          "LABEL": "Description",
+          "PLACEHOLDER": "Describe the product..."
+        },
+        "PRICE": {
+          "LABEL": "Price",
+          "PLACEHOLDER": "0.00"
+        },
+        "COMPARE_AT_PRICE": {
+          "LABEL": "Compare at Price (Was/Now)",
+          "PLACEHOLDER": "0.00"
+        },
+        "SKU": {
+          "LABEL": "SKU",
+          "PLACEHOLDER": "Auto-generated"
+        },
+        "STOCK": {
+          "LABEL": "Stock Quantity",
+          "PLACEHOLDER": "0"
+        },
+        "TRACK_INVENTORY": {
+          "LABEL": "Track inventory"
+        },
+        "ACTIVE": {
+          "LABEL": "Active product"
+        },
+        "FEATURED": {
+          "LABEL": "Featured product"
+        },
+        "CATEGORY": {
+          "LABEL": "Category",
+          "PLACEHOLDER": "Select a category",
+          "CREATE_NEW": "+ Create new category"
+        },
+        "IMAGES": {
+          "LABEL": "Product Images",
+          "HELP": "Add up to 20 images (JPG, PNG or GIF). The first one will be the main image.",
+          "REMOVE": "Remove image",
+          "REMOVE_CONFIRM": "Are you sure you want to remove this image?",
+          "DROP_HERE": "Drop images here",
+          "DRAG_OR_CLICK": "Drag images here or click the button to add",
+          "ADD": "Add",
+          "PRIMARY": "Primary",
+          "NEW": "New",
+          "COUNTER": "{count}/20 images",
+          "REORDER_HINT": "Drag to reorder",
+          "PRIMARY_HINT": "First image will be the main one",
+          "MAX_LIMIT": "You can add a maximum of 20 images",
+          "INVALID_FILES": "Some files were ignored because they are not images"
+        },
+        "VARIANTS": {
+          "TITLE": "Product Variants",
+          "DESCRIPTION": "Add variations like size, color, etc. (e.g. S, M, L)",
+          "ADD": "Add Variant",
+          "VARIANT_NUMBER": "Variant {number}",
+          "NAME_LABEL": "Name *",
+          "NAME_PLACEHOLDER": "e.g. Size S",
+          "PRICE_LABEL": "Price",
+          "PRICE_PLACEHOLDER": "Leave empty to use base price",
+          "STOCK_LABEL": "Stock *",
+          "SKU_LABEL": "SKU",
+          "SKU_PLACEHOLDER": "Optional",
+          "EMPTY": "No variants added. The product will only have the base price and stock."
+        },
+        "DELETE_PRODUCT": "Delete Product",
+        "DELETE_CONFIRM": "Are you sure you want to delete this product? This action cannot be undone.",
+        "CREATE_SUCCESS": "Product created successfully!",
+        "CREATE_ERROR": "Error creating product",
+        "UPDATE_SUCCESS": "Product updated successfully!",
+        "UPDATE_ERROR": "Error updating product",
+        "DELETE_SUCCESS": "Product deleted successfully!",
+        "DELETE_ERROR": "Error deleting product",
+        "BUTTONS": {
+          "CREATE": "Create Product",
+          "UPDATE": "Update Product",
+          "CANCEL": "Cancel"
+        }
+      }
+    },
+    "CATEGORIES": {
+      "TITLE": "Categories",
+      "DESCRIPTION": "Organize your products into categories",
+      "NEW": "New Category",
+      "EDIT": "Edit Category",
+      "INACTIVE": "Inactive",
+      "PRODUCTS_COUNT": "{count} products",
+      "REORDER_HINT": "Drag to reorder categories",
+      "DELETE_CONFIRM": "Are you sure you want to delete this category?",
+      "NO_DESCRIPTION": "No description",
+      "REORDER_ERROR": "Error reordering categories",
+      "CREATE_SUCCESS": "Category created successfully!",
+      "UPDATE_SUCCESS": "Category updated successfully!",
+      "DELETE_SUCCESS": "Category deleted successfully!",
+      "SAVE_ERROR": "Error saving category",
+      "DELETE_ERROR": "Error deleting category",
+      "EMPTY_STATE": {
+        "TITLE": "No categories yet",
+        "MESSAGE": "Create categories to better organize your products"
+      },
+      "FORM": {
+        "IMAGE_LABEL": "Category Image",
+        "IMAGE_DRAG": "Drag an image or click to select",
+        "NAME_LABEL": "Name",
+        "NAME_PLACEHOLDER": "e.g. T-Shirts",
+        "DESCRIPTION_LABEL": "Description",
+        "DESCRIPTION_PLACEHOLDER": "Describe the category...",
+        "ACTIVE_LABEL": "Active category",
+        "CANCEL": "Cancel",
+        "CREATE": "Create",
+        "UPDATE": "Update"
+      }
+    },
+    "ORDERS": {
+      "TITLE": "Orders",
+      "DESCRIPTION": "Manage all shop orders",
+      "TABLE": {
+        "ORDER": "Order",
+        "CUSTOMER": "Customer",
+        "STATUS": "Status",
+        "TOTAL": "Total",
+        "DATE": "Date"
+      },
+      "STATUS": {
+        "PENDING": "Pending",
+        "CONFIRMED": "Confirmed",
+        "PROCESSING": "Processing",
+        "SHIPPED": "Shipped",
+        "DELIVERED": "Delivered",
+        "CANCELLED": "Cancelled"
+      },
+      "EMPTY_STATE": {
+        "TITLE": "No orders yet",
+        "MESSAGE": "Orders will appear here when customers complete a purchase"
+      },
+      "DETAILS": {
+        "ORDER_NUMBER": "Order #{number}",
+        "CUSTOMER": "Customer",
+        "CONVERSATION": "Conversation",
+        "CONVERSATION_NUMBER": "Conversation #{number}",
+        "AGENT": "Agent: {name}",
+        "GO_TO_CONVERSATION": "Go to conversation",
+        "ITEMS_TITLE": "Order Items ({count})",
+        "QUANTITY": "{count}x",
+        "SUBTOTAL": "Subtotal",
+        "DISCOUNT": "Discount",
+        "TOTAL": "Total",
+        "CUSTOMER_NOTES": "Customer Notes",
+        "NO_NOTES": "No notes",
+        "INTERNAL_NOTES": "Internal Notes",
+        "CONFIRM_ORDER": "Confirm Order",
+        "CANCEL_ORDER": "Cancel Order",
+        "CONFIRM_ACTION": "Are you sure you want to {action} this order?",
+        "ACTIONS": {
+          "CONFIRM": "Confirm Order",
+          "CANCEL": "Cancel Order"
+        }
+      }
+    },
+    "CART": {
+      "TITLE": "Cart",
+      "EMPTY": "Empty cart",
+      "ADD_PRODUCT": "Add Product",
+      "TOTAL": "Total",
+      "FINALIZE": "Finalize Order"
+    },
+    "SETTINGS": {
+      "TITLE": "Settings",
+      "DESCRIPTION": "Configure your online shop",
+      "SAVE": "Save Changes",
+      "TABS": {
+        "BASIC": "General",
+        "DISPLAY": "Display",
+        "APPEARANCE": "Appearance",
+        "DELIVERY": "Delivery"
+      },
+      "FETCH_ERROR": "Error loading settings",
+      "SAVE_SUCCESS": "Settings saved successfully",
+      "SAVE_ERROR": "Error saving settings",
+      "URL_COPIED": "URL copied to clipboard",
+      "STORE_URL": "Your store URL",
+      "OPEN": "Open",
+      "COPY": "Copy",
+      "STATUS": {
+        "TITLE": "Store Status",
+        "DESCRIPTION": "Enable or disable your store for the public",
+        "ONLINE": "Online",
+        "OFFLINE": "Offline"
+      },
+      "BASIC_INFO": {
+        "TITLE": "Basic Information",
+        "NAME_LABEL": "Store Name",
+        "NAME_PLACEHOLDER": "Name that will appear in the catalog",
+        "DESCRIPTION_LABEL": "Description",
+        "DESCRIPTION_PLACEHOLDER": "A brief description about your store",
+        "LOGO_LABEL": "Store Logo",
+        "LOGO_CHOOSE": "Choose image",
+        "LOGO_REMOVE": "Remove",
+        "BANNER_LABEL": "Banner / Cover",
+        "BANNER_CHANGE": "Change",
+        "BANNER_REMOVE": "Remove"
+      },
+      "CONTACT": {
+        "TITLE": "Contact and Orders",
+        "WHATSAPP_LABEL": "WhatsApp Number",
+        "WHATSAPP_PLACEHOLDER": "+1234567890",
+        "WHATSAPP_HELP": "Number where orders will be sent",
+        "EMAIL_LABEL": "Contact Email",
+        "EMAIL_PLACEHOLDER": "contact@company.com",
+        "HOURS_LABEL": "Business Hours",
+        "HOURS_PLACEHOLDER": "Mon-Fri: 9am to 6pm | Sat: 9am to 1pm",
+        "MESSAGE_LABEL": "Custom Order Message",
+        "MESSAGE_PLACEHOLDER": "Additional text that will appear in the WhatsApp message...",
+        "MESSAGE_HELP": "This message will be included with the order items"
+      },
+      "DISPLAY": {
+        "TITLE": "Display Settings",
+        "SHOW_OUT_OF_STOCK": "Show out of stock products",
+        "SHOW_OUT_OF_STOCK_HELP": "Display products even when there's no stock available",
+        "SHOW_PRICES": "Show prices",
+        "SHOW_PRICES_HELP": "Disable to show \"Contact us\" instead of price",
+        "SHOW_CATEGORIES": "Show categories bar",
+        "SHOW_CATEGORIES_HELP": "Display category filter at the top of the catalog",
+        "SORT_LABEL": "Default Sorting",
+        "SORT_OPTIONS": {
+          "NEWEST": "Newest",
+          "OLDEST": "Oldest",
+          "PRICE_ASC": "Lowest price",
+          "PRICE_DESC": "Highest price",
+          "NAME_ASC": "Name A-Z",
+          "NAME_DESC": "Name Z-A"
+        },
+        "PRODUCTS_PER_PAGE_LABEL": "Products per Page",
+        "PRODUCTS_COUNT": "{count} products"
+      },
+      "MINIMUM_ORDER": {
+        "TITLE": "Minimum Order",
+        "VALUE_LABEL": "Minimum Order Value",
+        "VALUE_PLACEHOLDER": "0.00",
+        "VALUE_HELP": "Leave empty for no minimum",
+        "MESSAGE_LABEL": "Minimum Value Message",
+        "MESSAGE_PLACEHOLDER": "Minimum order of $50.00"
+      },
+      "DELIVERY": {
+        "TITLE": "Delivery Information",
+        "INFO_LABEL": "Shipping/Delivery Information",
+        "INFO_PLACEHOLDER": "e.g. We deliver to the entire city. Free shipping over $100.",
+        "AREAS_LABEL": "Delivery Areas",
+        "AREAS_PLACEHOLDER": "e.g. Downtown, South Side, North Side...",
+        "AREAS_HELP": "List neighborhoods or regions where you deliver",
+        "PICKUP_LABEL": "Pickup Information",
+        "PICKUP_PLACEHOLDER": "e.g. Pickup available at 123 Main St - Downtown"
+      },
+      "APPEARANCE": {
+        "TITLE": "Colors",
+        "PRIMARY_COLOR": "Primary Color (buttons, links)",
+        "BACKGROUND_COLOR": "Background Color",
+        "TEXT_COLOR": "Text Color",
+        "SECONDARY_COLOR": "Secondary Color",
+        "COLOR_PLACEHOLDER": "#1F93FF",
+        "HEADER_LABEL": "Header Style",
+        "HEADER_STYLES": {
+          "MINIMAL": "Minimal",
+          "WITH_BANNER": "With Banner"
+        },
+        "PREVIEW": "Color preview",
+        "PREVIEW_SECONDARY": "This is text with secondary color",
+        "PREVIEW_BUTTON": "Example Button"
+      },
+      "LAYOUT": {
+        "TITLE": "Layout",
+        "PRODUCTS_PER_ROW": "Products per Row",
+        "COLUMNS_2": "2 columns",
+        "COLUMNS_3": "3 columns",
+        "COLUMNS_4": "4 columns",
+        "CARD_STYLE": "Card Style",
+        "CARD_SHADOW": "With shadow",
+        "CARD_BORDER": "With border",
+        "CARD_MINIMAL": "Minimal",
+        "PREVIEW": "Layout preview"
+      },
+      "BADGE": {
+        "TITLE": "Featured Badge",
+        "SHOW_BADGE": "Show badge on featured products",
+        "SHOW_BADGE_HELP": "Display a special badge on products marked as featured",
+        "TEXT_LABEL": "Badge Text",
+        "TEXT_PLACEHOLDER": "e.g. Featured, New, Sale",
+        "PREVIEW": "Preview:"
+      },
+      "EXTRA_INFO": {
+        "TITLE": "Extra Information",
+        "ADDRESS_LABEL": "Address / Location",
+        "ADDRESS_PLACEHOLDER": "e.g. 123 Main St - Downtown\nNew York, NY",
+        "FOOTER_LABEL": "Footer Text",
+        "FOOTER_PLACEHOLDER": "e.g. All rights reserved. Privacy policy.",
+        "FOOTER_HELP": "This text will appear in the store footer"
+      },
+      "PREVIEW": {
+        "TITLE": "Store Preview",
+        "TOGGLE": "Preview",
+        "MOBILE": "Mobile",
+        "TABLET": "Tablet",
+        "DESKTOP": "Desktop",
+        "OPEN_STORE": "Open Store",
+        "REFRESH": "Refresh preview",
+        "LOADING": "Loading store...",
+        "STORE_NAME": "My Store",
+        "BANNER_PLACEHOLDER": "Your banner here",
+        "ALL": "All",
+        "CONTACT": "Contact us"
+      }
+    }
+  }
+}

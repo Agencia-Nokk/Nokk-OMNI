@@ -71,6 +71,7 @@ const contactCustomViews = useMapGetter('customViews/getContactCustomViews');
 const conversationCustomViews = useMapGetter(
   'customViews/getConversationCustomViews'
 );
+const isShopEnabled = useMapGetter('shopSettings/isShopEnabled');
 
 onMounted(() => {
   store.dispatch('labels/get');
@@ -80,6 +81,7 @@ onMounted(() => {
   store.dispatch('attributes/get');
   store.dispatch('customViews/get', 'conversation');
   store.dispatch('customViews/get', 'contact');
+  store.dispatch('shopSettings/get');
 });
 
 const sortedInboxes = computed(() =>
@@ -428,6 +430,33 @@ const menuItems = computed(() => {
       ],
     },
     {
+      name: 'Shop',
+      label: t('SIDEBAR.SHOP'),
+      icon: 'i-lucide-shopping-bag',
+      children: [
+        {
+          name: 'Products',
+          label: t('SIDEBAR.SHOP_PRODUCTS'),
+          to: accountScopedRoute('shop_products'),
+        },
+        {
+          name: 'Orders',
+          label: t('SIDEBAR.SHOP_ORDERS'),
+          to: accountScopedRoute('shop_orders'),
+        },
+        {
+          name: 'Categories',
+          label: t('SIDEBAR.SHOP_CATEGORIES'),
+          to: accountScopedRoute('shop_categories'),
+        },
+        {
+          name: 'Settings',
+          label: t('SIDEBAR.SHOP_SETTINGS'),
+          to: accountScopedRoute('shop_settings'),
+        },
+      ],
+    },
+    {
       name: 'Portals',
       label: t('SIDEBAR.HELP_CENTER.TITLE'),
       icon: 'i-lucide-library-big',
@@ -585,6 +614,15 @@ const menuItems = computed(() => {
     },
   ];
 });
+
+const filteredMenuItems = computed(() => {
+  return menuItems.value.filter(item => {
+    if (item.name === 'Shop') {
+      return isShopEnabled.value;
+    }
+    return true;
+  });
+});
 </script>
 
 <template>
@@ -643,7 +681,7 @@ const menuItems = computed(() => {
     <nav class="grid overflow-y-scroll flex-grow gap-2 px-2 pb-5 no-scrollbar">
       <ul class="flex flex-col gap-1.5 m-0 list-none">
         <SidebarGroup
-          v-for="item in menuItems"
+          v-for="item in filteredMenuItems"
           :key="item.name"
           v-bind="item"
         />

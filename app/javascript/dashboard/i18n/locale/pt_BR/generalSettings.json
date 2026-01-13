@@ -104,6 +104,17 @@
           "ERROR": "Falha ao atualizar configuração de transcrição de áudio"
         }
       },
+      "SHOP_MODULE": {
+        "TITLE": "Nokk Shop",
+        "NOTE": "Ative a Nokk Shop para gerenciar produtos, categorias, pedidos e ter seu próprio catálogo online. Quando desativado, as funcionalidades da loja ficam ocultas, mas seus dados são preservados.",
+        "ENABLED_HINT": "Loja ativa. Acesse Produtos, Categorias, Pedidos e Configurações pelo menu lateral.",
+        "DISABLED_HINT": "Loja desativada. Ative para acessar as funcionalidades. Seus dados existentes serão preservados.",
+        "API": {
+          "ENABLED": "Nokk Shop ativada com sucesso",
+          "DISABLED": "Nokk Shop desativada com sucesso",
+          "ERROR": "Falha ao atualizar configurações da loja"
+        }
+      },
       "AUTO_RESOLVE_DURATION": {
         "LABEL": "Tempo de inatividade para resolução",
         "HELP": "Tempo de inatividade após o qual a conversa deve ser encerrada automaticamente",

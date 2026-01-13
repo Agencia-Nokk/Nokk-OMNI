@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_12_29_081141) do
+ActiveRecord::Schema[7.1].define(version: 2026_01_12_234446) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -555,7 +555,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_12_29_081141) do
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
     t.string "website_token"
-    t.string "widget_color", default: "#7a4aff"
+    t.string "widget_color", default: "#1f93ff"
     t.string "welcome_title"
     t.string "welcome_tagline"
     t.integer "feature_flags", default: 7, null: false
@@ -904,7 +904,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_12_29_081141) do
   create_table "labels", force: :cascade do |t|
     t.string "title"
     t.text "description"
-    t.string "color", default: "#7a4aff", null: false
+    t.string "color", default: "#1f93ff", null: false
     t.boolean "show_on_sidebar"
     t.bigint "account_id"
     t.datetime "created_at", precision: nil, null: false
@@ -1119,6 +1119,159 @@ ActiveRecord::Schema[7.1].define(version: 2025_12_29_081141) do
     t.index ["user_id"], name: "index_reporting_events_on_user_id"
   end
 
+  create_table "shop_cart_items", force: :cascade do |t|
+    t.bigint "shop_cart_id", null: false
+    t.bigint "shop_product_id", null: false
+    t.bigint "shop_product_variant_id"
+    t.integer "quantity", default: 1, null: false
+    t.decimal "unit_price", precision: 10, scale: 2, null: false
+    t.json "metadata", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["shop_cart_id"], name: "index_shop_cart_items_on_shop_cart_id"
+    t.index ["shop_product_id"], name: "index_shop_cart_items_on_shop_product_id"
+    t.index ["shop_product_variant_id"], name: "index_shop_cart_items_on_shop_product_variant_id"
+  end
+
+  create_table "shop_carts", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "conversation_id"
+    t.bigint "contact_id"
+    t.string "status", default: "active"
+    t.json "metadata", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "conversation_id"], name: "index_shop_carts_on_account_id_and_conversation_id"
+    t.index ["account_id"], name: "index_shop_carts_on_account_id"
+    t.index ["contact_id"], name: "index_shop_carts_on_contact_id"
+    t.index ["conversation_id"], name: "index_shop_carts_on_conversation_id"
+  end
+
+  create_table "shop_categories", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.string "name", null: false
+    t.string "slug", null: false
+    t.text "description"
+    t.integer "position", default: 0
+    t.boolean "active", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "slug"], name: "index_shop_categories_on_account_id_and_slug", unique: true
+    t.index ["account_id"], name: "index_shop_categories_on_account_id"
+  end
+
+  create_table "shop_order_items", force: :cascade do |t|
+    t.bigint "shop_order_id", null: false
+    t.bigint "shop_product_id", null: false
+    t.bigint "shop_product_variant_id"
+    t.string "product_name", null: false
+    t.string "variant_name"
+    t.integer "quantity", default: 1, null: false
+    t.decimal "unit_price", precision: 10, scale: 2, null: false
+    t.decimal "total_price", precision: 10, scale: 2, null: false
+    t.json "metadata", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["shop_order_id"], name: "index_shop_order_items_on_shop_order_id"
+    t.index ["shop_product_id"], name: "index_shop_order_items_on_shop_product_id"
+    t.index ["shop_product_variant_id"], name: "index_shop_order_items_on_shop_product_variant_id"
+  end
+
+  create_table "shop_orders", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "conversation_id"
+    t.bigint "contact_id", null: false
+    t.bigint "user_id"
+    t.string "order_number", null: false
+    t.string "status", default: "pending"
+    t.decimal "subtotal", precision: 10, scale: 2, null: false
+    t.decimal "discount", precision: 10, scale: 2, default: "0.0"
+    t.decimal "total", precision: 10, scale: 2, null: false
+    t.text "customer_notes"
+    t.text "internal_notes"
+    t.json "metadata", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "order_number"], name: "index_shop_orders_on_account_id_and_order_number", unique: true
+    t.index ["account_id"], name: "index_shop_orders_on_account_id"
+    t.index ["contact_id"], name: "index_shop_orders_on_contact_id"
+    t.index ["conversation_id"], name: "index_shop_orders_on_conversation_id"
+    t.index ["status"], name: "index_shop_orders_on_status"
+    t.index ["user_id"], name: "index_shop_orders_on_user_id"
+  end
+
+  create_table "shop_product_variants", force: :cascade do |t|
+    t.bigint "shop_product_id", null: false
+    t.string "name", null: false
+    t.string "sku"
+    t.decimal "price", precision: 10, scale: 2
+    t.integer "stock_quantity", default: 0
+    t.json "options", default: {}
+    t.boolean "active", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["shop_product_id"], name: "index_shop_product_variants_on_shop_product_id"
+    t.index ["sku"], name: "index_shop_product_variants_on_sku"
+  end
+
+  create_table "shop_products", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "shop_category_id"
+    t.string "name", null: false
+    t.string "slug", null: false
+    t.text "description"
+    t.decimal "price", precision: 10, scale: 2, null: false
+    t.decimal "compare_at_price", precision: 10, scale: 2
+    t.string "sku"
+    t.integer "stock_quantity", default: 0
+    t.boolean "track_inventory", default: true
+    t.boolean "active", default: true
+    t.json "images", default: []
+    t.json "metadata", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.boolean "featured", default: false
+    t.index ["account_id", "slug"], name: "index_shop_products_on_account_id_and_slug", unique: true
+    t.index ["account_id"], name: "index_shop_products_on_account_id"
+    t.index ["shop_category_id"], name: "index_shop_products_on_shop_category_id"
+    t.index ["sku"], name: "index_shop_products_on_sku"
+  end
+
+  create_table "shop_settings", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.string "name"
+    t.text "description"
+    t.string "whatsapp_number"
+    t.text "order_message_template"
+    t.string "contact_email"
+    t.string "business_hours"
+    t.boolean "enabled", default: false
+    t.boolean "show_out_of_stock", default: true
+    t.boolean "show_prices", default: true
+    t.string "default_sort", default: "newest"
+    t.integer "products_per_page", default: 12
+    t.decimal "minimum_order_value", precision: 10, scale: 2
+    t.string "minimum_order_message"
+    t.text "delivery_info"
+    t.text "delivery_areas"
+    t.text "pickup_info"
+    t.string "primary_color", default: "#1F93FF"
+    t.string "header_style", default: "minimal"
+    t.boolean "show_categories_bar", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "background_color", default: "#FFFFFF"
+    t.string "text_color", default: "#1F2937"
+    t.string "secondary_color", default: "#6B7280"
+    t.integer "products_per_row", default: 3
+    t.string "card_style", default: "shadow"
+    t.boolean "show_featured_badge", default: true
+    t.string "featured_badge_text", default: "Destaque"
+    t.text "address"
+    t.text "footer_text"
+    t.index ["account_id"], name: "index_shop_settings_on_account_id", unique: true
+  end
+
   create_table "sla_events", force: :cascade do |t|
     t.bigint "applied_sla_id", null: false
     t.bigint "conversation_id", null: false
@@ -1267,6 +1420,24 @@ ActiveRecord::Schema[7.1].define(version: 2025_12_29_081141) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "inboxes", "portals"
+  add_foreign_key "shop_cart_items", "shop_carts"
+  add_foreign_key "shop_cart_items", "shop_product_variants"
+  add_foreign_key "shop_cart_items", "shop_products"
+  add_foreign_key "shop_carts", "accounts"
+  add_foreign_key "shop_carts", "contacts"
+  add_foreign_key "shop_carts", "conversations"
+  add_foreign_key "shop_categories", "accounts"
+  add_foreign_key "shop_order_items", "shop_orders"
+  add_foreign_key "shop_order_items", "shop_product_variants"
+  add_foreign_key "shop_order_items", "shop_products"
+  add_foreign_key "shop_orders", "accounts"
+  add_foreign_key "shop_orders", "contacts"
+  add_foreign_key "shop_orders", "conversations"
+  add_foreign_key "shop_orders", "users"
+  add_foreign_key "shop_product_variants", "shop_products"
+  add_foreign_key "shop_products", "accounts"
+  add_foreign_key "shop_products", "shop_categories"
+  add_foreign_key "shop_settings", "accounts"
   create_trigger("accounts_after_insert_row_tr", :generated => true, :compatibility => 1).
       on("accounts").
       after(:insert).

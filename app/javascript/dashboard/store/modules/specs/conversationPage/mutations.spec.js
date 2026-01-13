@@ -18,15 +18,22 @@ describe('#mutations', () => {
   describe('#CLEAR_CONVERSATION_PAGE', () => {
     it('resets the state to initial state', () => {
       const state = {
-        currentPage: { me: 1, unassigned: 2, all: 3 },
-        hasEndReached: { me: true, unassigned: true, all: true },
+        currentPage: { me: 1, unassigned: 2, pending: 1, all: 3 },
+        hasEndReached: { me: true, unassigned: true, pending: true, all: true },
       };
       mutations[types.default.CLEAR_CONVERSATION_PAGE](state);
       expect(state).toEqual({
-        currentPage: { me: 0, unassigned: 0, all: 0, appliedFilters: 0 },
+        currentPage: {
+          me: 0,
+          unassigned: 0,
+          pending: 0,
+          all: 0,
+          appliedFilters: 0,
+        },
         hasEndReached: {
           me: false,
           unassigned: false,
+          pending: false,
           all: false,
           appliedFilters: false,
         },

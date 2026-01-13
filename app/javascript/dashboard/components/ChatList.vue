@@ -269,10 +269,12 @@ const conversationListPagination = computed(() => {
 });
 
 const conversationFilters = computed(() => {
+  // When pending tab is active, filter by status 'pending'
+  const isPendingTab = activeAssigneeTab.value === 'pending';
   return {
     inboxId: props.conversationInbox ? props.conversationInbox : undefined,
     assigneeType: activeAssigneeTab.value,
-    status: activeStatus.value,
+    status: isPendingTab ? 'pending' : activeStatus.value,
     sortBy: activeSortBy.value,
     page: conversationListPagination.value,
     labels: props.label ? [props.label] : undefined,
@@ -325,6 +327,9 @@ const conversationList = computed(() => {
       localConversationList = [...mineChatsList.value(filters)];
     } else if (activeAssigneeTab.value === 'unassigned') {
       localConversationList = [...unAssignedChatsList.value(filters)];
+    } else if (activeAssigneeTab.value === 'pending') {
+      // For pending tab, use allChatList with pending status filter
+      localConversationList = [...allChatList.value(filters)];
     } else {
       localConversationList = [...allChatList.value(filters)];
     }
@@ -616,9 +621,10 @@ function updateAssigneeTab(selectedTab) {
     resetBulkActions();
     emitter.emit('clearSearchInput');
     activeAssigneeTab.value = selectedTab;
-    if (!currentPage.value) {
-      fetchConversations();
-    }
+    // Clear store and reset page when switching tabs to ensure counts match displayed conversations
+    store.dispatch('conversationPage/reset');
+    store.dispatch('emptyAllConversations');
+    fetchConversations();
   }
 }
 

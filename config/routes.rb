@@ -73,6 +73,28 @@ Rails.application.routes.draw do
             resources :custom_tools
             resources :documents, only: [:index, :show, :create, :destroy]
           end
+          namespace :shop do
+            resource :settings, only: [:show, :update]
+            resources :categories, only: [:index, :show, :create, :update, :destroy]
+            resources :products, only: [:index, :show, :create, :update, :destroy]
+            resources :carts, only: [:index, :show, :create, :destroy] do
+              member do
+                post :add_item
+                delete 'items/:item_id', action: :remove_item, as: :remove_item
+                patch 'items/:item_id', action: :update_item, as: :update_item
+                post :convert_to_order
+              end
+              collection do
+                get 'conversation/:conversation_id', action: :show_by_conversation, as: :by_conversation
+              end
+            end
+            resources :orders, only: [:index, :show, :update] do
+              member do
+                post :confirm
+                post :cancel
+              end
+            end
+          end
           resource :saml_settings, only: [:show, :create, :update, :destroy]
           resources :agent_bots, only: [:index, :create, :show, :update, :destroy] do
             delete :avatar, on: :member
@@ -515,6 +537,12 @@ Rails.application.routes.draw do
       end
     end
   end
+
+  # Public Shop routes
+  get 'loja/:account_slug', to: 'public/shop#index', as: :public_shop
+  get 'loja/:account_slug/produto/:product_slug', to: 'public/shop#show', as: :public_shop_product
+  get 'loja/:account_slug/carrinho', to: 'public/shop#cart', as: :public_shop_cart
+  get 'loja/:account_slug/categoria/:category_slug', to: 'public/shop#category', as: :public_shop_category
 
   get 'hc/:slug', to: 'public/api/v1/portals#show'
   get 'hc/:slug/sitemap.xml', to: 'public/api/v1/portals#sitemap'
