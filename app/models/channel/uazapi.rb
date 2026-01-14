@@ -25,7 +25,8 @@ class Channel::Uazapi < ApplicationRecord
   validates :phone_number, presence: true, uniqueness: true
   validate :validate_provider_config
 
-  after_create :setup_webhook
+  # SSE connections are managed by the uazapi_sse daemon process
+  # New channels are detected automatically every 30 seconds
 
   def name
     'UAZAPI'
@@ -50,28 +51,7 @@ class Channel::Uazapi < ApplicationRecord
     provider_config['api_token']
   end
 
-  def webhook_url
-    "#{ENV.fetch('FRONTEND_URL', nil)}/webhooks/uazapi/#{phone_number}"
-  end
-
   private
-
-  def setup_webhook
-    response = HTTParty.post(
-      "#{api_url}/webhook",
-      headers: api_headers,
-      body: {
-        enabled: true,
-        url: webhook_url,
-        events: %w[messages messages_update],
-        excludeMessages: %w[wasSentByApi]
-      }.to_json
-    )
-
-    Rails.logger.info "[UAZAPI] Webhook setup response: #{response.code} - #{response.body}"
-  rescue StandardError => e
-    Rails.logger.error "[UAZAPI] Failed to setup webhook: #{e.message}"
-  end
 
   def validate_provider_config
     return if provider_config.blank?

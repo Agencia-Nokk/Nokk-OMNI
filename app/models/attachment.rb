@@ -24,6 +24,8 @@
 class Attachment < ApplicationRecord
   include Rails.application.routes.url_helpers
 
+  after_create_commit :dispatch_message_update
+
   ACCEPTABLE_FILE_TYPES = %w[
     text/csv text/plain text/rtf
     application/json application/pdf
@@ -95,6 +97,11 @@ class Attachment < ApplicationRecord
   end
 
   private
+
+  def dispatch_message_update
+    # Notify frontend that message has new attachment
+    message.send_update_event
+  end
 
   def metadata_for_file_type
     case file_type.to_sym

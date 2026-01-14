@@ -17,17 +17,24 @@ class Uazapi::ProviderService
   def send_text_message(phone_number, message)
     log "[TEXT] Sending text to #{phone_number}: #{message.content}"
 
+    body = {
+      number: phone_number,
+      text: message.content,
+      delay: 1000,
+      readchat: true,
+      track_source: 'chatwoot',
+      track_id: message.id.to_s
+    }
+
+    # Add reply ID for quoted reply context (UAZAPI uses 'replyid' field)
+    reply_id = quoted_message_id(message)
+    body[:replyid] = reply_id if reply_id.present?
+    log "[TEXT] Reply ID: #{reply_id}" if reply_id.present?
+
     response = HTTParty.post(
       "#{api_url}/send/text",
       headers: api_headers,
-      body: {
-        number: phone_number,
-        text: message.content,
-        delay: 1000,
-        readchat: true,
-        track_source: 'chatwoot',
-        track_id: message.id.to_s
-      }.to_json
+      body: body.to_json
     )
 
     log "[TEXT] Response: #{response.code} - #{response.body}"
@@ -53,7 +60,22 @@ class Uazapi::ProviderService
              delay: 1000, track_source: 'chatwoot', track_id: message.id.to_s }
     body.delete(:text) if %w[audio ptt myaudio].include?(type)
     body[:docName] = attachment.file.filename.to_s if type == 'document'
+
+    # Add reply ID for quoted reply context (UAZAPI uses 'replyid' field)
+    reply_id = quoted_message_id(message)
+    body[:replyid] = reply_id if reply_id.present?
+    log "[MEDIA] Reply ID: #{reply_id}" if reply_id.present?
+
     body
+  end
+
+  def quoted_message_id(message)
+    # Get the external ID of the message being replied to
+    # content_attributes can have string or symbol keys
+    attrs = message.content_attributes || {}
+    external_id = attrs['in_reply_to_external_id'] || attrs[:in_reply_to_external_id]
+    log "[REPLY] Looking for in_reply_to_external_id in: #{attrs.inspect}" if attrs.present? && attrs.keys.any? { |k| k.to_s.include?('reply') }
+    external_id
   end
 
   def log_attachment_error
@@ -121,6 +143,24 @@ class Uazapi::ProviderService
     response.success?
   rescue StandardError => e
     Rails.logger.error "[UAZAPI] Error editing message: #{e.message}"
+    false
+  end
+
+  def send_presence(phone_number, presence_type = 'composing', delay_ms = 25_000)
+    # presence_type: 'composing', 'recording', 'paused'
+    response = HTTParty.post(
+      "#{api_url}/message/presence",
+      headers: api_headers,
+      body: {
+        number: phone_number,
+        presence: presence_type,
+        delay: delay_ms
+      }.to_json
+    )
+
+    response.success?
+  rescue StandardError => e
+    Rails.logger.error "[UAZAPI] Error sending presence: #{e.message}"
     false
   end
 

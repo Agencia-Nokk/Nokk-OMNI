@@ -29,6 +29,9 @@ class Webhooks::UazapiEventsJob < ApplicationJob
     when 'messages_update'
       log 'Processing status update...'
       process_status_update(channel)
+    when 'presence'
+      log 'Processing presence update...'
+      process_presence(channel)
     else
       log "Unknown event type: #{event}"
     end
@@ -57,6 +60,13 @@ class Webhooks::UazapiEventsJob < ApplicationJob
 
   def process_status_update(channel)
     Uazapi::MessageStatusService.new(
+      inbox: channel.inbox,
+      params: @params
+    ).perform
+  end
+
+  def process_presence(channel)
+    Uazapi::PresenceService.new(
       inbox: channel.inbox,
       params: @params
     ).perform
