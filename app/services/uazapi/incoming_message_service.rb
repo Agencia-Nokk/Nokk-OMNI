@@ -30,13 +30,32 @@ class Uazapi::IncomingMessageService
     message_data['fromMe'] == true
   end
 
+  def group_message?
+    message_data['isGroup'] == true || chat_id&.include?('@g.us')
+  end
+
   def message_id
     message_data['messageid'] || message_data['id']
   end
 
-  def phone_number
-    # UAZAPI format: "558586736498@s.whatsapp.net" -> "558586736498"
-    (message_data['chatid'] || message_data['sender'] || '').gsub(/@.*/, '')
+  def chat_id
+    message_data['chatid'] || message_data['chat_id']
+  end
+
+  # Source ID for ContactInbox - group ID or phone number
+  def source_id
+    if group_message?
+      # For groups, use the full group ID (e.g., "120363422201326960@g.us")
+      chat_id
+    else
+      # For individual chats, use just the phone number
+      (chat_id || message_data['sender'] || '').gsub(/@.*/, '')
+    end
+  end
+
+  # Phone number of the actual sender (person who sent the message)
+  def sender_phone_number
+    (message_data['sender'] || '').gsub(/@.*/, '')
   end
 
   def message_type
@@ -54,30 +73,89 @@ class Uazapi::IncomingMessageService
   end
 
   def sender_name
-    message_data['senderName'] || @params.dig('chat', 'name') || phone_number
+    message_data['senderName'] || @params.dig('chat', 'name') || sender_phone_number
+  end
+
+  def group_name
+    @params.dig('chat', 'name') || message_data['groupName'] || "Grupo #{source_id.split('@').first[-6..]}"
+  end
+
+  def group_image_url
+    @params.dig('chat', 'imagePreview') || @params.dig('chat', 'image')
   end
 
   def set_contact
-    contact_inbox = inbox.contact_inboxes.find_by(source_id: phone_number)
+    contact_inbox = inbox.contact_inboxes.find_by(source_id: source_id)
     @contact = contact_inbox&.contact
 
     unless @contact
-      @contact = Contact.create!(
-        account: inbox.account,
-        phone_number: "+#{phone_number}",
-        name: sender_name
-      )
+      @contact = create_contact
       ContactInbox.create!(
         contact: @contact,
         inbox: inbox,
-        source_id: phone_number
+        source_id: source_id
       )
-
-      # Buscar foto e detalhes do contato em background
-      Uazapi::ContactDetailsJob.perform_later(@contact.id, channel.id, phone_number)
     end
 
-    @contact_inbox = inbox.contact_inboxes.find_by(source_id: phone_number)
+    # For groups, try to attach avatar if not already set
+    update_group_avatar if group_message?
+
+    @contact_inbox = inbox.contact_inboxes.find_by(source_id: source_id)
+  end
+
+  def update_group_avatar
+    return unless group_image_url.present?
+    return if @contact.avatar.attached?
+
+    Rails.logger.info "[UAZAPI] Downloading group avatar: #{group_image_url}"
+    attach_group_avatar(@contact)
+  end
+
+  def create_contact
+    if group_message?
+      create_group_contact
+    else
+      create_individual_contact
+    end
+  end
+
+  def create_group_contact
+    # Use find_or_create to handle cases where contact already exists
+    Contact.find_or_create_by!(
+      account: inbox.account,
+      identifier: source_id
+    ) do |c|
+      c.name = group_name
+      c.additional_attributes = {
+        is_group: true,
+        group_id: source_id
+      }
+    end
+  end
+
+  def attach_group_avatar(contact)
+    file = Down.download(group_image_url)
+    contact.avatar.attach(
+      io: file,
+      filename: "group_#{source_id.split('@').first}.jpg",
+      content_type: 'image/jpeg'
+    )
+    Rails.logger.info '[UAZAPI] Group avatar attached successfully!'
+  rescue StandardError => e
+    Rails.logger.error "[UAZAPI] Failed to download group avatar: #{e.class} - #{e.message}"
+  end
+
+  def create_individual_contact
+    contact = Contact.create!(
+      account: inbox.account,
+      phone_number: "+#{source_id}",
+      name: sender_name
+    )
+
+    # Buscar foto e detalhes do contato em background
+    Uazapi::ContactDetailsJob.perform_later(contact.id, channel.id, source_id)
+
+    contact
   end
 
   def set_conversation
@@ -89,19 +167,32 @@ class Uazapi::IncomingMessageService
       account: inbox.account,
       inbox: inbox,
       contact: @contact,
-      contact_inbox: @contact_inbox
+      contact_inbox: @contact_inbox,
+      additional_attributes: group_message? ? { is_group: true } : {}
     )
   end
 
   def create_message
-    @message = @conversation.messages.create!(
+    message_attrs = {
       account: inbox.account,
       inbox: inbox,
       content: message_content,
       message_type: :incoming,
       source_id: message_id,
       sender: @contact
-    )
+    }
+
+    # For group messages, store the actual sender info in content_attributes
+    # so the frontend can display who sent the message
+    if group_message?
+      message_attrs[:content_attributes] = {
+        group_sender_name: sender_name,
+        group_sender_phone: sender_phone_number,
+        is_group_message: true
+      }
+    end
+
+    @message = @conversation.messages.create!(message_attrs)
   end
 
   def attach_files

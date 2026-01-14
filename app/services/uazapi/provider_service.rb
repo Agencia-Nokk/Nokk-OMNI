@@ -4,7 +4,8 @@ class Uazapi::ProviderService
   end
 
   def send_message(phone_number, message)
-    log "[SEND] Message ID: #{message.id}, Has attachments: #{message.attachments.present?}, Count: #{message.attachments.count}"
+    is_group = phone_number&.include?('@g.us')
+    log "[SEND] Message ID: #{message.id}, To: #{phone_number}, Group: #{is_group}, Attachments: #{message.attachments.count}"
 
     if message.attachments.present?
       send_attachment_message(phone_number, message)

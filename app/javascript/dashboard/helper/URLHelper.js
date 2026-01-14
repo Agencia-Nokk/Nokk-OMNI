@@ -110,7 +110,8 @@ export const hasValidAvatarUrl = avatarUrl => {
 };
 
 export const timeStampAppendedURL = dataUrl => {
-  const url = new URL(dataUrl);
+  // Handle relative URLs by using window.location.origin as base
+  const url = new URL(dataUrl, window.location.origin);
   if (!url.searchParams.has('t')) {
     url.searchParams.append('t', Date.now());
   }
