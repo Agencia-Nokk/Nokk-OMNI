@@ -193,7 +193,7 @@ class Inbox < ApplicationRecord
     when 'Channel::Whatsapp'
       "#{ENV.fetch('FRONTEND_URL', nil)}/webhooks/whatsapp/#{channel.phone_number}"
     when 'Channel::Uazapi'
-      "#{ENV.fetch('FRONTEND_URL', nil)}/webhooks/uazapi/#{channel.phone_number}"
+      nil # UAZAPI uses SSE (Server-Sent Events) instead of webhooks
     end
   end
 

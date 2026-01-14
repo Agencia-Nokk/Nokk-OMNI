@@ -59,14 +59,18 @@ module Uazapi
     def sync_channels
       active_channel_ids = Channel::Uazapi.pluck(:id)
 
+      # Get current connection IDs with mutex protection
+      current_channel_ids = @mutex.synchronize { @connections.keys.dup }
+
       # Remove connections for deleted channels
-      @connections.keys.each do |channel_id|
+      current_channel_ids.each do |channel_id|
         close_connection(channel_id) unless active_channel_ids.include?(channel_id)
       end
 
       # Start connections for new channels
       active_channel_ids.each do |channel_id|
-        start_connection(channel_id) unless @connections[channel_id]
+        already_connected = @mutex.synchronize { @connections.key?(channel_id) }
+        start_connection(channel_id) unless already_connected
       end
     end
 
@@ -209,7 +213,8 @@ module Uazapi
     end
 
     def close_all_connections
-      @connections.keys.each { |id| close_connection(id) }
+      channel_ids = @mutex.synchronize { @connections.keys.dup }
+      channel_ids.each { |id| close_connection(id) }
     end
 
     def log(message)

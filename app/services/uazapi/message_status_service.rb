@@ -25,10 +25,13 @@ class Uazapi::MessageStatusService
   end
 
   def find_message(msg_id)
-    # Try to find with full source_id (owner:messageid) or just messageid
+    return nil if msg_id.blank?
+
+    # 1. Exact match (uses index, fastest)
     inbox.messages.find_by(source_id: msg_id) ||
-      inbox.messages.where('source_id LIKE ?', "%:#{msg_id}").first ||
-      inbox.messages.where('source_id LIKE ?', "%#{msg_id}%").first
+      # 2. Match by suffix after ':' (for legacy messages with owner prefix)
+      # Using split_part is more efficient than LIKE '%...'
+      inbox.messages.where("split_part(source_id, ':', 2) = ?", msg_id).first
   end
 
   def status

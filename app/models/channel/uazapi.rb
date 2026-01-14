@@ -23,7 +23,10 @@ class Channel::Uazapi < ApplicationRecord
   EDITABLE_ATTRS = [:phone_number, { provider_config: {} }].freeze
 
   validates :phone_number, presence: true, uniqueness: true
+  validates :provider_config, presence: true
   validate :validate_provider_config
+
+  after_commit :verify_api_connection, on: :create
 
   # SSE connections are managed by the uazapi_sse daemon process
   # New channels are detected automatically every 30 seconds
@@ -44,11 +47,11 @@ class Channel::Uazapi < ApplicationRecord
   # - api_token: Token da instância
 
   def api_url
-    provider_config['api_url']
+    provider_config&.dig('api_url')
   end
 
   def api_token
-    provider_config['api_token']
+    provider_config&.dig('api_token')
   end
 
   private
@@ -58,5 +61,15 @@ class Channel::Uazapi < ApplicationRecord
 
     errors.add(:provider_config, 'api_url is required') if provider_config['api_url'].blank?
     errors.add(:provider_config, 'api_token is required') if provider_config['api_token'].blank?
+  end
+
+  def verify_api_connection
+    response = HTTParty.get(
+      "#{api_url}/instance/status",
+      headers: { 'token' => api_token }
+    )
+    Rails.logger.info "[UAZAPI] Channel #{id} created. API status: #{response.code}"
+  rescue StandardError => e
+    Rails.logger.warn "[UAZAPI] Channel #{id} created but API verification failed: #{e.message}"
   end
 end
