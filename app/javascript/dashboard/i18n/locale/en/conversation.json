@@ -261,6 +261,7 @@
       "COPY": "Copy",
       "REPLY_TO": "Reply to this message",
       "DELETE": "Delete",
+      "EDIT": "Edit",
       "CREATE_A_CANNED_RESPONSE": "Add to canned responses",
       "TRANSLATE": "Translate",
       "COPY_PERMALINK": "Copy link to the message",
@@ -270,7 +271,14 @@
         "MESSAGE": "You cannot undo this action",
         "DELETE": "Delete",
         "CANCEL": "Cancel"
-      }
+      },
+      "EDIT_MESSAGE": "Edit message",
+      "EDIT_PLACEHOLDER": "Enter the new message content",
+      "EDIT_SUCCESS": "Message edited successfully",
+      "EDIT_ERROR": "Couldn't edit message! Try again",
+      "EDIT_EMPTY_ERROR": "Message content cannot be empty",
+      "CANCEL": "Cancel",
+      "SAVE": "Save"
     },
     "SIDEBAR": {
       "CONTACT": "Contact",

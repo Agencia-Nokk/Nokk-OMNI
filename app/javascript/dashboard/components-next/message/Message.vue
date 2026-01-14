@@ -371,6 +371,12 @@ const contextMenuEnabledOptions = computed(() => {
       !props.private &&
       props.inboxSupportsReplyTo.outgoing &&
       !isFailedOrProcessing,
+    edit:
+      isOutgoing &&
+      hasText &&
+      !hasAttachments &&
+      !isFailedOrProcessing &&
+      !isMessageDeleted.value,
   };
 });
 

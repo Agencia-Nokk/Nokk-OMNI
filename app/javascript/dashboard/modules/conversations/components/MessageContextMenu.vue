@@ -56,6 +56,8 @@ export default {
     return {
       isCannedResponseModalOpen: false,
       showDeleteModal: false,
+      showEditModal: false,
+      editContent: '',
     };
   },
   computed: {
@@ -152,6 +154,32 @@ export default {
     closeDeleteModal() {
       this.showDeleteModal = false;
     },
+    openEditModal() {
+      this.editContent = this.plainTextContent;
+      this.handleClose();
+      this.showEditModal = true;
+    },
+    closeEditModal() {
+      this.showEditModal = false;
+      this.editContent = '';
+    },
+    async confirmEdit() {
+      if (!this.editContent.trim()) {
+        useAlert(this.$t('CONVERSATION.CONTEXT_MENU.EDIT_EMPTY_ERROR'));
+        return;
+      }
+      try {
+        await this.$store.dispatch('editMessage', {
+          conversationId: this.conversationId,
+          messageId: this.messageId,
+          content: this.editContent,
+        });
+        useAlert(this.$t('CONVERSATION.CONTEXT_MENU.EDIT_SUCCESS'));
+        this.closeEditModal();
+      } catch (error) {
+        useAlert(this.$t('CONVERSATION.CONTEXT_MENU.EDIT_ERROR'));
+      }
+    },
   },
 };
 </script>
@@ -181,6 +209,42 @@ export default {
       :confirm-text="$t('CONVERSATION.CONTEXT_MENU.DELETE_CONFIRMATION.DELETE')"
       :reject-text="$t('CONVERSATION.CONTEXT_MENU.DELETE_CONFIRMATION.CANCEL')"
     />
+    <!-- Edit Message Modal -->
+    <woot-modal
+      v-if="showEditModal && enabledOptions['edit']"
+      v-model:show="showEditModal"
+      :on-close="closeEditModal"
+    >
+      <div class="flex flex-col h-auto overflow-auto">
+        <woot-modal-header
+          :header-title="$t('CONVERSATION.CONTEXT_MENU.EDIT_MESSAGE')"
+        />
+        <form class="w-full" @submit.prevent="confirmEdit">
+          <div class="w-full">
+            <label>
+              <textarea
+                v-model="editContent"
+                rows="4"
+                :placeholder="$t('CONVERSATION.CONTEXT_MENU.EDIT_PLACEHOLDER')"
+              />
+            </label>
+            <div class="flex flex-row justify-end w-full gap-2 px-0 py-2">
+              <NextButton
+                faded
+                slate
+                type="button"
+                :label="$t('CONVERSATION.CONTEXT_MENU.CANCEL')"
+                @click="closeEditModal"
+              />
+              <NextButton
+                type="submit"
+                :label="$t('CONVERSATION.CONTEXT_MENU.SAVE')"
+              />
+            </div>
+          </div>
+        </form>
+      </div>
+    </woot-modal>
     <NextButton
       v-if="!hideButton"
       ghost
@@ -242,6 +306,15 @@ export default {
           }"
           variant="icon"
           @click.stop="showCannedResponseModal"
+        />
+        <MenuItem
+          v-if="enabledOptions['edit']"
+          :option="{
+            icon: 'edit',
+            label: $t('CONVERSATION.CONTEXT_MENU.EDIT'),
+          }"
+          variant="icon"
+          @click.stop="openEditModal"
         />
         <hr v-if="enabledOptions['delete']" />
         <MenuItem

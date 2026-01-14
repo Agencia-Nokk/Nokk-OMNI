@@ -5,6 +5,18 @@ class Api::V1::Accounts::Conversations::MessagesController < Api::V1::Accounts::
     @messages = message_finder.perform
   end
 
+  def edit
+    new_content = params[:content]
+    return render json: { error: 'Content is required' }, status: :unprocessable_entity if new_content.blank?
+
+    ActiveRecord::Base.transaction do
+      edit_message_in_channel(new_content)
+      message.update!(content: new_content)
+    end
+
+    @message = message
+  end
+
   def create
     user = Current.user || @resource
     mb = Messages::MessageBuilder.new(user, @conversation, params)
@@ -20,6 +32,7 @@ class Api::V1::Accounts::Conversations::MessagesController < Api::V1::Accounts::
 
   def destroy
     ActiveRecord::Base.transaction do
+      delete_message_from_channel
       message.update!(content: I18n.t('conversations.messages.deleted'), content_type: :text, content_attributes: { deleted: true })
       message.attachments.destroy_all
     end
@@ -70,6 +83,20 @@ class Api::V1::Accounts::Conversations::MessagesController < Api::V1::Accounts::
 
   def already_translated_content_available?
     message.translations.present? && message.translations[permitted_params[:target_language]].present?
+  end
+
+  def delete_message_from_channel
+    channel = @conversation.inbox.channel
+    return unless channel.is_a?(Channel::Uazapi)
+
+    Uazapi::ProviderService.new(channel: channel).delete_message(message)
+  end
+
+  def edit_message_in_channel(new_content)
+    channel = @conversation.inbox.channel
+    return unless channel.is_a?(Channel::Uazapi)
+
+    Uazapi::ProviderService.new(channel: channel).edit_message(message, new_content)
   end
 
   # API inbox check

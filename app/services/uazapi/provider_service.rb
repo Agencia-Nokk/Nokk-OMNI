@@ -38,57 +38,40 @@ class Uazapi::ProviderService
   def send_attachment_message(phone_number, message)
     attachment = message.attachments.first
     type = attachment_type(attachment.file_type)
-
-    log "[MEDIA] Sending #{type} to #{phone_number}"
-
-    # Download file and convert to base64
     file_base64 = attachment_to_base64(attachment)
 
-    unless file_base64
-      log '[MEDIA] ERROR: Failed to convert attachment to base64'
-      return nil
-    end
+    return log_attachment_error unless file_base64
 
-    body = {
-      number: phone_number,
-      type: type,
-      file: file_base64,
-      text: message.content,
-      delay: 1000,
-      track_source: 'chatwoot',
-      track_id: message.id.to_s
-    }
-
-    # Áudio/PTT não suporta caption
-    body.delete(:text) if %w[audio ptt myaudio].include?(type)
-
-    # Documento precisa do nome do arquivo
-    body[:docName] = attachment.file.filename.to_s if type == 'document'
-
-    log "[MEDIA] Sending base64 (#{file_base64.length} chars)"
-
-    response = HTTParty.post(
-      "#{api_url}/send/media",
-      headers: api_headers,
-      body: body.to_json
-    )
-
-    log "[MEDIA] Response: #{response.code} - #{response.body}"
+    body = build_attachment_body(phone_number, message, type, file_base64, attachment)
+    response = HTTParty.post("#{api_url}/send/media", headers: api_headers, body: body.to_json)
 
     process_response(response)
   end
 
-  def attachment_to_base64(attachment)
-    # Read file directly from ActiveStorage
-    file_data = attachment.file.download
-    content_type = attachment.file.content_type || 'application/octet-stream'
+  def build_attachment_body(phone_number, message, type, file_base64, attachment)
+    body = { number: phone_number, type: type, file: file_base64, text: message.content,
+             delay: 1000, track_source: 'chatwoot', track_id: message.id.to_s }
+    body.delete(:text) if %w[audio ptt myaudio].include?(type)
+    body[:docName] = attachment.file.filename.to_s if type == 'document'
+    body
+  end
 
-    # Build data URI
-    base64_data = Base64.strict_encode64(file_data)
-    "data:#{content_type};base64,#{base64_data}"
+  def log_attachment_error
+    log '[MEDIA] ERROR: Failed to convert attachment to base64'
+    nil
+  end
+
+  def attachment_to_base64(attachment)
+    content_type = attachment.file.content_type || 'application/octet-stream'
+    file_data = read_attachment_data(attachment)
+    "data:#{content_type};base64,#{Base64.strict_encode64(file_data)}"
   rescue StandardError => e
     log "[MEDIA] Error converting to base64: #{e.message}"
     nil
+  end
+
+  def read_attachment_data(attachment)
+    attachment.file.blob.open(&:read)
   end
 
   def build_public_attachment_url(attachment)
@@ -109,6 +92,36 @@ class Uazapi::ProviderService
     log "[URL DEBUG] Public URL: #{public_url}"
 
     public_url
+  end
+
+  def delete_message(message)
+    return if message.source_id.blank?
+
+    response = HTTParty.post(
+      "#{api_url}/message/delete",
+      headers: api_headers,
+      body: { id: message.source_id }.to_json
+    )
+
+    response.success?
+  rescue StandardError => e
+    Rails.logger.error "[UAZAPI] Error deleting message: #{e.message}"
+    false
+  end
+
+  def edit_message(message, new_content)
+    return false if message.source_id.blank? || new_content.blank?
+
+    response = HTTParty.post(
+      "#{api_url}/message/edit",
+      headers: api_headers,
+      body: { id: message.source_id, text: new_content }.to_json
+    )
+
+    response.success?
+  rescue StandardError => e
+    Rails.logger.error "[UAZAPI] Error editing message: #{e.message}"
+    false
   end
 
   def api_headers
