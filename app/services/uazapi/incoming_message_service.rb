@@ -113,24 +113,27 @@ class Uazapi::IncomingMessageService
   end
 
   def set_contact
-    contact_inbox = inbox.contact_inboxes.find_by(source_id: source_id)
-    @contact = contact_inbox&.contact
+    @contact_inbox = inbox.contact_inboxes.find_by(source_id: source_id)
 
-    unless @contact
+    unless @contact_inbox
       @contact = create_contact
-      ContactInbox.create!(
+      @contact_inbox = ContactInbox.create!(
         contact: @contact,
         inbox: inbox,
         source_id: source_id
       )
+    rescue ActiveRecord::RecordNotUnique
+      # Another job created the contact_inbox first (race condition)
+      # Just fetch the one that was created
+      @contact_inbox = inbox.contact_inboxes.find_by!(source_id: source_id)
     end
+
+    @contact ||= @contact_inbox.contact
 
     # Store sender_lid for presence/typing indicator lookup
     update_sender_lid if sender_lid.present?
 
     update_group_avatar if group_message?
-
-    @contact_inbox = inbox.contact_inboxes.find_by(source_id: source_id)
   end
 
   def sender_lid
@@ -186,9 +189,13 @@ class Uazapi::IncomingMessageService
   end
 
   def create_individual_contact
-    Contact.create!(account: inbox.account, phone_number: "+#{source_id}", name: contact_name).tap do |contact|
-      Uazapi::ContactDetailsJob.perform_later(contact.id, channel.id, source_id)
+    phone = "+#{source_id.delete('+')}"
+    contact = Contact.find_or_create_by!(account: inbox.account, phone_number: phone) do |c|
+      c.name = contact_name
     end
+    # Fetch contact details in background (only for newly created contacts)
+    Uazapi::ContactDetailsJob.perform_later(contact.id, channel.id, source_id) if contact.previously_new_record?
+    contact
   end
 
   def set_conversation
