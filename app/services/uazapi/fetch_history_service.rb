@@ -1,3 +1,4 @@
+# rubocop:disable Metrics/ClassLength
 class Uazapi::FetchHistoryService
   pattr_initialize [:conversation!, :limit]
 
@@ -55,24 +56,30 @@ class Uazapi::FetchHistoryService
     end
   end
 
-  def import_message(msg_data)
+  def import_message(msg_data) # rubocop:disable Metrics/MethodLength, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity, Metrics/AbcSize
     message_id = extract_message_id(msg_data)
     return if message_id.blank?
     return if @conversation.messages.exists?(source_id: message_id)
 
-    content = msg_data['text'] || msg_data['caption'] || ''
+    content = extract_content(msg_data)
     from_me = msg_data['fromMe'] == true
     timestamp = msg_data['timestamp']
 
-    message = @conversation.messages.create!(
+    message_attrs = {
       account: inbox.account,
       inbox: inbox,
       content: content,
       message_type: from_me ? :outgoing : :incoming,
       source_id: message_id,
       sender: from_me ? nil : @conversation.contact,
-      created_at: timestamp ? Time.at(timestamp) : Time.current
-    )
+      created_at: timestamp ? Time.zone.at(timestamp) : Time.current
+    }
+
+    # Add interactive content_attributes if present
+    interactive_attrs = build_interactive_attributes(msg_data)
+    message_attrs[:content_attributes] = interactive_attrs if interactive_attrs.present?
+
+    message = @conversation.messages.create!(message_attrs)
 
     # Import media if present
     import_media(message, msg_data) if has_media?(msg_data)
@@ -80,6 +87,100 @@ class Uazapi::FetchHistoryService
     # Already imported
   rescue StandardError => e
     log "Error importing message #{message_id}: #{e.message}"
+  end
+
+  def extract_content(msg_data) # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+    return msg_data['text'] if msg_data['text'].present?
+    return msg_data['caption'] if msg_data['caption'].present?
+
+    # Para mensagens interativas, extrair texto do body
+    content = msg_data['content']
+    return '' unless content.is_a?(Hash)
+
+    interactive = content['InteractiveMessage'] || content['interactiveMessage']
+    return '' unless interactive
+
+    # Carrossel - pegar texto do primeiro card
+    carousel = interactive['CarouselMessage'] || interactive['carouselMessage']
+    if carousel
+      first_card = carousel['cards']&.first
+      return first_card&.dig('body', 'text') || ''
+    end
+
+    # Botões/Lista - pegar texto do body
+    interactive.dig('body', 'text') || ''
+  end
+
+  def build_interactive_attributes(msg_data)
+    content = msg_data['content']
+    return {} unless content.is_a?(Hash)
+
+    interactive = content['InteractiveMessage'] || content['interactiveMessage']
+    return {} unless interactive
+
+    {
+      interactive_type: detect_interactive_type(interactive),
+      interactive_data: parse_interactive_data(interactive)
+    }
+  end
+
+  def detect_interactive_type(interactive) # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+    return 'carousel' if interactive['CarouselMessage'] || interactive['carouselMessage']
+    return 'list' if interactive['NativeFlowMessage']&.dig('buttons')&.any? { |b| b['name'] == 'single_select' }
+    return 'buttons' if interactive['NativeFlowMessage'] || interactive['nativeFlowMessage']
+
+    'unknown'
+  end
+
+  def parse_interactive_data(interactive) # rubocop:disable Metrics/CyclomaticComplexity
+    carousel = interactive['CarouselMessage'] || interactive['carouselMessage']
+    if carousel
+      return {
+        cards: carousel['cards']&.map { |card| parse_carousel_card(card) } || []
+      }
+    end
+
+    native_flow = interactive['NativeFlowMessage'] || interactive['nativeFlowMessage']
+    if native_flow
+      return {
+        body: interactive.dig('body', 'text'),
+        buttons: parse_native_buttons(native_flow['buttons'])
+      }
+    end
+
+    {}
+  end
+
+  def parse_carousel_card(card) # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+    inner_interactive = card['InteractiveMessage'] || card['interactiveMessage'] || {}
+    native_flow = inner_interactive['NativeFlowMessage'] || inner_interactive['nativeFlowMessage'] || {}
+
+    header = card['header'] || {}
+    media = header['Media'] || header['media'] || {}
+    image_msg = media['ImageMessage'] || media['imageMessage'] || {}
+
+    {
+      body: card.dig('body', 'text'),
+      image_url: image_msg['url'],
+      image_thumbnail: image_msg['jpegThumbnail'] || image_msg['JPEGThumbnail'],
+      buttons: parse_native_buttons(native_flow['buttons'])
+    }
+  end
+
+  def parse_native_buttons(buttons)
+    return [] if buttons.blank?
+
+    buttons.map do |btn|
+      params = JSON.parse(btn['buttonParamsJson'] || btn['buttonParamsJSON'] || '{}')
+      {
+        type: btn['name'],
+        display_text: params['display_text'],
+        id: params['id'],
+        url: params['url']
+      }
+    rescue JSON::ParserError
+      { type: btn['name'], display_text: 'Button', id: nil }
+    end
   end
 
   def extract_message_id(msg_data)
@@ -90,14 +191,14 @@ class Uazapi::FetchHistoryService
     raw_id.include?(':') ? raw_id.split(':').last : raw_id
   end
 
-  def has_media?(msg_data)
+  def has_media?(msg_data) # rubocop:disable Naming/PredicateName
     type = (msg_data['type'] || msg_data['messageType'] || '').downcase
     media_type = (msg_data['mediaType'] || '').downcase
     media_types = %w[image video audio document sticker ptt media]
     media_types.include?(type) || media_types.include?(media_type)
   end
 
-  def import_media(message, msg_data)
+  def import_media(message, msg_data) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
     # Try to download media using UAZAPI's download endpoint
     msg_id = extract_message_id(msg_data)
     return if msg_id.blank?
@@ -174,3 +275,4 @@ class Uazapi::FetchHistoryService
     end
   end
 end
+# rubocop:enable Metrics/ClassLength

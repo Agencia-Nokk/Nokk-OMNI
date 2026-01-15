@@ -33,6 +33,12 @@ class Uazapi::IncomingMessageService
       attach_files
     end
 
+    # Download high-quality images for carousel messages
+    if carousel_message?
+      log 'Downloading carousel images...'
+      download_carousel_images
+    end
+
     log 'IncomingMessageService.perform completed!'
   rescue StandardError => e
     log "ERROR: #{e.class} - #{e.message}"
@@ -115,9 +121,106 @@ class Uazapi::IncomingMessageService
     text = message_data['text']
     return text if text.present?
 
+    # Para mensagens interativas, extrair o texto do body
+    return extract_interactive_text if interactive_message?
+
     # content can be a string or a hash (for media messages)
     content = message_data['content']
     content.is_a?(String) ? content : ''
+  end
+
+  def interactive_message?
+    content = message_data['content']
+    return false unless content.is_a?(Hash)
+
+    content.key?('InteractiveMessage') || content.key?('interactiveMessage')
+  end
+
+  def extract_interactive_text # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+    content = message_data['content']
+    interactive = content['InteractiveMessage'] || content['interactiveMessage'] || {}
+
+    # Carrossel - pegar texto do primeiro card
+    carousel = interactive['CarouselMessage'] || interactive['carouselMessage']
+    if carousel
+      first_card = carousel['cards']&.first
+      return first_card&.dig('body', 'text') || ''
+    end
+
+    # Botões/Lista - pegar texto do body
+    interactive.dig('body', 'text') || interactive.dig('NativeFlowMessage', 'body', 'text') || ''
+  end
+
+  def interactive_content_attributes
+    return {} unless interactive_message?
+
+    content = message_data['content']
+    interactive = content['InteractiveMessage'] || content['interactiveMessage'] || {}
+
+    {
+      interactive_type: detect_interactive_type(interactive),
+      interactive_data: parse_interactive_data(interactive)
+    }
+  end
+
+  def detect_interactive_type(interactive) # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+    return 'carousel' if interactive['CarouselMessage'] || interactive['carouselMessage']
+    return 'list' if interactive['NativeFlowMessage']&.dig('buttons')&.any? { |b| b['name'] == 'single_select' }
+    return 'buttons' if interactive['NativeFlowMessage'] || interactive['nativeFlowMessage']
+
+    'unknown'
+  end
+
+  def parse_interactive_data(interactive) # rubocop:disable Metrics/CyclomaticComplexity
+    carousel = interactive['CarouselMessage'] || interactive['carouselMessage']
+    if carousel
+      return {
+        cards: carousel['cards']&.map { |card| parse_carousel_card(card) } || []
+      }
+    end
+
+    native_flow = interactive['NativeFlowMessage'] || interactive['nativeFlowMessage']
+    if native_flow
+      return {
+        body: interactive.dig('body', 'text'),
+        buttons: parse_native_buttons(native_flow['buttons'])
+      }
+    end
+
+    {}
+  end
+
+  def parse_carousel_card(card) # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+    inner_interactive = card['InteractiveMessage'] || card['interactiveMessage'] || {}
+    native_flow = inner_interactive['NativeFlowMessage'] || inner_interactive['nativeFlowMessage'] || {}
+
+    # Extrair imagem do header
+    header = card['header'] || {}
+    media = header['Media'] || header['media'] || {}
+    image_msg = media['ImageMessage'] || media['imageMessage'] || {}
+
+    {
+      body: card.dig('body', 'text'),
+      image_url: image_msg['url'],
+      image_thumbnail: image_msg['jpegThumbnail'] || image_msg['JPEGThumbnail'],
+      buttons: parse_native_buttons(native_flow['buttons'])
+    }
+  end
+
+  def parse_native_buttons(buttons)
+    return [] if buttons.blank?
+
+    buttons.map do |btn|
+      params = JSON.parse(btn['buttonParamsJson'] || btn['buttonParamsJSON'] || '{}')
+      {
+        type: btn['name'],
+        display_text: params['display_text'],
+        id: params['id'],
+        url: params['url']
+      }
+    rescue JSON::ParserError
+      { type: btn['name'], display_text: 'Button', id: nil }
+    end
   end
 
   def media?
@@ -333,6 +436,9 @@ class Uazapi::IncomingMessageService
 
     # For quoted replies, store the external ID of the quoted message
     content_attrs[:in_reply_to_external_id] = quoted_message_id if quoted_message_id.present?
+
+    # For interactive messages (carousel, buttons, list), store the full structure
+    content_attrs.merge!(interactive_content_attributes)
 
     message_attrs[:content_attributes] = content_attrs if content_attrs.present?
 
