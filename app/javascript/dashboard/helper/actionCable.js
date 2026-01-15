@@ -34,6 +34,7 @@ class ActionCableConnector extends BaseActionCableConnector {
       'conversation.updated': this.onConversationUpdated,
       'account.cache_invalidated': this.onCacheInvalidate,
       'copilot.message.created': this.onCopilotMessageCreated,
+      'uazapi.sync_status': this.onUazapiSyncStatus,
     };
   }
 
@@ -199,6 +200,10 @@ class ActionCableConnector extends BaseActionCableConnector {
     this.app.$store.dispatch('labels/revalidate', { newKey: keys.label });
     this.app.$store.dispatch('inboxes/revalidate', { newKey: keys.inbox });
     this.app.$store.dispatch('teams/revalidate', { newKey: keys.team });
+  };
+
+  onUazapiSyncStatus = data => {
+    this.app.$store.dispatch('inboxes/updateSyncStatus', data);
   };
 }
 

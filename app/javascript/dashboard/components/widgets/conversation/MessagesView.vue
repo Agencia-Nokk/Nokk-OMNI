@@ -155,6 +155,9 @@ export default {
       );
     },
     shouldShowSpinner() {
+      // Don't show spinner for UAZAPI conversations that have no history
+      if (this.isUazapiWithNoHistory) return false;
+
       return (
         (this.currentChat && this.currentChat.dataFetched === undefined) ||
         (!this.listLoadingStatus && this.isLoadingPrevious)
@@ -248,6 +251,14 @@ export default {
         !this.is360DialogWhatsAppChannel;
 
       return { incoming, outgoing };
+    },
+    isUazapiWithNoHistory() {
+      if (this.inbox?.channel_type !== 'Channel::Uazapi') return false;
+      // Only show banner if there are NO messages at all (except activity)
+      const hasRealMessages = this.getMessages.some(
+        m => m.message_type !== 2 // 2 = activity
+      );
+      return !hasRealMessages;
     },
   },
 
@@ -470,6 +481,12 @@ export default {
       color-scheme="alert"
       class="mx-2 mt-2 overflow-hidden rounded-lg"
       :banner-message="$t('CONVERSATION.OLD_INSTAGRAM_INBOX_REPLY_BANNER')"
+    />
+    <Banner
+      v-if="isUazapiWithNoHistory"
+      color-scheme="secondary"
+      class="mx-2 mt-2 overflow-hidden rounded-lg"
+      :banner-message="$t('CONVERSATION.UAZAPI_NO_HISTORY')"
     />
     <MessageList
       ref="conversationPanelRef"

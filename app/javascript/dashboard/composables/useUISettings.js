@@ -11,6 +11,7 @@ export const DEFAULT_CONVERSATION_SIDEBAR_ITEMS_ORDER = Object.freeze([
   { name: 'conversation_participants' },
   { name: 'linear_issues' },
   { name: 'shopify_orders' },
+  { name: 'shop_cart' },
 ]);
 
 export const DEFAULT_CONTACT_SIDEBAR_ITEMS_ORDER = Object.freeze([
@@ -121,12 +122,9 @@ const fetchQuotedReplyFlagFromUISettings = (channelType, uiSettings) => {
  * @returns {boolean} True if the hotkey is enabled, otherwise false.
  */
 const isEditorHotKeyEnabled = (key, uiSettings) => {
-  const {
-    editor_message_key: editorMessageKey,
-    enter_to_send_enabled: enterToSendEnabled,
-  } = uiSettings.value || {};
+  const { editor_message_key: editorMessageKey } = uiSettings.value || {};
   if (!editorMessageKey) {
-    return key === (enterToSendEnabled ? 'enter' : 'cmd_enter');
+    return key === 'enter';
   }
   return editorMessageKey === key;
 };

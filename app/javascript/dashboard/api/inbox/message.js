@@ -86,6 +86,13 @@ class MessageApi extends ApiClient {
     return axios.delete(`${this.url}/${conversationID}/messages/${messageId}`);
   }
 
+  edit(conversationID, messageId, data) {
+    return axios.post(
+      `${this.url}/${conversationID}/messages/${messageId}/edit`,
+      data
+    );
+  }
+
   retry(conversationID, messageId) {
     return axios.post(
       `${this.url}/${conversationID}/messages/${messageId}/retry`

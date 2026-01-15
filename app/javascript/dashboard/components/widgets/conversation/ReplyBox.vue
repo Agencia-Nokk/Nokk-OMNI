@@ -28,6 +28,7 @@ import {
 } from '@chatwoot/utils';
 import WhatsappTemplates from './WhatsappTemplates/Modal.vue';
 import ContentTemplates from './ContentTemplates/ContentTemplatesModal.vue';
+import ProductCarouselModal from './ProductCarousel/Modal.vue';
 import { MESSAGE_MAX_LENGTH } from 'shared/helpers/MessageTypeHelper';
 import inboxMixin, { INBOX_FEATURES } from 'shared/mixins/inboxMixin';
 import { trimContent, debounce, getRecipients } from '@chatwoot/utils';
@@ -67,6 +68,7 @@ export default {
     ReplyTopPanel,
     ContentTemplates,
     WhatsappTemplates,
+    ProductCarouselModal,
     WootMessageEditor,
     QuotedEmailPreview,
   },
@@ -115,6 +117,7 @@ export default {
       doAutoSaveDraft: () => {},
       showWhatsAppTemplatesModal: false,
       showContentTemplatesModal: false,
+      showProductCarouselModal: false,
       updateEditorSelectionWith: '',
       undefinedVariableMessage: '',
       showMentions: false,
@@ -159,6 +162,10 @@ export default {
     },
     showContentTemplates() {
       return this.isATwilioWhatsAppChannel && !this.isPrivate;
+    },
+    showProductCarousel() {
+      // Only show for UAZAPI channel
+      return this.channelType === 'Channel::Uazapi' && !this.isPrivate;
     },
     isPrivate() {
       if (
@@ -662,6 +669,12 @@ export default {
     },
     hideContentTemplatesModal() {
       this.showContentTemplatesModal = false;
+    },
+    openProductCarouselModal() {
+      this.showProductCarouselModal = true;
+    },
+    hideProductCarouselModal() {
+      this.showProductCarouselModal = false;
     },
     confirmOnSendReply() {
       if (this.isReplyButtonDisabled) {
@@ -1175,6 +1188,7 @@ export default {
       :enable-multiple-file-upload="enableMultipleFileUpload"
       :enable-whats-app-templates="showWhatsappTemplates"
       :enable-content-templates="showContentTemplates"
+      :enable-product-carousel="showProductCarousel"
       :inbox="inbox"
       :is-on-private-note="isOnPrivateNote"
       :is-recording-audio="isRecordingAudio"
@@ -1199,6 +1213,7 @@ export default {
       :new-conversation-modal-active="newConversationModalActive"
       @select-whatsapp-template="openWhatsappTemplateModal"
       @select-content-template="openContentTemplateModal"
+      @select-product-carousel="openProductCarouselModal"
       @replace-text="replaceText"
       @toggle-insert-article="toggleInsertArticle"
       @toggle-quoted-reply="toggleQuotedReply"
@@ -1217,6 +1232,14 @@ export default {
       @close="hideContentTemplatesModal"
       @on-send="onSendContentTemplateReply"
       @cancel="hideContentTemplatesModal"
+    />
+
+    <ProductCarouselModal
+      :show="showProductCarouselModal"
+      :account-id="accountId"
+      :conversation-id="conversationId"
+      @close="hideProductCarouselModal"
+      @sent="hideProductCarouselModal"
     />
 
     <woot-confirm-modal

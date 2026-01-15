@@ -24,6 +24,8 @@
 class Attachment < ApplicationRecord
   include Rails.application.routes.url_helpers
 
+  after_create_commit :dispatch_message_update
+
   ACCEPTABLE_FILE_TYPES = %w[
     text/csv text/plain text/rtf
     application/json application/pdf
@@ -70,11 +72,36 @@ class Attachment < ApplicationRecord
     end
   end
 
+  # Relative path versions for UAZAPI (avoids ngrok interstitial in development)
+  def file_url_path
+    return '' unless file.attached?
+
+    Rails.application.routes.url_helpers.rails_blob_path(file, only_path: true)
+  end
+
+  def thumb_url_path
+    return '' unless file.attached? && image?
+
+    begin
+      Rails.application.routes.url_helpers.rails_representation_path(
+        file.representation(resize_to_fill: [250, nil]),
+        only_path: true
+      )
+    rescue ActiveStorage::UnrepresentableError
+      ''
+    end
+  end
+
   def with_attached_file?
     [:image, :audio, :video, :file].include?(file_type.to_sym)
   end
 
   private
+
+  def dispatch_message_update
+    # Notify frontend that message has new attachment
+    message.send_update_event
+  end
 
   def metadata_for_file_type
     case file_type.to_sym
@@ -119,6 +146,11 @@ class Attachment < ApplicationRecord
     }
 
     metadata[:data_url] = metadata[:thumb_url] = external_url if message.inbox.instagram? && message.incoming?
+    # UAZAPI: Use relative URLs so frontend can resolve to current host (avoids ngrok interstitial)
+    if message.inbox.channel_type == 'Channel::Uazapi'
+      metadata[:data_url] = file_url_path
+      metadata[:thumb_url] = thumb_url_path
+    end
     metadata
   end
 

@@ -1,8 +1,21 @@
 class Api::V1::Accounts::Conversations::MessagesController < Api::V1::Accounts::Conversations::BaseController
   before_action :ensure_api_inbox, only: :update
+  after_action :trigger_uazapi_history_fetch, only: :index
 
   def index
     @messages = message_finder.perform
+  end
+
+  def edit
+    new_content = params[:content]
+    return render json: { error: 'Content is required' }, status: :unprocessable_entity if new_content.blank?
+
+    ActiveRecord::Base.transaction do
+      edit_message_in_channel(new_content)
+      message.update!(content: new_content)
+    end
+
+    @message = message
   end
 
   def create
@@ -20,6 +33,7 @@ class Api::V1::Accounts::Conversations::MessagesController < Api::V1::Accounts::
 
   def destroy
     ActiveRecord::Base.transaction do
+      delete_message_from_channel
       message.update!(content: I18n.t('conversations.messages.deleted'), content_type: :text, content_attributes: { deleted: true })
       message.attachments.destroy_all
     end
@@ -72,9 +86,31 @@ class Api::V1::Accounts::Conversations::MessagesController < Api::V1::Accounts::
     message.translations.present? && message.translations[permitted_params[:target_language]].present?
   end
 
+  def delete_message_from_channel
+    channel = @conversation.inbox.channel
+    return unless channel.is_a?(Channel::Uazapi)
+
+    Uazapi::ProviderService.new(channel: channel).delete_message(message)
+  end
+
+  def edit_message_in_channel(new_content)
+    channel = @conversation.inbox.channel
+    return unless channel.is_a?(Channel::Uazapi)
+
+    Uazapi::ProviderService.new(channel: channel).edit_message(message, new_content)
+  end
+
   # API inbox check
   def ensure_api_inbox
     # Only API inboxes can update messages
     render json: { error: 'Message status update is only allowed for API inboxes' }, status: :forbidden unless @conversation.inbox.api?
+  end
+
+  # Trigger history fetch for UAZAPI channels when conversation is opened
+  def trigger_uazapi_history_fetch
+    return unless @conversation.inbox.uazapi?
+    return if @conversation.messages.where.not(message_type: :activity).exists?
+
+    Uazapi::FetchHistoryJob.perform_later(@conversation.id)
   end
 end
