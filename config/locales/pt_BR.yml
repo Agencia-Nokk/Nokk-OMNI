@@ -438,3 +438,38 @@ pt_BR:
       subject: 'Termine de configurar %{custom_domain}'
     ssl_status:
       custom_domain_not_configured: 'Domínio personalizado não está configurado'
+  uazapi:
+    shop:
+      buttons:
+        add_to_cart: '🛒 Adicionar ao Carrinho'
+        view_cart: '🛒 Ver Carrinho'
+        checkout: '✅ Finalizar Pedido'
+        clear_cart: '🗑️ Limpar Carrinho'
+        view_in_store: '🔗 Ver na Loja'
+      cart:
+        added: '✅ *%{product_name}* adicionado!'
+        summary: "🛒 *%{count} %{item_text}* no carrinho\n💰 Subtotal: *R$ %{subtotal}*"
+        item_one: 'item'
+        item_other: 'itens'
+        cleared: "🗑️ Carrinho limpo!\n\nSeu carrinho foi esvaziado com sucesso."
+        empty: "🛒 Seu carrinho está vazio!\n\nAdicione produtos para continuar."
+        title: '🛒 *Seu Carrinho*'
+        item_line: '• %{quantity}x %{product_name} - R$ %{price}'
+        total: '💰 *Total: R$ %{total}*'
+        separator: '━━━━━━━━━━━━━━━'
+      checkout:
+        title: '✅ *Finalizar Pedido*'
+        instructions: "Para confirmar seu pedido, por favor informe:\n📍 Endereço de entrega\n💳 Forma de pagamento"
+      button_response:
+        add_to_cart_with_product: '🛒 Adicionar ao Carrinho: %{product_name}'
+        generic_button: '📱 %{button_id}'
+      carousel:
+        default_text: 'Confira nossos produtos!'
+      errors:
+        no_products_found: 'Nenhum produto encontrado'
+        conversation_not_found: 'Conversa não encontrada'
+        channel_not_uazapi: 'Canal não é UAZAPI'
+        no_products_selected: 'Nenhum produto selecionado'
+        max_products_exceeded: 'Máximo de 10 produtos permitido'
+      price:
+        consult: 'Consulte'

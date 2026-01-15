@@ -6,7 +6,7 @@ class Uazapi::SendCarouselService
     return error_result(validation_error) if validation_error
 
     products = fetch_products
-    return error_result('Nenhum produto encontrado') if products.empty?
+    return error_result(I18n.t('uazapi.shop.errors.no_products_found')) if products.empty?
 
     response = send_carousel(products)
     return error_result(response[:error]) unless response[:success]
@@ -25,10 +25,10 @@ class Uazapi::SendCarouselService
   end
 
   def validate_inputs
-    return 'Conversa não encontrada' unless @conversation
-    return 'Canal não é UAZAPI' unless uazapi_channel?
-    return 'Nenhum produto selecionado' if @product_ids.empty?
-    return 'Máximo de 10 produtos permitido' if @product_ids.length > 10
+    return I18n.t('uazapi.shop.errors.conversation_not_found') unless @conversation
+    return I18n.t('uazapi.shop.errors.channel_not_uazapi') unless uazapi_channel?
+    return I18n.t('uazapi.shop.errors.no_products_selected') if @product_ids.empty?
+    return I18n.t('uazapi.shop.errors.max_products_exceeded') if @product_ids.length > 10
 
     nil
   end
@@ -74,7 +74,7 @@ class Uazapi::SendCarouselService
   end
 
   def format_price(price)
-    return 'Consulte' if price.blank? || price.zero?
+    return I18n.t('uazapi.shop.price.consult') if price.blank? || price.zero?
 
     "R$ #{format('%.2f', price).tr('.', ',')}"
   end
@@ -95,12 +95,12 @@ class Uazapi::SendCarouselService
     [
       {
         id: product_shop_url(product),
-        text: '🔗 Ver na Loja',
+        text: I18n.t('uazapi.shop.buttons.view_in_store'),
         type: 'URL'
       },
       {
         id: "ADD_CART_#{product.id}",
-        text: '🛒 Adicionar ao Carrinho',
+        text: I18n.t('uazapi.shop.buttons.add_to_cart'),
         type: 'REPLY'
       }
     ]
@@ -112,7 +112,7 @@ class Uazapi::SendCarouselService
   end
 
   def carousel_text
-    @text.presence || 'Confira nossos produtos!'
+    @text.presence || I18n.t('uazapi.shop.carousel.default_text')
   end
 
   def phone_number

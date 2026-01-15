@@ -55,10 +55,7 @@ class Uazapi::IncomingMessageService
   end
 
   def log(message)
-    timestamp = Time.current.strftime('%Y-%m-%d %H:%M:%S')
-    File.open(Rails.root.join('log/uazapi_sse.log'), 'a') do |f|
-      f.puts "[#{timestamp}] [IncomingMsg] #{message}"
-    end
+    Rails.logger.info "[UAZAPI IncomingMsg] #{message}"
   end
 
   private
@@ -146,21 +143,21 @@ class Uazapi::IncomingMessageService
     if button_id.start_with?('ADD_CART_')
       product_id = button_id.gsub('ADD_CART_', '')
       product = inbox.account.shop_products.find_by(id: product_id)
-      return "🛒 Adicionar ao Carrinho: #{product.name}" if product
+      return I18n.t('uazapi.shop.button_response.add_to_cart_with_product', product_name: product.name) if product
 
-      return '🛒 Adicionar ao Carrinho'
+      return I18n.t('uazapi.shop.buttons.add_to_cart')
     end
 
     # Format other button responses
     case button_id
     when 'VIEW_CART'
-      '🛒 Ver Carrinho'
+      I18n.t('uazapi.shop.buttons.view_cart')
     when 'CHECKOUT'
-      '✅ Finalizar Pedido'
+      I18n.t('uazapi.shop.buttons.checkout')
     when 'CLEAR_CART'
-      '🗑️ Limpar Carrinho'
+      I18n.t('uazapi.shop.buttons.clear_cart')
     else
-      "📱 #{button_id}"
+      I18n.t('uazapi.shop.button_response.generic_button', button_id: button_id)
     end
   end
 
@@ -199,7 +196,7 @@ class Uazapi::IncomingMessageService
     button_id == 'CLEAR_CART'
   end
 
-  def handle_add_cart_response
+  def handle_add_cart_response # rubocop:disable Metrics/MethodLength
     # Check both buttonOrListid and message content for the ADD_CART ID
     button_id = message_data['buttonOrListid'].to_s
     cart_id = if button_id.start_with?('ADD_CART_')
@@ -234,17 +231,16 @@ class Uazapi::IncomingMessageService
     log "Error handling ADD_CART: #{e.message}"
   end
 
-  def send_cart_confirmation(product, cart)
+  def send_cart_confirmation(product, cart) # rubocop:disable Metrics/MethodLength
     subtotal = format('%.2f', cart.subtotal).tr('.', ',')
-    item_text = cart.total_items == 1 ? 'item' : 'itens'
+    item_text = I18n.t('uazapi.shop.cart.item', count: cart.total_items)
 
-    text = "✅ *#{product.name}* adicionado!\n\n" \
-           "🛒 *#{cart.total_items} #{item_text}* no carrinho\n" \
-           "💰 Subtotal: *R$ #{subtotal}*"
+    text = "#{I18n.t('uazapi.shop.cart.added', product_name: product.name)}\n\n" \
+           "#{I18n.t('uazapi.shop.cart.summary', count: cart.total_items, item_text: item_text, subtotal: subtotal)}"
 
     buttons = [
-      { text: '🛒 Ver Carrinho', id: 'VIEW_CART', type: 'reply' },
-      { text: '✅ Finalizar Pedido', id: 'CHECKOUT', type: 'reply' }
+      { text: I18n.t('uazapi.shop.buttons.view_cart'), id: 'VIEW_CART', type: 'reply' },
+      { text: I18n.t('uazapi.shop.buttons.checkout'), id: 'CHECKOUT', type: 'reply' }
     ]
 
     # Send via UAZAPI with buttons
@@ -307,7 +303,7 @@ class Uazapi::IncomingMessageService
     log "Error handling CHECKOUT: #{e.message}"
   end
 
-  def handle_clear_cart
+  def handle_clear_cart # rubocop:disable Metrics/MethodLength
     log 'Processing CLEAR_CART'
 
     cart = Shop::Cart.find_by(
@@ -321,7 +317,7 @@ class Uazapi::IncomingMessageService
       log "Cart #{cart.id} cleared"
     end
 
-    text = "🗑️ Carrinho limpo!\n\nSeu carrinho foi esvaziado com sucesso."
+    text = I18n.t('uazapi.shop.cart.cleared')
 
     provider_service = Uazapi::ProviderService.new(channel: inbox.channel)
     provider_service.send_text(phone_number, text)
@@ -337,7 +333,7 @@ class Uazapi::IncomingMessageService
   end
 
   def send_empty_cart_message
-    text = "🛒 Seu carrinho está vazio!\n\nAdicione produtos para continuar."
+    text = I18n.t('uazapi.shop.cart.empty')
 
     provider_service = Uazapi::ProviderService.new(channel: inbox.channel)
     provider_service.send_text(phone_number, text)
@@ -350,22 +346,22 @@ class Uazapi::IncomingMessageService
     )
   end
 
-  def send_cart_details(cart)
+  def send_cart_details(cart) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
     items_text = cart.items.map do |item|
       price = format('%.2f', item.total_price).tr('.', ',')
-      "• #{item.quantity}x #{item.product.name} - R$ #{price}"
+      I18n.t('uazapi.shop.cart.item_line', quantity: item.quantity, product_name: item.product.name, price: price)
     end.join("\n")
 
     subtotal = format('%.2f', cart.subtotal).tr('.', ',')
 
-    text = "🛒 *Seu Carrinho*\n\n" \
+    text = "#{I18n.t('uazapi.shop.cart.title')}\n\n" \
            "#{items_text}\n\n" \
-           "━━━━━━━━━━━━━━━\n" \
-           "💰 *Total: R$ #{subtotal}*"
+           "#{I18n.t('uazapi.shop.cart.separator')}\n" \
+           "#{I18n.t('uazapi.shop.cart.total', total: subtotal)}"
 
     buttons = [
-      { text: '✅ Finalizar Pedido', id: 'CHECKOUT', type: 'reply' },
-      { text: '🗑️ Limpar Carrinho', id: 'CLEAR_CART', type: 'reply' }
+      { text: I18n.t('uazapi.shop.buttons.checkout'), id: 'CHECKOUT', type: 'reply' },
+      { text: I18n.t('uazapi.shop.buttons.clear_cart'), id: 'CLEAR_CART', type: 'reply' }
     ]
 
     provider_service = Uazapi::ProviderService.new(channel: inbox.channel)
@@ -384,21 +380,19 @@ class Uazapi::IncomingMessageService
     )
   end
 
-  def send_checkout_message(cart)
+  def send_checkout_message(cart) # rubocop:disable Metrics/AbcSize
     items_text = cart.items.map do |item|
       price = format('%.2f', item.total_price).tr('.', ',')
-      "• #{item.quantity}x #{item.product.name} - R$ #{price}"
+      I18n.t('uazapi.shop.cart.item_line', quantity: item.quantity, product_name: item.product.name, price: price)
     end.join("\n")
 
     subtotal = format('%.2f', cart.subtotal).tr('.', ',')
 
-    text = "✅ *Finalizar Pedido*\n\n" \
+    text = "#{I18n.t('uazapi.shop.checkout.title')}\n\n" \
            "#{items_text}\n\n" \
-           "━━━━━━━━━━━━━━━\n" \
-           "💰 *Total: R$ #{subtotal}*\n\n" \
-           "Para confirmar seu pedido, por favor informe:\n" \
-           "📍 Endereço de entrega\n" \
-           '💳 Forma de pagamento'
+           "#{I18n.t('uazapi.shop.cart.separator')}\n" \
+           "#{I18n.t('uazapi.shop.cart.total', total: subtotal)}\n\n" \
+           "#{I18n.t('uazapi.shop.checkout.instructions')}"
 
     provider_service = Uazapi::ProviderService.new(channel: inbox.channel)
     provider_service.send_text(phone_number, text)

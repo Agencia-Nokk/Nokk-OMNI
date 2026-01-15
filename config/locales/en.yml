@@ -455,3 +455,38 @@ en:
       subject: 'Finish setting up %{custom_domain}'
     ssl_status:
       custom_domain_not_configured: 'Custom domain is not configured'
+  uazapi:
+    shop:
+      buttons:
+        add_to_cart: '🛒 Add to Cart'
+        view_cart: '🛒 View Cart'
+        checkout: '✅ Checkout'
+        clear_cart: '🗑️ Clear Cart'
+        view_in_store: '🔗 View in Store'
+      cart:
+        added: '✅ *%{product_name}* added!'
+        summary: "🛒 *%{count} %{item_text}* in cart\n💰 Subtotal: *R$ %{subtotal}*"
+        item_one: 'item'
+        item_other: 'items'
+        cleared: "🗑️ Cart cleared!\n\nYour cart has been emptied successfully."
+        empty: "🛒 Your cart is empty!\n\nAdd products to continue."
+        title: '🛒 *Your Cart*'
+        item_line: '• %{quantity}x %{product_name} - R$ %{price}'
+        total: '💰 *Total: R$ %{total}*'
+        separator: '━━━━━━━━━━━━━━━'
+      checkout:
+        title: '✅ *Checkout*'
+        instructions: "To confirm your order, please provide:\n📍 Delivery address\n💳 Payment method"
+      button_response:
+        add_to_cart_with_product: '🛒 Add to Cart: %{product_name}'
+        generic_button: '📱 %{button_id}'
+      carousel:
+        default_text: 'Check out our products!'
+      errors:
+        no_products_found: 'No products found'
+        conversation_not_found: 'Conversation not found'
+        channel_not_uazapi: 'Channel is not UAZAPI'
+        no_products_selected: 'No products selected'
+        max_products_exceeded: 'Maximum 10 products allowed'
+      price:
+        consult: 'Inquire'

@@ -1,3 +1,4 @@
+# rubocop:disable Metrics/ClassLength
 class Uazapi::ProviderService
   def initialize(channel:)
     @channel = channel
@@ -39,6 +40,28 @@ class Uazapi::ProviderService
 
     log "[TEXT] Response: #{response.code} - #{response.body}"
 
+    process_response(response)
+  end
+
+  # Simple text sending (for cart messages, confirmations, etc.)
+  def send_text(phone_number, text)
+    log "[TEXT] Sending simple text to #{phone_number}: #{text.truncate(100)}"
+
+    body = {
+      number: phone_number,
+      text: text,
+      delay: 1000,
+      readchat: true,
+      track_source: 'chatwoot'
+    }
+
+    response = HTTParty.post(
+      "#{api_url}/send/text",
+      headers: api_headers,
+      body: body.to_json
+    )
+
+    log "[TEXT] Response: #{response.code}"
     process_response(response)
   end
 
@@ -164,7 +187,7 @@ class Uazapi::ProviderService
     false
   end
 
-  def send_carousel(phone_number, text:, cards:, track_id: nil) # rubocop:disable Metrics/MethodLength
+  def send_carousel(phone_number, text:, cards:, track_id: nil) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
     log "[CAROUSEL] Sending carousel to #{phone_number} with #{cards.length} cards"
 
     body = {
@@ -202,15 +225,12 @@ class Uazapi::ProviderService
     { success: false, error: e.message }
   end
 
-  def send_buttons(phone_number, text:, buttons:, footer: nil)
+  def send_buttons(phone_number, text:, buttons:, footer: nil) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
     log "[BUTTONS] Sending buttons to #{phone_number}"
 
     # Format buttons for UAZAPI: "texto|reply:id" or "texto|url"
     choices = buttons.map do |btn|
-      case btn[:type].to_s.downcase
-      when 'reply'
-        "#{btn[:text]}|reply:#{btn[:id]}"
-      when 'url'
+      if btn[:type].to_s.casecmp('url').zero?
         "#{btn[:text]}|#{btn[:id]}"
       else
         "#{btn[:text]}|reply:#{btn[:id]}"
@@ -344,3 +364,4 @@ class Uazapi::ProviderService
     nil
   end
 end
+# rubocop:enable Metrics/ClassLength
