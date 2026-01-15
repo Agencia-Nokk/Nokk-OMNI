@@ -644,6 +644,11 @@ const filteredMenuItems = computed(() => {
         <div class="grid flex-shrink-0 place-content-center size-8">
           <Logo class="size-6" />
         </div>
+        <span
+          class="flex-shrink-0 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full bg-woot-500 text-white"
+        >
+          {{ $t('SIDEBAR.BETA_BADGE') }}
+        </span>
         <div class="flex-shrink-0 w-px h-4 bg-n-strong" />
         <SidebarAccountSwitcher
           class="flex-grow -mx-1 min-w-0"

@@ -1,5 +1,6 @@
 class Api::V1::Accounts::Conversations::MessagesController < Api::V1::Accounts::Conversations::BaseController
   before_action :ensure_api_inbox, only: :update
+  after_action :trigger_uazapi_history_fetch, only: :index
 
   def index
     @messages = message_finder.perform
@@ -103,5 +104,13 @@ class Api::V1::Accounts::Conversations::MessagesController < Api::V1::Accounts::
   def ensure_api_inbox
     # Only API inboxes can update messages
     render json: { error: 'Message status update is only allowed for API inboxes' }, status: :forbidden unless @conversation.inbox.api?
+  end
+
+  # Trigger history fetch for UAZAPI channels when conversation is opened
+  def trigger_uazapi_history_fetch
+    return unless @conversation.inbox.uazapi?
+    return if @conversation.messages.where.not(message_type: :activity).exists?
+
+    Uazapi::FetchHistoryJob.perform_later(@conversation.id)
   end
 end

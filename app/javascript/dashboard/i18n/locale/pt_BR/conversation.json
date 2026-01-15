@@ -44,6 +44,7 @@
     "TWILIO_WHATSAPP_CAN_REPLY": "Você só pode responder a esta conversa usando um modelo de mensagem devido a",
     "TWILIO_WHATSAPP_24_HOURS_WINDOW": "Restrições de janela de mensagem de 24 horas",
     "OLD_INSTAGRAM_INBOX_REPLY_BANNER": "Esta conta do Instagram foi migrada para a nova caixa de entrada do canal do Instagram. Todas as novas mensagens serão mostradas lá. Você não poderá mais enviar mensagens desta conversa.",
+    "UAZAPI_NO_HISTORY": "O histórico de mensagens desta conversa não está disponível no WhatsApp. Novas mensagens aparecerão normalmente assim que o contato enviar uma mensagem.",
     "REPLYING_TO": "Você está respondendo a:",
     "REMOVE_SELECTION": "Remover seleção",
     "DOWNLOAD": "Baixar",

@@ -27,12 +27,34 @@ class Channel::Uazapi < ApplicationRecord
   validate :validate_provider_config
 
   after_commit :verify_api_connection, on: :create
+  after_commit :trigger_initial_sync, on: :create
 
   # SSE connections are managed by the uazapi_sse daemon process
   # New channels are detected automatically every 30 seconds
 
   def name
     'UAZAPI'
+  end
+
+  # Sync status methods
+  def sync_status
+    provider_config&.dig('sync_status') || 'pending'
+  end
+
+  def sync_progress
+    provider_config&.dig('sync_progress') || { synced: 0, total: 0 }
+  end
+
+  def sync_in_progress?
+    sync_status == 'syncing'
+  end
+
+  def sync_completed?
+    sync_status == 'completed'
+  end
+
+  def start_sync!
+    Uazapi::InitialSyncJob.perform_later(id)
   end
 
   def provider_service
@@ -71,5 +93,13 @@ class Channel::Uazapi < ApplicationRecord
     Rails.logger.info "[UAZAPI] Channel #{id} created. API status: #{response.code}"
   rescue StandardError => e
     Rails.logger.warn "[UAZAPI] Channel #{id} created but API verification failed: #{e.message}"
+  end
+
+  def trigger_initial_sync
+    # Wait a bit for inbox to be created, then start sync
+    Uazapi::InitialSyncJob.set(wait: 5.seconds).perform_later(id)
+    Rails.logger.info "[UAZAPI] Channel #{id} - Initial sync job scheduled"
+  rescue StandardError => e
+    Rails.logger.warn "[UAZAPI] Channel #{id} - Failed to schedule initial sync: #{e.message}"
   end
 end

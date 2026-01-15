@@ -175,6 +175,66 @@ class Uazapi::ProviderService
     @channel.api_url
   end
 
+  # Fetch all chats from UAZAPI
+  def fetch_chats(limit: 2000, offset: 0)
+    response = HTTParty.post(
+      "#{api_url}/chat/find",
+      headers: api_headers,
+      body: {
+        sort: '-wa_lastMsgTimestamp',
+        limit: limit,
+        offset: offset
+      }.to_json
+    )
+
+    return { chats: [], pagination: {} } unless response.success?
+
+    body = JSON.parse(response.body)
+    {
+      chats: body['chats'] || [],
+      pagination: body['pagination'] || {}
+    }
+  rescue StandardError => e
+    Rails.logger.error "[UAZAPI] Error fetching chats: #{e.message}"
+    { chats: [], pagination: {} }
+  end
+
+  # Fetch messages for a specific chat
+  def fetch_messages(chat_id, limit: 20)
+    response = HTTParty.post(
+      "#{api_url}/message/find",
+      headers: api_headers,
+      body: {
+        chatid: chat_id,
+        limit: limit
+      }.to_json
+    )
+
+    return [] unless response.success?
+
+    body = JSON.parse(response.body)
+    body['messages'] || []
+  rescue StandardError => e
+    Rails.logger.error "[UAZAPI] Error fetching messages for #{chat_id}: #{e.message}"
+    []
+  end
+
+  # Fetch contact details
+  def fetch_contact_details(phone_number)
+    response = HTTParty.post(
+      "#{api_url}/chat/details",
+      headers: api_headers,
+      body: { number: phone_number, preview: false }.to_json
+    )
+
+    return nil unless response.success?
+
+    JSON.parse(response.body)
+  rescue StandardError => e
+    Rails.logger.error "[UAZAPI] Error fetching contact details: #{e.message}"
+    nil
+  end
+
   private
 
   def log(message)

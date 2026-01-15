@@ -360,6 +360,14 @@ export const actions = {
     const response = await InboxesAPI.getCSATTemplateStatus(inboxId);
     return response.data;
   },
+  updateSyncStatus: ({ commit }, data) => {
+    const { inbox_id: inboxId, status, synced, total, percentage } = data;
+    commit(types.default.UPDATE_INBOX_SYNC_STATUS, {
+      inboxId,
+      syncStatus: status,
+      syncProgress: { synced, total, percentage },
+    });
+  },
 };
 
 export const mutations = {
@@ -371,6 +379,16 @@ export const mutations = {
   [types.default.ADD_INBOXES]: MutationHelpers.create,
   [types.default.EDIT_INBOXES]: MutationHelpers.update,
   [types.default.DELETE_INBOXES]: MutationHelpers.destroy,
+  [types.default.UPDATE_INBOX_SYNC_STATUS](
+    $state,
+    { inboxId, syncStatus, syncProgress }
+  ) {
+    const inbox = $state.records.find(r => r.id === Number(inboxId));
+    if (inbox) {
+      inbox.sync_status = syncStatus;
+      inbox.sync_progress = syncProgress;
+    }
+  },
 };
 
 export default {

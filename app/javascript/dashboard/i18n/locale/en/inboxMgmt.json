@@ -464,6 +464,11 @@
         "SUBMIT_BUTTON": "Create UAZAPI Channel",
         "API": {
           "ERROR_MESSAGE": "We were not able to save the UAZAPI channel"
+        },
+        "SYNC": {
+          "TITLE": "Syncing Contacts",
+          "DESC": "We're importing your existing WhatsApp contacts. This may take a few moments depending on the number of contacts.",
+          "SKIP": "Skip and continue"
         }
       },
       "AUTH": {

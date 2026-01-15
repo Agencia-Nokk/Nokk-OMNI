@@ -135,3 +135,11 @@ if resource.channel_type == 'Channel::Voice'
   json.voice_call_webhook_url resource.channel.try(:voice_call_webhook_url)
   json.voice_status_webhook_url resource.channel.try(:voice_status_webhook_url)
 end
+
+## UAZAPI Channel Attributes
+if resource.uazapi?
+  json.phone_number resource.channel.try(:phone_number)
+  json.sync_status resource.channel.try(:sync_status)
+  json.sync_progress resource.channel.try(:sync_progress)
+  json.provider_config resource.channel.try(:provider_config) if Current.account_user&.administrator?
+end
