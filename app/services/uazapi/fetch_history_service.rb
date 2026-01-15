@@ -83,6 +83,9 @@ class Uazapi::FetchHistoryService
 
     # Import media if present
     import_media(message, msg_data) if has_media?(msg_data)
+
+    # Download high-quality images for carousel messages
+    download_carousel_images(message, msg_data) if carousel_message?(msg_data)
   rescue ActiveRecord::RecordNotUnique
     # Already imported
   rescue StandardError => e
@@ -181,6 +184,67 @@ class Uazapi::FetchHistoryService
     rescue JSON::ParserError
       { type: btn['name'], display_text: 'Button', id: nil }
     end
+  end
+
+  def carousel_message?(msg_data)
+    content = msg_data['content']
+    return false unless content.is_a?(Hash)
+
+    interactive = content['InteractiveMessage'] || content['interactiveMessage']
+    return false unless interactive
+
+    interactive.key?('CarouselMessage') || interactive.key?('carouselMessage')
+  end
+
+  def download_carousel_images(message, _msg_data)
+    interactive_data = message.content_attributes&.dig('interactive_data')
+    return if interactive_data&.dig('cards').blank?
+
+    updated_cards = interactive_data['cards'].map.with_index do |card, index|
+      download_carousel_card_image(message, card, index)
+    end
+
+    # Update message with new image URLs
+    new_content_attributes = message.content_attributes.deep_dup
+    new_content_attributes['interactive_data']['cards'] = updated_cards
+    message.update!(content_attributes: new_content_attributes)
+    log "Updated carousel cards with images for message #{message.id}"
+  rescue StandardError => e
+    log "Error downloading carousel images: #{e.message}"
+  end
+
+  def download_carousel_card_image(message, card, index) # rubocop:disable Metrics/MethodLength
+    return card unless card['image_thumbnail'].present? || card['image_url'].present?
+
+    image_url = card['image_url']
+    if image_url.present?
+      begin
+        file = Down.download(image_url)
+        attachment = message.attachments.create!(
+          account_id: inbox.account_id,
+          file_type: 'image',
+          file: {
+            io: file,
+            filename: "carousel_#{index}_#{Time.current.to_i}.jpg",
+            content_type: 'image/jpeg'
+          }
+        )
+        return card.merge('image_attachment_url' => attachment_url(attachment)) if attachment
+      rescue StandardError => e
+        log "Failed to download card #{index} image: #{e.message}"
+      end
+    end
+
+    card
+  end
+
+  def attachment_url(attachment)
+    return nil unless attachment&.file&.attached?
+
+    Rails.application.routes.url_helpers.rails_blob_url(
+      attachment.file,
+      host: ENV.fetch('FRONTEND_URL', nil) || 'http://localhost:3000'
+    )
   end
 
   def extract_message_id(msg_data)

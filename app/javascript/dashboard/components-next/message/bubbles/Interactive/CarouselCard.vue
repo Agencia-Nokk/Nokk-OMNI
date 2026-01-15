@@ -10,7 +10,13 @@ const props = defineProps({
 });
 
 const imageUrl = computed(() => {
-  // Priorizar URL direta, depois base64 thumbnail
+  // Prioridade: 1) attachment URL (alta qualidade), 2) URL direta, 3) base64 thumbnail
+  const attachmentUrl =
+    props.card.image_attachment_url || props.card.imageAttachmentUrl;
+  if (attachmentUrl) {
+    return attachmentUrl;
+  }
+
   if (props.card.image_url || props.card.imageUrl) {
     return props.card.image_url || props.card.imageUrl;
   }

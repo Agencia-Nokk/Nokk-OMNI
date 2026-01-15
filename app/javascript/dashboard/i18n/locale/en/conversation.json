@@ -358,7 +358,8 @@
       "PREVIOUS_CONVERSATION": "Previous Conversations",
       "MACROS": "Macros",
       "LINEAR_ISSUES": "Linked Linear Issues",
-      "SHOPIFY_ORDERS": "Shopify Orders"
+      "SHOPIFY_ORDERS": "Shopify Orders",
+      "SHOP_CART": "Carrinho"
     },
     "SHOPIFY": {
       "ORDER_ID": "Order #{id}",
@@ -444,5 +445,31 @@
   },
   "GALLERY_VIEW": {
     "ERROR_DOWNLOADING": "Unable to download attachment. Please try again"
+  },
+  "PRODUCT_CAROUSEL": {
+    "MODAL": {
+      "TITLE": "Enviar Catálogo de Produtos",
+      "SUBTITLE_EMPTY": "Selecione os produtos para enviar",
+      "SUBTITLE_SELECTED": "{count} produto(s) selecionado(s)"
+    },
+    "PREVIEW": {
+      "MESSAGE_LABEL": "Mensagem (opcional)",
+      "MESSAGE_PLACEHOLDER": "Confira nossos produtos!"
+    },
+    "SEARCH_PLACEHOLDER": "Buscar produtos...",
+    "NO_PRODUCTS": "Nenhum produto disponível",
+    "NO_PRODUCTS_SEARCH": "Nenhum produto encontrado para",
+    "NO_DESCRIPTION": "Sem descrição",
+    "BUTTON_CANCEL": "Cancelar",
+    "BUTTON_SEND": "Enviar",
+    "SEND_SUCCESS": "Catálogo enviado com sucesso!",
+    "SEND_ERROR": "Erro ao enviar catálogo. Tente novamente.",
+    "TOOLTIP": "Enviar catálogo de produtos"
+  },
+  "SHOP_CART": {
+    "EMPTY": "Carrinho vazio",
+    "ERROR": "Erro ao carregar carrinho",
+    "ITEM": "item",
+    "ITEMS": "itens"
   }
 }

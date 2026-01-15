@@ -5,6 +5,8 @@ class Uazapi::IncomingMessageService
   def perform # rubocop:disable Metrics/AbcSize, Metrics/MethodLength, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     log 'IncomingMessageService.perform started'
     log "message_id: #{message_id}, from_me: #{from_me?}, chat_id: #{chat_id}"
+    log "message_type: #{message_type}, buttonOrListid: #{message_data['buttonOrListid']}"
+    log "content: #{message_content.to_s.truncate(100)}"
 
     if message_already_processed?
       log 'Message already processed, skipping'
@@ -38,6 +40,12 @@ class Uazapi::IncomingMessageService
       log 'Downloading carousel images...'
       download_carousel_images
     end
+
+    # Handle button responses
+    handle_add_cart_response if add_cart_response?
+    handle_view_cart if view_cart_response?
+    handle_checkout if checkout_response?
+    handle_clear_cart if clear_cart_response?
 
     log 'IncomingMessageService.perform completed!'
   rescue StandardError => e
@@ -121,6 +129,10 @@ class Uazapi::IncomingMessageService
     text = message_data['text']
     return text if text.present?
 
+    # Para respostas de botão, usar o buttonOrListid
+    button_id = message_data['buttonOrListid'].to_s
+    return format_button_response(button_id) if button_id.present?
+
     # Para mensagens interativas, extrair o texto do body
     return extract_interactive_text if interactive_message?
 
@@ -129,11 +141,335 @@ class Uazapi::IncomingMessageService
     content.is_a?(String) ? content : ''
   end
 
+  def format_button_response(button_id)
+    # Format ADD_CART buttons nicely
+    if button_id.start_with?('ADD_CART_')
+      product_id = button_id.gsub('ADD_CART_', '')
+      product = inbox.account.shop_products.find_by(id: product_id)
+      return "🛒 Adicionar ao Carrinho: #{product.name}" if product
+
+      return '🛒 Adicionar ao Carrinho'
+    end
+
+    # Format other button responses
+    case button_id
+    when 'VIEW_CART'
+      '🛒 Ver Carrinho'
+    when 'CHECKOUT'
+      '✅ Finalizar Pedido'
+    when 'CLEAR_CART'
+      '🗑️ Limpar Carrinho'
+    else
+      "📱 #{button_id}"
+    end
+  end
+
   def interactive_message?
     content = message_data['content']
     return false unless content.is_a?(Hash)
 
     content.key?('InteractiveMessage') || content.key?('interactiveMessage')
+  end
+
+  def carousel_message?
+    return false unless interactive_message?
+
+    content = message_data['content']
+    interactive = content['InteractiveMessage'] || content['interactiveMessage'] || {}
+    interactive.key?('CarouselMessage') || interactive.key?('carouselMessage')
+  end
+
+  def add_cart_response?
+    button_id = message_data['buttonOrListid'].to_s
+    button_id.start_with?('ADD_CART_')
+  end
+
+  def view_cart_response?
+    button_id = message_data['buttonOrListid'].to_s
+    button_id == 'VIEW_CART'
+  end
+
+  def checkout_response?
+    button_id = message_data['buttonOrListid'].to_s
+    button_id == 'CHECKOUT'
+  end
+
+  def clear_cart_response?
+    button_id = message_data['buttonOrListid'].to_s
+    button_id == 'CLEAR_CART'
+  end
+
+  def handle_add_cart_response
+    # Check both buttonOrListid and message content for the ADD_CART ID
+    button_id = message_data['buttonOrListid'].to_s
+    cart_id = if button_id.start_with?('ADD_CART_')
+                button_id
+              else
+                message_content.to_s
+              end
+
+    product_id = cart_id.gsub('ADD_CART_', '').to_i
+    return if product_id.zero?
+
+    log "Processing ADD_CART for product #{product_id}"
+
+    product = inbox.account.shop_products.find_by(id: product_id)
+    return unless product
+
+    # Get or create cart for this conversation
+    cart = Shop::Cart.find_or_create_by!(
+      account: inbox.account,
+      conversation: @conversation,
+      contact: @contact,
+      status: :active
+    )
+
+    # Add product to cart
+    cart.add_item(product, quantity: 1)
+
+    # Send confirmation message
+    send_cart_confirmation(product, cart)
+    log "Added product #{product.id} to cart #{cart.id}"
+  rescue StandardError => e
+    log "Error handling ADD_CART: #{e.message}"
+  end
+
+  def send_cart_confirmation(product, cart)
+    subtotal = format('%.2f', cart.subtotal).tr('.', ',')
+    item_text = cart.total_items == 1 ? 'item' : 'itens'
+
+    text = "✅ *#{product.name}* adicionado!\n\n" \
+           "🛒 *#{cart.total_items} #{item_text}* no carrinho\n" \
+           "💰 Subtotal: *R$ #{subtotal}*"
+
+    buttons = [
+      { text: '🛒 Ver Carrinho', id: 'VIEW_CART', type: 'reply' },
+      { text: '✅ Finalizar Pedido', id: 'CHECKOUT', type: 'reply' }
+    ]
+
+    # Send via UAZAPI with buttons
+    provider_service = Uazapi::ProviderService.new(channel: inbox.channel)
+    result = provider_service.send_buttons(
+      phone_number,
+      text: text,
+      buttons: buttons
+    )
+
+    # Create local message to show in conversation
+    @conversation.messages.create!(
+      account: inbox.account,
+      inbox: inbox,
+      content: text,
+      message_type: :outgoing,
+      source_id: result[:message_id]
+    )
+  end
+
+  def phone_number
+    @contact.phone_number&.gsub(/\D/, '') || @conversation.contact_inbox&.source_id&.gsub(/@.*/, '')
+  end
+
+  def handle_view_cart
+    log 'Processing VIEW_CART'
+
+    cart = Shop::Cart.find_by(
+      account: inbox.account,
+      conversation: @conversation,
+      status: :active
+    )
+
+    unless cart&.items&.any?
+      send_empty_cart_message
+      return
+    end
+
+    send_cart_details(cart)
+  rescue StandardError => e
+    log "Error handling VIEW_CART: #{e.message}"
+  end
+
+  def handle_checkout
+    log 'Processing CHECKOUT'
+
+    cart = Shop::Cart.find_by(
+      account: inbox.account,
+      conversation: @conversation,
+      status: :active
+    )
+
+    unless cart&.items&.any?
+      send_empty_cart_message
+      return
+    end
+
+    send_checkout_message(cart)
+  rescue StandardError => e
+    log "Error handling CHECKOUT: #{e.message}"
+  end
+
+  def handle_clear_cart
+    log 'Processing CLEAR_CART'
+
+    cart = Shop::Cart.find_by(
+      account: inbox.account,
+      conversation: @conversation,
+      status: :active
+    )
+
+    if cart
+      cart.items.destroy_all
+      log "Cart #{cart.id} cleared"
+    end
+
+    text = "🗑️ Carrinho limpo!\n\nSeu carrinho foi esvaziado com sucesso."
+
+    provider_service = Uazapi::ProviderService.new(channel: inbox.channel)
+    provider_service.send_text(phone_number, text)
+
+    @conversation.messages.create!(
+      account: inbox.account,
+      inbox: inbox,
+      content: text,
+      message_type: :outgoing
+    )
+  rescue StandardError => e
+    log "Error handling CLEAR_CART: #{e.message}"
+  end
+
+  def send_empty_cart_message
+    text = "🛒 Seu carrinho está vazio!\n\nAdicione produtos para continuar."
+
+    provider_service = Uazapi::ProviderService.new(channel: inbox.channel)
+    provider_service.send_text(phone_number, text)
+
+    @conversation.messages.create!(
+      account: inbox.account,
+      inbox: inbox,
+      content: text,
+      message_type: :outgoing
+    )
+  end
+
+  def send_cart_details(cart)
+    items_text = cart.items.map do |item|
+      price = format('%.2f', item.total_price).tr('.', ',')
+      "• #{item.quantity}x #{item.product.name} - R$ #{price}"
+    end.join("\n")
+
+    subtotal = format('%.2f', cart.subtotal).tr('.', ',')
+
+    text = "🛒 *Seu Carrinho*\n\n" \
+           "#{items_text}\n\n" \
+           "━━━━━━━━━━━━━━━\n" \
+           "💰 *Total: R$ #{subtotal}*"
+
+    buttons = [
+      { text: '✅ Finalizar Pedido', id: 'CHECKOUT', type: 'reply' },
+      { text: '🗑️ Limpar Carrinho', id: 'CLEAR_CART', type: 'reply' }
+    ]
+
+    provider_service = Uazapi::ProviderService.new(channel: inbox.channel)
+    result = provider_service.send_buttons(
+      phone_number,
+      text: text,
+      buttons: buttons
+    )
+
+    @conversation.messages.create!(
+      account: inbox.account,
+      inbox: inbox,
+      content: text,
+      message_type: :outgoing,
+      source_id: result[:message_id]
+    )
+  end
+
+  def send_checkout_message(cart)
+    items_text = cart.items.map do |item|
+      price = format('%.2f', item.total_price).tr('.', ',')
+      "• #{item.quantity}x #{item.product.name} - R$ #{price}"
+    end.join("\n")
+
+    subtotal = format('%.2f', cart.subtotal).tr('.', ',')
+
+    text = "✅ *Finalizar Pedido*\n\n" \
+           "#{items_text}\n\n" \
+           "━━━━━━━━━━━━━━━\n" \
+           "💰 *Total: R$ #{subtotal}*\n\n" \
+           "Para confirmar seu pedido, por favor informe:\n" \
+           "📍 Endereço de entrega\n" \
+           '💳 Forma de pagamento'
+
+    provider_service = Uazapi::ProviderService.new(channel: inbox.channel)
+    provider_service.send_text(phone_number, text)
+
+    @conversation.messages.create!(
+      account: inbox.account,
+      inbox: inbox,
+      content: text,
+      message_type: :outgoing
+    )
+  end
+
+  def download_carousel_images
+    interactive_data = @message.content_attributes&.dig('interactive_data')
+    return if interactive_data&.dig('cards').blank?
+
+    updated_cards = interactive_data['cards'].map.with_index do |card, index|
+      download_carousel_card_image(card, index)
+    end
+
+    # Update message with new image URLs
+    new_content_attributes = @message.content_attributes.deep_dup
+    new_content_attributes['interactive_data']['cards'] = updated_cards
+    @message.update!(content_attributes: new_content_attributes)
+    log "Updated #{updated_cards.count} carousel cards with images"
+  rescue StandardError => e
+    log "Error downloading carousel images: #{e.message}"
+  end
+
+  def download_carousel_card_image(card, index)
+    # Skip if no image data available
+    return card unless card['image_thumbnail'].present? || card['image_url'].present?
+
+    # Try to download from URL first, then use thumbnail as fallback
+    image_url = card['image_url']
+    if image_url.present?
+      begin
+        file = Down.download(image_url)
+        attachment = create_carousel_attachment(file, index, 'image/jpeg')
+        return card.merge('image_attachment_url' => attachment_url(attachment)) if attachment
+      rescue StandardError => e
+        log "Failed to download card #{index} image from URL: #{e.message}"
+      end
+    end
+
+    # If URL failed or not available, use base64 thumbnail (already works, just keep it)
+    card
+  rescue StandardError => e
+    log "Error processing card #{index} image: #{e.message}"
+    card
+  end
+
+  def create_carousel_attachment(file, index, content_type)
+    @message.attachments.create!(
+      account_id: inbox.account_id,
+      file_type: 'image',
+      file: {
+        io: file,
+        filename: "carousel_#{index}_#{Time.current.to_i}.jpg",
+        content_type: content_type
+      }
+    )
+  end
+
+  def attachment_url(attachment)
+    return nil unless attachment&.file&.attached?
+
+    Rails.application.routes.url_helpers.rails_blob_url(
+      attachment.file,
+      host: ENV.fetch('FRONTEND_URL', nil) || 'http://localhost:3000'
+    )
   end
 
   def extract_interactive_text # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity

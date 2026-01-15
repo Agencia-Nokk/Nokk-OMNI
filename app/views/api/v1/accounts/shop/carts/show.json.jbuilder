@@ -29,8 +29,13 @@ json.items @cart.items do |item|
     json.id item.product.id
     json.name item.product.name
     json.price item.product.price
-    json.primary_image item.product.primary_image
-    json.images item.product.images
+    if item.product.images.attached?
+      json.primary_image rails_blob_url(item.product.images.first, only_path: true)
+      json.images item.product.images.map { |img| rails_blob_url(img, only_path: true) }
+    else
+      json.primary_image nil
+      json.images []
+    end
   end
   
   if item.variant

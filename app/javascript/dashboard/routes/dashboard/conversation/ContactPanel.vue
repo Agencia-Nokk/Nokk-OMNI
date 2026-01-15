@@ -20,6 +20,7 @@ import CustomAttributes from './customAttributes/CustomAttributes.vue';
 import Draggable from 'vuedraggable';
 import MacrosList from './Macros/List.vue';
 import ShopifyOrdersList from 'dashboard/components/widgets/conversation/ShopifyOrdersList.vue';
+import ShopCartPanel from 'dashboard/components/widgets/conversation/ShopCartPanel.vue';
 import SidebarActionsHeader from 'dashboard/components-next/SidebarActionsHeader.vue';
 import LinearIssuesList from 'dashboard/components/widgets/conversation/linear/IssuesList.vue';
 import LinearSetupCTA from 'dashboard/components/widgets/conversation/linear/LinearSetupCTA.vue';
@@ -283,6 +284,21 @@ onMounted(() => {
               "
             >
               <ShopifyOrdersList :contact-id="contactId" />
+            </AccordionItem>
+          </div>
+          <div v-else-if="element.name === 'shop_cart'">
+            <AccordionItem
+              :title="$t('CONVERSATION_SIDEBAR.ACCORDION.SHOP_CART')"
+              :is-open="isContactSidebarItemOpen('is_shop_cart_open')"
+              compact
+              @toggle="
+                value => toggleSidebarUIState('is_shop_cart_open', value)
+              "
+            >
+              <ShopCartPanel
+                :conversation-id="conversationId"
+                :contact-id="contactId"
+              />
             </AccordionItem>
           </div>
           <div v-else-if="element.name === 'contact_notes'">

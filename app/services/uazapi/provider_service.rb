@@ -164,6 +164,88 @@ class Uazapi::ProviderService
     false
   end
 
+  def send_carousel(phone_number, text:, cards:, track_id: nil) # rubocop:disable Metrics/MethodLength
+    log "[CAROUSEL] Sending carousel to #{phone_number} with #{cards.length} cards"
+
+    body = {
+      number: phone_number,
+      text: text,
+      carousel: cards.map do |card|
+        {
+          text: card[:text],
+          image: card[:image],
+          buttons: card[:buttons]
+        }
+      end,
+      delay: 300,
+      readchat: true,
+      track_source: 'chatwoot',
+      track_id: track_id&.to_s
+    }.compact
+
+    response = HTTParty.post(
+      "#{api_url}/send/carousel",
+      headers: api_headers,
+      body: body.to_json
+    )
+
+    log "[CAROUSEL] Response: #{response.code} - #{response.body}"
+
+    if response.success?
+      result = JSON.parse(response.body)
+      { success: true, message_id: result['id'] || result['messageid'] }
+    else
+      { success: false, error: response.body }
+    end
+  rescue StandardError => e
+    Rails.logger.error "[UAZAPI] Error sending carousel: #{e.message}"
+    { success: false, error: e.message }
+  end
+
+  def send_buttons(phone_number, text:, buttons:, footer: nil)
+    log "[BUTTONS] Sending buttons to #{phone_number}"
+
+    # Format buttons for UAZAPI: "texto|reply:id" or "texto|url"
+    choices = buttons.map do |btn|
+      case btn[:type].to_s.downcase
+      when 'reply'
+        "#{btn[:text]}|reply:#{btn[:id]}"
+      when 'url'
+        "#{btn[:text]}|#{btn[:id]}"
+      else
+        "#{btn[:text]}|reply:#{btn[:id]}"
+      end
+    end
+
+    body = {
+      number: phone_number,
+      type: 'button',
+      text: text,
+      choices: choices,
+      footerText: footer,
+      delay: 300,
+      readchat: true
+    }.compact
+
+    response = HTTParty.post(
+      "#{api_url}/send/menu",
+      headers: api_headers,
+      body: body.to_json
+    )
+
+    log "[BUTTONS] Response: #{response.code} - #{response.body}"
+
+    if response.success?
+      result = JSON.parse(response.body)
+      { success: true, message_id: result['id'] || result['messageid'] }
+    else
+      { success: false, error: response.body }
+    end
+  rescue StandardError => e
+    Rails.logger.error "[UAZAPI] Error sending buttons: #{e.message}"
+    { success: false, error: e.message }
+  end
+
   def api_headers
     {
       'Content-Type' => 'application/json',
