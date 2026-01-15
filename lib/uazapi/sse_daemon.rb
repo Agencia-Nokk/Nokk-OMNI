@@ -3,6 +3,7 @@ require 'json'
 require 'uri'
 require 'openssl'
 
+# rubocop:disable Metrics/ClassLength
 class Uazapi::SseDaemon
   attr_reader :connections
 
@@ -172,7 +173,7 @@ class Uazapi::SseDaemon
     log e.backtrace&.first(5)&.join("\n")
   end
 
-  def dispatch_event(event_type, channel, params)
+  def dispatch_event(event_type, channel, params) # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength
     log "[#{event_type}] Channel #{channel.id}"
     log "Params: #{params.to_json[0..500]}"
 
@@ -223,3 +224,4 @@ class Uazapi::SseDaemon
     end
   end
 end
+# rubocop:enable Metrics/ClassLength

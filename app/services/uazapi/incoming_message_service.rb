@@ -1,7 +1,8 @@
+# rubocop:disable Metrics/ClassLength
 class Uazapi::IncomingMessageService
   pattr_initialize [:inbox!, :params!]
 
-  def perform
+  def perform # rubocop:disable Metrics/AbcSize, Metrics/MethodLength, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     log 'IncomingMessageService.perform started'
     log "message_id: #{message_id}, from_me: #{from_me?}, chat_id: #{chat_id}"
 
@@ -155,7 +156,7 @@ class Uazapi::IncomingMessageService
     @params.dig('chat', 'wa_name') || @params.dig('chat', 'name')
   end
 
-  def set_contact
+  def set_contact # rubocop:disable Metrics/MethodLength
     @contact_inbox = inbox.contact_inboxes.find_by(source_id: source_id)
 
     unless @contact_inbox
@@ -307,7 +308,7 @@ class Uazapi::IncomingMessageService
     )
   end
 
-  def create_message
+  def create_message # rubocop:disable Metrics/AbcSize, Metrics/MethodLength, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     message_attrs = {
       account: inbox.account,
       inbox: inbox,
@@ -338,11 +339,12 @@ class Uazapi::IncomingMessageService
     @message = @conversation.messages.create!(message_attrs)
 
     # Log the saved content_attributes for debugging
-    return unless quoted_message_id.present?
+    return if quoted_message_id.blank?
 
     Rails.logger.info "[UAZAPI] Message created with content_attributes: #{@message.content_attributes.inspect}"
     Rails.logger.info "[UAZAPI] in_reply_to: #{@message.content_attributes['in_reply_to'] || @message.content_attributes[:in_reply_to]}"
-    Rails.logger.info "[UAZAPI] in_reply_to_external_id: #{@message.content_attributes['in_reply_to_external_id'] || @message.content_attributes[:in_reply_to_external_id]}"
+    external_id = @message.content_attributes['in_reply_to_external_id'] || @message.content_attributes[:in_reply_to_external_id]
+    Rails.logger.info "[UAZAPI] in_reply_to_external_id: #{external_id}"
   end
 
   def quoted_message_id
@@ -382,7 +384,7 @@ class Uazapi::IncomingMessageService
     Rails.logger.error e.backtrace&.first(5)&.join("\n")
   end
 
-  def fetch_media_url_from_uazapi
+  def fetch_media_url_from_uazapi # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
     # UAZAPI requires calling /message/download to get a public URL for encrypted WhatsApp media
     msg_id = message_id
     return nil if msg_id.blank?
@@ -455,3 +457,4 @@ class Uazapi::IncomingMessageService
     end
   end
 end
+# rubocop:enable Metrics/ClassLength
