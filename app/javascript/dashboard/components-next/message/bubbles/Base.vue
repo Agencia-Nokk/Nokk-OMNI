@@ -14,9 +14,22 @@ const props = defineProps({
   hideMeta: { type: Boolean, default: false },
 });
 
-const { variant, orientation, inReplyTo, shouldGroupWithNext } =
-  useMessageContext();
+const {
+  variant,
+  orientation,
+  inReplyTo,
+  shouldGroupWithNext,
+  contentAttributes,
+} = useMessageContext();
 const { t } = useI18n();
+
+const isGroupMessage = computed(() => {
+  return contentAttributes.value?.isGroupMessage === true;
+});
+
+const groupSenderName = computed(() => {
+  return contentAttributes.value?.groupSenderName || '';
+});
 
 const varaintBaseMap = {
   [MESSAGE_VARIANTS.AGENT]: 'bg-n-solid-blue text-n-slate-12',
@@ -102,6 +115,12 @@ const replyToPreview = computed(() => {
       },
     ]"
   >
+    <span
+      v-if="isGroupMessage && groupSenderName"
+      class="block text-xs font-medium text-n-blue-text mb-1 px-1"
+    >
+      {{ groupSenderName }}
+    </span>
     <div
       v-if="inReplyTo"
       class="p-2 -mx-1 mb-2 rounded-lg cursor-pointer bg-n-alpha-black1"

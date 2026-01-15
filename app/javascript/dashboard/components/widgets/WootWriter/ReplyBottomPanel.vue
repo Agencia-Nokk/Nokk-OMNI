@@ -94,6 +94,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    enableProductCarousel: {
+      type: Boolean,
+      default: false,
+    },
     conversationId: {
       type: Number,
       required: true,
@@ -128,6 +132,7 @@ export default {
     'toggleInsertArticle',
     'selectWhatsappTemplate',
     'selectContentTemplate',
+    'selectProductCarousel',
     'toggleQuotedReply',
   ],
   setup() {
@@ -365,6 +370,15 @@ export default {
         faded
         sm
         @click="$emit('selectContentTemplate')"
+      />
+      <NextButton
+        v-if="enableProductCarousel"
+        v-tooltip.top-end="$t('PRODUCT_CAROUSEL.TOOLTIP')"
+        icon="i-ph-storefront"
+        slate
+        faded
+        sm
+        @click="$emit('selectProductCarousel')"
       />
       <VideoCallButton
         v-if="(isAWebWidgetInbox || isAPIInbox) && !isOnPrivateNote"

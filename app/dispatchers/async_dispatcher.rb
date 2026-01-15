@@ -18,6 +18,7 @@ class AsyncDispatcher < BaseDispatcher
       NotificationListener.instance,
       ParticipationListener.instance,
       ReportingEventListener.instance,
+      UazapiListener.instance,
       WebhookListener.instance
     ]
   end

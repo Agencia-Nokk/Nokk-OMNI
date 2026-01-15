@@ -44,6 +44,7 @@
     "TWILIO_WHATSAPP_CAN_REPLY": "Você só pode responder a esta conversa usando um modelo de mensagem devido a",
     "TWILIO_WHATSAPP_24_HOURS_WINDOW": "Restrições de janela de mensagem de 24 horas",
     "OLD_INSTAGRAM_INBOX_REPLY_BANNER": "Esta conta do Instagram foi migrada para a nova caixa de entrada do canal do Instagram. Todas as novas mensagens serão mostradas lá. Você não poderá mais enviar mensagens desta conversa.",
+    "UAZAPI_NO_HISTORY": "O histórico de mensagens desta conversa não está disponível no WhatsApp. Novas mensagens aparecerão normalmente assim que o contato enviar uma mensagem.",
     "REPLYING_TO": "Você está respondendo a:",
     "REMOVE_SELECTION": "Remover seleção",
     "DOWNLOAD": "Baixar",
@@ -261,6 +262,7 @@
       "COPY": "Copiar",
       "REPLY_TO": "Responder mensagem",
       "DELETE": "Excluir",
+      "EDIT": "Editar",
       "CREATE_A_CANNED_RESPONSE": "Adicionar às respostas prontas",
       "TRANSLATE": "Traduzir",
       "COPY_PERMALINK": "Copiar link para a mensagem",
@@ -270,7 +272,14 @@
         "MESSAGE": "Você não pode desfazer essa ação",
         "DELETE": "Excluir",
         "CANCEL": "Cancelar"
-      }
+      },
+      "EDIT_MESSAGE": "Editar mensagem",
+      "EDIT_PLACEHOLDER": "Digite o novo conteúdo da mensagem",
+      "EDIT_SUCCESS": "Mensagem editada com sucesso",
+      "EDIT_ERROR": "Não foi possível editar a mensagem! Tente novamente",
+      "EDIT_EMPTY_ERROR": "O conteúdo da mensagem não pode estar vazio",
+      "CANCEL": "Cancelar",
+      "SAVE": "Salvar"
     },
     "SIDEBAR": {
       "CONTACT": "Contatos",

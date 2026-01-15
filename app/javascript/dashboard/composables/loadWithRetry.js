@@ -35,7 +35,7 @@ export const useLoadWithRetry = (config = {}) => {
     const retry = async (attempt = 0) => {
       try {
         await attemptLoad();
-      } catch (error) {
+      } catch {
         if (attempt + 1 >= maxRetry) {
           hasError.value = true;
           isLoaded.value = false;

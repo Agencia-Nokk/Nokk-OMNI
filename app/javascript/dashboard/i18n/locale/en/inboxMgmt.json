@@ -436,6 +436,41 @@
           "ERROR_MESSAGE": "We were not able to save the telegram channel"
         }
       },
+      "UAZAPI": {
+        "TITLE": "UAZAPI WhatsApp Channel",
+        "DESC": "Integrate with UAZAPI and start supporting your customers via WhatsApp.",
+        "INBOX_NAME": {
+          "LABEL": "Inbox Name",
+          "PLACEHOLDER": "Please enter an inbox name",
+          "ERROR": "This field is required"
+        },
+        "PHONE_NUMBER": {
+          "LABEL": "Phone number",
+          "PLACEHOLDER": "Please enter the phone number (e.g. +5511999999999)",
+          "ERROR": "Please provide a valid phone number that starts with a `+` sign and does not contain any spaces."
+        },
+        "API_URL": {
+          "LABEL": "API URL",
+          "PLACEHOLDER": "https://your-instance.uazapi.com",
+          "SUBTITLE": "Enter the URL of your UAZAPI instance.",
+          "ERROR": "This field is required"
+        },
+        "API_TOKEN": {
+          "LABEL": "API Token",
+          "PLACEHOLDER": "Enter your UAZAPI token",
+          "SUBTITLE": "The token from your UAZAPI instance.",
+          "ERROR": "This field is required"
+        },
+        "SUBMIT_BUTTON": "Create UAZAPI Channel",
+        "API": {
+          "ERROR_MESSAGE": "We were not able to save the UAZAPI channel"
+        },
+        "SYNC": {
+          "TITLE": "Syncing Contacts",
+          "DESC": "We're importing your existing WhatsApp contacts. This may take a few moments depending on the number of contacts.",
+          "SKIP": "Skip and continue"
+        }
+      },
       "AUTH": {
         "TITLE": "Choose a channel",
         "DESC": "Chatwoot supports live-chat widgets, Facebook Messenger, WhatsApp, Emails, etc., as channels. If you want to build a custom channel, you can create it using the API channel. To get started, choose one of the channels below.",
@@ -485,6 +520,10 @@
           "VOICE": {
             "TITLE": "Voice",
             "DESCRIPTION": "Integrate with Twilio Voice"
+          },
+          "UAZAPI": {
+            "TITLE": "UAZAPI",
+            "DESCRIPTION": "Connect WhatsApp via UAZAPI"
           }
         }
       },
@@ -1051,7 +1090,8 @@
       "API": "API Channel",
       "INSTAGRAM": "Instagram",
       "TIKTOK": "TikTok",
-      "VOICE": "Voice"
+      "VOICE": "Voice",
+      "UAZAPI": "UAZAPI"
     }
   }
 }

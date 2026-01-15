@@ -38,6 +38,7 @@ import LocationBubble from './bubbles/Location.vue';
 import CSATBubble from './bubbles/CSAT.vue';
 import FormBubble from './bubbles/Form.vue';
 import VoiceCallBubble from './bubbles/VoiceCall.vue';
+import InteractiveBubble from './bubbles/Interactive/Index.vue';
 
 import MessageError from './MessageError.vue';
 import ContextMenu from 'dashboard/modules/conversations/components/MessageContextMenu.vue';
@@ -300,6 +301,14 @@ const componentToRender = computed(() => {
     return DyteBubble;
   }
 
+  // UAZAPI interactive messages (carousel, buttons, list)
+  const interactiveType =
+    props.contentAttributes?.interactiveType ||
+    props.contentAttributes?.interactive_type;
+  if (interactiveType) {
+    return InteractiveBubble;
+  }
+
   const instagramSharedTypes = [
     ATTACHMENT_TYPES.STORY_MENTION,
     ATTACHMENT_TYPES.IG_STORY,
@@ -371,6 +380,12 @@ const contextMenuEnabledOptions = computed(() => {
       !props.private &&
       props.inboxSupportsReplyTo.outgoing &&
       !isFailedOrProcessing,
+    edit:
+      isOutgoing &&
+      hasText &&
+      !hasAttachments &&
+      !isFailedOrProcessing &&
+      !isMessageDeleted.value,
   };
 });
 
