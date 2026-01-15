@@ -2,13 +2,48 @@ class Uazapi::IncomingMessageService
   pattr_initialize [:inbox!, :params!]
 
   def perform
-    return if message_already_processed?
-    return if sent_from_chatwoot?
+    log 'IncomingMessageService.perform started'
+    log "message_id: #{message_id}, from_me: #{from_me?}, chat_id: #{chat_id}"
 
+    if message_already_processed?
+      log 'Message already processed, skipping'
+      return
+    end
+
+    if sent_from_chatwoot?
+      log 'Message sent from chatwoot, skipping'
+      return
+    end
+
+    log 'Setting contact...'
     set_contact
+    log "Contact set: #{@contact&.id}"
+
+    log 'Setting conversation...'
     set_conversation
+    log "Conversation set: #{@conversation&.id}"
+
+    log 'Creating message...'
     create_message
-    attach_files if media?
+    log "Message created: #{@message&.id}"
+
+    if media?
+      log 'Attaching files...'
+      attach_files
+    end
+
+    log 'IncomingMessageService.perform completed!'
+  rescue StandardError => e
+    log "ERROR: #{e.class} - #{e.message}"
+    log "Backtrace: #{e.backtrace&.first(5)&.join("\n")}"
+    raise
+  end
+
+  def log(message)
+    timestamp = Time.current.strftime('%Y-%m-%d %H:%M:%S')
+    File.open(Rails.root.join('log/uazapi_sse.log'), 'a') do |f|
+      f.puts "[#{timestamp}] [IncomingMsg] #{message}"
+    end
   end
 
   private
@@ -112,20 +147,30 @@ class Uazapi::IncomingMessageService
     @params.dig('chat', 'imagePreview') || @params.dig('chat', 'image')
   end
 
+  def contact_image_url
+    @params.dig('chat', 'imagePreview') || @params.dig('chat', 'image')
+  end
+
+  def contact_wa_name
+    @params.dig('chat', 'wa_name') || @params.dig('chat', 'name')
+  end
+
   def set_contact
     @contact_inbox = inbox.contact_inboxes.find_by(source_id: source_id)
 
     unless @contact_inbox
-      @contact = create_contact
-      @contact_inbox = ContactInbox.create!(
-        contact: @contact,
-        inbox: inbox,
-        source_id: source_id
-      )
-    rescue ActiveRecord::RecordNotUnique
-      # Another job created the contact_inbox first (race condition)
-      # Just fetch the one that was created
-      @contact_inbox = inbox.contact_inboxes.find_by!(source_id: source_id)
+      begin
+        @contact = create_contact
+        @contact_inbox = ContactInbox.create!(
+          contact: @contact,
+          inbox: inbox,
+          source_id: source_id
+        )
+      rescue ActiveRecord::RecordNotUnique
+        # Another job created the contact_inbox first (race condition)
+        # Just fetch the one that was created
+        @contact_inbox = inbox.contact_inboxes.find_by!(source_id: source_id)
+      end
     end
 
     @contact ||= @contact_inbox.contact
@@ -133,7 +178,12 @@ class Uazapi::IncomingMessageService
     # Store sender_lid for presence/typing indicator lookup
     update_sender_lid if sender_lid.present?
 
-    update_group_avatar if group_message?
+    # Update avatar and name based on message type
+    if group_message?
+      update_group_avatar
+    else
+      update_contact_info
+    end
   end
 
   def sender_lid
@@ -150,9 +200,53 @@ class Uazapi::IncomingMessageService
   end
 
   def update_group_avatar
-    return if group_image_url.blank? || @contact.avatar.attached?
+    return if group_image_url.blank?
 
+    # Check if the image URL changed
+    current_url = @contact.additional_attributes['group_image_url']
+    return if current_url == group_image_url
+
+    # Image changed! Update avatar
+    @contact.avatar.purge if @contact.avatar.attached?
     attach_group_avatar(@contact)
+
+    # Save the new URL to detect future changes
+    @contact.additional_attributes['group_image_url'] = group_image_url
+    @contact.save!
+  end
+
+  def update_contact_info
+    changes_made = false
+
+    # Update name if changed and we have a new name
+    if contact_wa_name.present? && @contact.name != contact_wa_name
+      @contact.name = contact_wa_name
+      changes_made = true
+    end
+
+    # Update avatar if URL changed
+    if contact_image_url.present?
+      current_url = @contact.additional_attributes['contact_image_url']
+      if current_url != contact_image_url
+        @contact.avatar.purge if @contact.avatar.attached?
+        attach_contact_avatar
+        @contact.additional_attributes['contact_image_url'] = contact_image_url
+        changes_made = true
+      end
+    end
+
+    @contact.save! if changes_made
+  end
+
+  def attach_contact_avatar
+    file = Down.download(contact_image_url)
+    @contact.avatar.attach(
+      io: file,
+      filename: "contact_#{source_id}.jpg",
+      content_type: 'image/jpeg'
+    )
+  rescue StandardError => e
+    log "Failed to download contact avatar: #{e.message}"
   end
 
   def create_contact
@@ -171,7 +265,8 @@ class Uazapi::IncomingMessageService
       c.name = group_name
       c.additional_attributes = {
         is_group: true,
-        group_id: source_id
+        group_id: source_id,
+        group_image_url: group_image_url
       }
     end
   end
