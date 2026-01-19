@@ -72,6 +72,8 @@ RUN echo "Building Chatwoot SDK..." \
 RUN SECRET_KEY_BASE=precompile_placeholder \
     RAILS_LOG_TO_STDOUT=true \
     DATABASE_URL=postgresql://postgres:postgres@localhost/chatwoot_production \
+    FRONTEND_URL=http://localhost:3000 \
+    ACTION_CABLE_URL=ws://localhost:3000/cable \
     VITE_RUBY_SKIP_COMPATIBILITY_CHECK=true \
     bundle exec rake assets:precompile \
  && rm -rf spec tmp/cache

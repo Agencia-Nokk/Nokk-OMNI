@@ -103,4 +103,10 @@ Rails.application.configure do
   config.action_mailbox.ingress = ENV.fetch('RAILS_INBOUND_EMAIL_SERVICE', 'relay').to_sym
 
   Rails.application.routes.default_url_options = { host: ENV['FRONTEND_URL'] }
+
+  config.action_cable.url = ENV.fetch('ACTION_CABLE_URL')
+  config.action_cable.allowed_request_origins = [
+    ENV.fetch('FRONTEND_URL')
+  ] 
+  config.action_cable.mount_path = '/cable'
 end
