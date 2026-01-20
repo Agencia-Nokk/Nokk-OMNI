@@ -106,8 +106,8 @@ class Captain::Tools::Copilot::CreateAutomationRuleService < Captain::Tools::Bas
   param :name, type: 'string', desc: 'A descriptive name for the automation rule'
   param :description, type: 'string', desc: 'Optional description explaining what the rule does', required: false
   param :event_name, type: 'string', desc: 'The event that triggers the rule: conversation_created, conversation_updated, conversation_opened, conversation_resolved, or message_created'
-  param :conditions, type: 'array', desc: <<~CONDITIONS_DESC
-    Array of condition objects. Each condition must have:
+  param :conditions, type: 'string', desc: <<~CONDITIONS_DESC
+    JSON string containing an array of condition objects. Each condition must have:
     - attribute_key: One of the available attributes (content, email, status, etc.)
     - filter_operator: One of the filter operators (equal_to, contains, is_present, etc.)
     - values: Array of values to match (can be empty for is_present/is_not_present)
@@ -129,8 +129,8 @@ class Captain::Tools::Copilot::CreateAutomationRuleService < Captain::Tools::Bas
       }
     ]
   CONDITIONS_DESC
-  param :actions, type: 'array', desc: <<~ACTIONS_DESC
-    Array of action objects. Each action must have:
+  param :actions, type: 'string', desc: <<~ACTIONS_DESC
+    JSON string containing an array of action objects. Each action must have:
     - action_name: One of the available action types listed in the tool description
     - action_params: Array of parameters for that action (can be empty array)
     
@@ -151,10 +151,16 @@ class Captain::Tools::Copilot::CreateAutomationRuleService < Captain::Tools::Bas
     return 'Rule name is required' if name.blank?
     return "Invalid event_name. Valid events: #{VALID_EVENTS.join(', ')}" unless VALID_EVENTS.include?(event_name)
 
-    normalized_conditions = normalize_conditions(conditions)
+    parsed_conditions = parse_json_param(conditions, 'conditions')
+    return parsed_conditions if parsed_conditions.is_a?(String)
+
+    parsed_actions = parse_json_param(actions, 'actions')
+    return parsed_actions if parsed_actions.is_a?(String)
+
+    normalized_conditions = normalize_conditions(parsed_conditions)
     return normalized_conditions if normalized_conditions.is_a?(String)
 
-    normalized_actions = normalize_actions(actions)
+    normalized_actions = normalize_actions(parsed_actions)
     return normalized_actions if normalized_actions.is_a?(String)
 
     rule = create_automation_rule(name, event_name, normalized_conditions, normalized_actions, description, active)
@@ -172,6 +178,14 @@ class Captain::Tools::Copilot::CreateAutomationRuleService < Captain::Tools::Bas
   end
 
   private
+
+  def parse_json_param(value, param_name)
+    return value if value.is_a?(Array)
+
+    JSON.parse(value)
+  rescue JSON::ParserError
+    "Invalid JSON for #{param_name}. Please provide a valid JSON array."
+  end
 
   def normalize_conditions(conditions)
     return 'Conditions must be an array' unless conditions.is_a?(Array)
