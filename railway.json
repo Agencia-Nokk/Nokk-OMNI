@@ -2,7 +2,6 @@
   "$schema": "https://railway.com/railway.schema.json",
   "build": {
     "builder": "RAILPACK",
-    "buildCommand": "bundle install && pnpm install && SECRET_KEY_BASE=precompile_placeholder RAILS_LOG_TO_STDOUT=enabled bundle exec rake assets:precompile",
     "watchPatterns": [
       "app/**",
       "config/**",
