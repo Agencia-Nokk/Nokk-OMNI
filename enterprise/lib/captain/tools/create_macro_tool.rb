@@ -41,23 +41,20 @@ class Captain::Tools::CreateMacroTool < Captain::Tools::BasePublicTool
     For more details, see: https://www.chatwoot.com/docs/product/features/macros
   DESC
   param :name, type: 'string', desc: 'A descriptive name for the macro (e.g., "Close and label urgent", "Send welcome message")'
-  param :actions, type: 'array', desc: <<~ACTIONS_DESC
-    Array of action objects. Each action must have:
+  param :actions, type: 'string', desc: <<~ACTIONS_DESC
+    JSON string containing an array of action objects. Each action must have:
     - action_name: One of the available action types listed in the tool description
     - action_params: Array of parameters for that action (can be empty array for actions with no params)
-    
+
     Example:
-    [
-      {"action_name": "add_label", "action_params": ["urgent"]},
-      {"action_name": "change_priority", "action_params": ["high"]},
-      {"action_name": "resolve_conversation", "action_params": []},
-      {"action_name": "send_message", "action_params": ["Thank you for contacting us. This issue has been resolved."]}
-    ]
-    
+    [{"action_name": "add_label", "action_params": ["urgent"]}, {"action_name": "change_priority", "action_params": ["high"]}, {"action_name": "resolve_conversation", "action_params": []}, {"action_name": "send_message", "action_params": ["Thank you for contacting us. This issue has been resolved."]}]
+
     Actions will execute in the order provided.
   ACTIONS_DESC
 
   def perform(tool_context, name:, actions:)
+    actions = parse_json_param(actions, 'actions')
+    return actions if actions.is_a?(String)
     return 'Macro name is required' if name.blank?
 
     normalized_actions = normalize_actions(actions)
@@ -71,6 +68,14 @@ class Captain::Tools::CreateMacroTool < Captain::Tools::BasePublicTool
   end
 
   private
+
+  def parse_json_param(value, param_name)
+    return value if value.is_a?(Array)
+
+    JSON.parse(value)
+  rescue JSON::ParserError
+    "Invalid JSON for #{param_name}. Please provide a valid JSON array."
+  end
 
   def normalize_actions(actions)
     return 'Actions must be an array' unless actions.is_a?(Array)

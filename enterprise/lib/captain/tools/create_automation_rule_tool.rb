@@ -101,41 +101,24 @@ class Captain::Tools::CreateAutomationRuleTool < Captain::Tools::BasePublicTool
   param :name, type: 'string', desc: 'A descriptive name for the automation rule'
   param :description, type: 'string', desc: 'Optional description explaining what the rule does', required: false
   param :event_name, type: 'string', desc: 'The event that triggers the rule: conversation_created, conversation_updated, conversation_opened, conversation_resolved, or message_created'
-  param :conditions, type: 'array', desc: <<~CONDITIONS_DESC
-    Array of condition objects. Each condition must have:
+  param :conditions, type: 'string', desc: <<~CONDITIONS_DESC
+    JSON string containing an array of condition objects. Each condition must have:
     - attribute_key: One of the available attributes (content, email, status, etc.)
     - filter_operator: One of the filter operators (equal_to, contains, is_present, etc.)
     - values: Array of values to match (can be empty for is_present/is_not_present)
     - query_operator: "AND" or "OR" (only needed for conditions after the first one)
-    
+
     Example:
-    [
-      {
-        "attribute_key": "content",
-        "filter_operator": "contains",
-        "values": ["urgent", "asap"],
-        "query_operator": null
-      },
-      {
-        "attribute_key": "message_type",
-        "filter_operator": "equal_to",
-        "values": [0],
-        "query_operator": "AND"
-      }
-    ]
+    [{"attribute_key": "content", "filter_operator": "contains", "values": ["urgent", "asap"], "query_operator": null}, {"attribute_key": "message_type", "filter_operator": "equal_to", "values": [0], "query_operator": "AND"}]
   CONDITIONS_DESC
-  param :actions, type: 'array', desc: <<~ACTIONS_DESC
-    Array of action objects. Each action must have:
+  param :actions, type: 'string', desc: <<~ACTIONS_DESC
+    JSON string containing an array of action objects. Each action must have:
     - action_name: One of the available action types listed in the tool description
     - action_params: Array of parameters for that action (can be empty array)
-    
+
     Example:
-    [
-      {"action_name": "add_label", "action_params": ["urgent"]},
-      {"action_name": "change_priority", "action_params": ["high"]},
-      {"action_name": "send_message", "action_params": ["We've received your urgent request and will respond shortly."]}
-    ]
-    
+    [{"action_name": "add_label", "action_params": ["urgent"]}, {"action_name": "change_priority", "action_params": ["high"]}, {"action_name": "send_message", "action_params": ["We've received your urgent request and will respond shortly."]}]
+
     Actions execute in the order provided.
   ACTIONS_DESC
   param :active, type: 'boolean', desc: 'Whether the rule is active (default: true)', required: false
@@ -145,6 +128,12 @@ class Captain::Tools::CreateAutomationRuleTool < Captain::Tools::BasePublicTool
   def perform(tool_context, name:, event_name:, conditions:, actions:, description: nil, active: true)
     return 'Rule name is required' if name.blank?
     return "Invalid event_name. Valid events: #{VALID_EVENTS.join(', ')}" unless VALID_EVENTS.include?(event_name)
+
+    conditions = parse_json_param(conditions, 'conditions')
+    return conditions if conditions.is_a?(String)
+
+    actions = parse_json_param(actions, 'actions')
+    return actions if actions.is_a?(String)
 
     normalized_conditions = normalize_conditions(conditions)
     return normalized_conditions if normalized_conditions.is_a?(String)
@@ -166,6 +155,14 @@ class Captain::Tools::CreateAutomationRuleTool < Captain::Tools::BasePublicTool
   end
 
   private
+
+  def parse_json_param(value, param_name)
+    return value if value.is_a?(Array)
+
+    JSON.parse(value)
+  rescue JSON::ParserError
+    "Invalid JSON for #{param_name}. Please provide a valid JSON array."
+  end
 
   def normalize_conditions(conditions)
     return 'Conditions must be an array' unless conditions.is_a?(Array)
