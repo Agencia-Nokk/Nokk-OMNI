@@ -8,6 +8,9 @@ FROM node:24-slim AS node
 # =========================
 FROM ruby:3.4.4-slim AS pre-builder
 
+# ← ARGs para usar no BUILD
+ARG FRONTEND_URL
+ARG ACTION_CABLE_URL
 ARG PNPM_VERSION="10.2.0"
 ARG BUNDLER_VERSION="2.5.11"
 
@@ -72,6 +75,8 @@ RUN echo "Building Chatwoot SDK..." \
 RUN SECRET_KEY_BASE=precompile_placeholder \
     RAILS_LOG_TO_STDOUT=true \
     DATABASE_URL=postgresql://postgres:postgres@localhost/chatwoot_production \
+    FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000} \
+    ACTION_CABLE_URL=${ACTION_CABLE_URL:-ws://localhost:3000/cable} \
     VITE_RUBY_SKIP_COMPATIBILITY_CHECK=true \
     bundle exec rake assets:precompile \
  && rm -rf spec tmp/cache
@@ -89,6 +94,9 @@ RUN rm -rf /gems/ruby/3.4.0/cache/*.gem \
 # =========================
 FROM ruby:3.4.4-slim
 
+# ← ADICIONAR ARGs AQUI TAMBÉM
+ARG FRONTEND_URL
+ARG ACTION_CABLE_URL
 ARG BUNDLER_VERSION="2.5.11"
 
 ENV RAILS_ENV=production
@@ -97,6 +105,10 @@ ENV BUNDLE_WITHOUT="development:test"
 ENV BUNDLE_PATH="/gems"
 ENV RAILS_SERVE_STATIC_FILES=true
 ENV EXECJS_RUNTIME=Disabled
+
+# ← PROPAGAR PARA ENV (para runtime)
+ENV FRONTEND_URL=${FRONTEND_URL}
+ENV ACTION_CABLE_URL=${ACTION_CABLE_URL}
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
   postgresql-client \
@@ -117,4 +129,5 @@ COPY --from=pre-builder /gems /gems
 COPY --from=pre-builder /app /app
 
 WORKDIR /app
+
 EXPOSE 3000
