@@ -14,25 +14,50 @@ O arquivo `railway.json` foi criado na raiz do projeto com as configurações b�
 
 ### 2. Adicionar Serviços Necessários
 
-#### PostgreSQL (com pgvector)
-- No Railway Dashboard → **New** → **Database** → **PostgreSQL**
-- O Railway já fornece PostgreSQL com suporte a extensões
-- **Importante**: Após criar, habilite a extensão pgvector:
+#### PostgreSQL (com pgvector) ⚠️ IMPORTANTE
+
+- **NÃO use o PostgreSQL padrão do Railway** - ele não tem pgvector instalado
+- Use um dos templates com pgvector pré-instalado:
+  - No Railway Dashboard → **New** → **Template**
+  - Procure por: **"Postgres with pgVector Engine"** ou **"pgvector-pg18"**
+  - Ou use a imagem: `pgvector/pgvector:pg18` ou `pgvector/pgvector:pg16`
+- Após criar, habilite a extensão:
   ```sql
   CREATE EXTENSION IF NOT EXISTS vector;
   ```
 
+**Adicionar Volume ao PostgreSQL**:
+
+- Templates do Railway geralmente já incluem volume automaticamente
+- Se não aparecer volume, adicione manualmente:
+  1. No Dashboard → Clique no serviço PostgreSQL
+  2. Abra **Settings** → **Volumes**
+  3. Clique **Create Volume** ou **Add Volume**
+  4. Mount Path: `/var/lib/postgresql/data` (padrão do PostgreSQL)
+  5. Tamanho: escolha conforme necessário (ex: 10GB, 20GB)
+- **Nota**: Cada serviço pode ter apenas 1 volume
+
+**Alternativa**: Se já criou PostgreSQL padrão:
+
+1. Exporte seus dados: `pg_dump` (se houver dados)
+2. Delete o serviço PostgreSQL atual
+3. Crie novo usando template pgvector
+4. Restaure os dados (se necessário)
+
 #### Redis
+
 - No Railway Dashboard → **New** → **Database** → **Redis**
 
 ### 3. Criar Serviços da Aplicação
 
 #### Serviço Web (Rails)
+
 - **New** → **GitHub Repo** → Selecione seu repositório
 - O Railway detectará automaticamente o `railway.json`
 - Configure as variáveis de ambiente (veja seção abaixo)
 
 #### Serviço Worker (Sidekiq) - Opcional
+
 - Crie um **novo serviço** apontando para o mesmo repositório
 - No dashboard, sobrescreva o **Start Command**:
   ```
@@ -148,16 +173,46 @@ OPENAI_API_KEY=sk-xxx
 
 ### 5. Habilitar Extensão pgvector no PostgreSQL
 
-Após criar o PostgreSQL, execute no Railway CLI ou via dashboard:
+⚠️ **IMPORTANTE**: O PostgreSQL padrão do Railway NÃO tem pgvector!
+
+**Solução**: Use um template com pgvector:
+
+1. No Railway Dashboard → **New** → **Template**
+2. Busque: **"Postgres with pgVector Engine"** ou **"pgvector-pg18"**
+3. Ou crie serviço customizado com imagem: `pgvector/pgvector:pg18`
+
+Após criar com template pgvector, execute:
 
 ```sql
 CREATE EXTENSION IF NOT EXISTS vector;
 ```
 
-Ou via Railway CLI:
+Via Railway CLI:
+
+**Para serviços customizados (como pgvector Docker)**:
 ```bash
-railway run psql -c "CREATE EXTENSION IF NOT EXISTS vector;"
+# Use railway run com DATABASE_URL
+railway run psql $DATABASE_URL -c "CREATE EXTENSION IF NOT EXISTS vector;"
+
+# Ou conectar interativo
+railway run psql $DATABASE_URL
+# Depois execute: CREATE EXTENSION IF NOT EXISTS vector;
 ```
+
+**Para serviços PostgreSQL padrão do Railway**:
+```bash
+railway connect postgres
+# No psql:
+CREATE EXTENSION IF NOT EXISTS vector;
+```
+
+**Se você já criou PostgreSQL padrão (sem pgvector)**:
+
+- Você precisa recriar usando um template pgvector
+- Exporte dados primeiro (se houver): `pg_dump`
+- Delete o PostgreSQL atual
+- Crie novo com template pgvector
+- Restaure dados: `psql < dump.sql`
 
 ### 6. Deploy
 
@@ -209,21 +264,25 @@ railway connect postgres
 ## ⚠️ Troubleshooting
 
 ### Erro: pgvector não encontrado
+
 ```sql
 -- Execute no PostgreSQL do Railway
 CREATE EXTENSION IF NOT EXISTS vector;
 ```
 
 ### Erro: Build falha
+
 - Verifique se `pnpm` está instalado
 - Verifique Node.js version (Railway detecta automaticamente)
 - Verifique logs de build no dashboard
 
 ### Erro: Migrations falham
+
 - Execute manualmente: `railway run bundle exec rails db:migrate`
 - Verifique conexão com PostgreSQL
 
 ### Erro: Redis connection
+
 - Verifique se `REDIS_URL` está configurada corretamente
 - Use variável `${{Redis.REDIS_URL}}` do Railway
 
