@@ -70,7 +70,7 @@ defineExpose({ refreshPreview });
       class="absolute inset-0 flex items-center justify-center bg-slate-50 dark:bg-slate-800 z-10"
     >
       <div class="text-center">
-        <Spinner size="large" />
+        <Spinner :size="32" />
         <p class="text-sm text-slate-500 dark:text-slate-400 mt-3">
           {{ $t('SHOP.SETTINGS.PREVIEW.LOADING') }}
         </p>
