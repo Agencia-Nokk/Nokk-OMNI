@@ -337,6 +337,21 @@ class Uazapi::ProviderService
     nil
   end
 
+  # Fetch all labels from UAZAPI instance
+  def fetch_labels
+    response = HTTParty.get(
+      "#{api_url}/labels",
+      headers: api_headers
+    )
+
+    return [] unless response.success?
+
+    JSON.parse(response.body)
+  rescue StandardError => e
+    Rails.logger.error "[UAZAPI] Error fetching labels: #{e.message}"
+    []
+  end
+
   private
 
   def log(message)

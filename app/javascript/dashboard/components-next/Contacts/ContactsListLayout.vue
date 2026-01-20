@@ -12,17 +12,19 @@ const props = defineProps({
   showPaginationFooter: { type: Boolean, default: true },
   currentPage: { type: Number, default: 1 },
   totalItems: { type: Number, default: 100 },
-  itemsPerPage: { type: Number, default: 15 },
+  itemsPerPage: { type: [Number, String], default: 15 },
   activeSort: { type: String, default: '' },
   activeOrdering: { type: String, default: '' },
   activeSegment: { type: Object, default: null },
   segmentsId: { type: [String, Number], default: 0 },
   hasAppliedFilters: { type: Boolean, default: false },
   isFetchingList: { type: Boolean, default: false },
+  showPageSizeSelector: { type: Boolean, default: false },
 });
 
 const emit = defineEmits([
   'update:currentPage',
+  'update:itemsPerPage',
   'update:sort',
   'search',
   'applyFilter',
@@ -102,7 +104,9 @@ const openFilter = () => {
           :current-page="currentPage"
           :total-items="totalItems"
           :items-per-page="itemsPerPage"
+          :show-page-size-selector="showPageSizeSelector"
           @update:current-page="updateCurrentPage"
+          @update:items-per-page="emit('update:itemsPerPage', $event)"
         />
       </footer>
     </div>

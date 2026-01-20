@@ -17,6 +17,7 @@ import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 import BulkActionsAPI from 'dashboard/api/bulkActions';
 
 const DEFAULT_SORT_FIELD = 'last_activity_at';
+const DEFAULT_PER_PAGE = 15;
 const DEBOUNCE_DELAY = 300;
 
 const store = useStore();
@@ -46,7 +47,10 @@ const parseSortSettings = (sortString = '') => {
   };
 };
 
-const { contacts_sort_by: contactSortBy = '' } = uiSettings.value ?? {};
+const {
+  contacts_sort_by: contactSortBy = '',
+  contacts_per_page: savedPerPage,
+} = uiSettings.value ?? {};
 const { sort: initialSort, order: initialOrder } =
   parseSortSettings(contactSortBy);
 
@@ -54,6 +58,8 @@ const sortState = reactive({
   activeSort: initialSort,
   activeOrdering: initialOrder,
 });
+
+const perPage = ref(savedPerPage || DEFAULT_PER_PAGE);
 
 const activeLabel = computed(() => route.params.label);
 const activeSegmentId = computed(() => route.params.segmentId);
@@ -183,6 +189,7 @@ const getCommonFetchParams = (page = 1) => ({
   page,
   sortAttr: buildSortAttr(),
   label: activeLabel.value,
+  perPage: perPage.value,
 });
 
 const fetchContacts = async (page = 1) => {
@@ -208,6 +215,7 @@ const fetchActiveContacts = async (page = 1) => {
   await store.dispatch('contacts/active', {
     page,
     sortAttr: buildSortAttr(),
+    perPage: perPage.value,
   });
   updatePageParam(page);
 };
@@ -334,6 +342,12 @@ const createContact = async contact => {
   await store.dispatch('contacts/create', contact);
 };
 
+const handlePerPageChange = async newPerPage => {
+  perPage.value = newPerPage;
+  await updateUISettings({ contacts_per_page: newPerPage });
+  await fetchContactsBasedOnContext(1);
+};
+
 watch(
   contacts,
   newContacts => {
@@ -416,7 +430,9 @@ onMounted(async () => {
       :header-title="headerTitle"
       :current-page="currentPage"
       :total-items="totalItems"
+      :items-per-page="perPage"
       :show-pagination-footer="!isFetchingList && hasContacts"
+      show-page-size-selector
       :active-sort="sortState.activeSort"
       :active-ordering="sortState.activeOrdering"
       :active-segment="activeSegment"
@@ -424,6 +440,7 @@ onMounted(async () => {
       :is-fetching-list="isFetchingList"
       :has-applied-filters="hasAppliedFilters"
       @update:current-page="fetchContactsBasedOnContext"
+      @update:items-per-page="handlePerPageChange"
       @search="searchContacts"
       @update:sort="handleSort"
       @apply-filter="fetchSavedOrAppliedFilteredContact"

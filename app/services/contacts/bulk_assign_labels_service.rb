@@ -12,8 +12,17 @@ class Contacts::BulkAssignLabelsService
 
     contacts.find_each do |contact|
       contact.add_labels(@labels)
+      sync_labels_to_conversations(contact)
     end
 
     { success: true, updated_contact_ids: contacts.pluck(:id) }
+  end
+
+  private
+
+  def sync_labels_to_conversations(contact)
+    contact.conversations.find_each do |conversation|
+      conversation.add_labels(@labels)
+    end
   end
 end
