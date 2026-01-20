@@ -187,7 +187,7 @@ class Uazapi::ProviderService
     false
   end
 
-  def send_carousel(phone_number, text:, cards:, track_id: nil) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+  def send_carousel(phone_number, text:, cards:, track_id: nil)
     log "[CAROUSEL] Sending carousel to #{phone_number} with #{cards.length} cards"
 
     body = {
@@ -212,7 +212,7 @@ class Uazapi::ProviderService
       body: body.to_json
     )
 
-    log "[CAROUSEL] Response: #{response.code} - #{response.body}"
+    log "[CAROUSEL] Response: #{response.code}"
 
     if response.success?
       result = JSON.parse(response.body)
