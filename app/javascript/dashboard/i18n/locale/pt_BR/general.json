@@ -7,6 +7,10 @@
     },
     "CLOSE": "Fechar",
     "BETA": "Beta",
-    "BETA_DESCRIPTION": "Este recurso está em fase BETA e deve sofre alterações assim que Nós melhorarmos ele."
+    "BETA_DESCRIPTION": "Este recurso está em fase BETA e deve sofre alterações assim que Nós melhorarmos ele.",
+    "JUST_NOW": "Agora",
+    "MINUTES_AGO": "{count} min atrás",
+    "HOURS_AGO": "{count}h atrás",
+    "DAYS_AGO": "{count}d atrás"
   }
 }

@@ -1,7 +1,5 @@
 <script setup>
 import { useAlert } from 'dashboard/composables';
-import AddAutomationRule from './AddAutomationRule.vue';
-import EditAutomationRule from './EditAutomationRule.vue';
 import BaseSettingsHeader from '../components/BaseSettingsHeader.vue';
 import SettingsLayout from '../SettingsLayout.vue';
 import { computed, onMounted, ref } from 'vue';
@@ -16,8 +14,6 @@ const { t } = useI18n();
 const confirmDialog = ref(null);
 
 const loading = ref({});
-const showAddPopup = ref(false);
-const showEditPopup = ref(false);
 const showDeleteConfirmationPopup = ref(false);
 const selectedAutomation = ref({});
 const toggleModalTitle = ref(t('AUTOMATION.TOGGLE.ACTIVATION_TITLE'));
@@ -56,21 +52,6 @@ onMounted(() => {
   }
 });
 
-const openAddPopup = () => {
-  showAddPopup.value = true;
-};
-const hideAddPopup = () => {
-  showAddPopup.value = false;
-};
-
-const openEditPopup = response => {
-  selectedAutomation.value = response;
-  showEditPopup.value = true;
-};
-const hideEditPopup = () => {
-  showEditPopup.value = false;
-};
-
 const openDeletePopup = response => {
   showDeleteConfirmationPopup.value = true;
   selectedAutomation.value = response;
@@ -106,26 +87,6 @@ const cloneAutomation = async ({ id }) => {
   }
 };
 
-const submitAutomation = async (payload, mode) => {
-  try {
-    const action =
-      mode === 'edit' ? 'automations/update' : 'automations/create';
-    const successMessage =
-      mode === 'edit'
-        ? t('AUTOMATION.EDIT.API.SUCCESS_MESSAGE')
-        : t('AUTOMATION.ADD.API.SUCCESS_MESSAGE');
-    await store.dispatch(action, payload);
-    useAlert(successMessage);
-    hideAddPopup();
-    hideEditPopup();
-  } catch (error) {
-    const errorMessage =
-      mode === 'edit'
-        ? t('AUTOMATION.EDIT.API.ERROR_MESSAGE')
-        : t('AUTOMATION.ADD.API.ERROR_MESSAGE');
-    useAlert(errorMessage);
-  }
-};
 const toggleAutomation = async ({ id, name, status }) => {
   try {
     if (status) {
@@ -187,11 +148,12 @@ const tableHeaders = computed(() => {
         feature-name="automation"
       >
         <template #actions>
-          <Button
-            icon="i-lucide-circle-plus"
-            :label="$t('AUTOMATION.HEADER_BTN_TXT')"
-            @click="openAddPopup"
-          />
+          <router-link :to="{ name: 'automation_new' }">
+            <Button
+              icon="i-lucide-circle-plus"
+              :label="$t('AUTOMATION.HEADER_BTN_TXT')"
+            />
+          </router-link>
         </template>
       </BaseSettingsHeader>
     </template>
@@ -214,24 +176,11 @@ const tableHeaders = computed(() => {
             :loading="loading[automation.id]"
             @clone="cloneAutomation"
             @toggle="toggleAutomation"
-            @edit="openEditPopup"
             @delete="openDeletePopup"
           />
         </tbody>
       </table>
     </template>
-
-    <woot-modal
-      v-model:show="showAddPopup"
-      size="medium"
-      :on-close="hideAddPopup"
-    >
-      <AddAutomationRule
-        v-if="showAddPopup"
-        :on-close="hideAddPopup"
-        @save-automation="submitAutomation"
-      />
-    </woot-modal>
 
     <woot-delete-modal
       v-model:show="showDeleteConfirmationPopup"
@@ -244,18 +193,6 @@ const tableHeaders = computed(() => {
       :reject-text="deleteRejectText"
     />
 
-    <woot-modal
-      v-model:show="showEditPopup"
-      size="medium"
-      :on-close="hideEditPopup"
-    >
-      <EditAutomationRule
-        v-if="showEditPopup"
-        :on-close="hideEditPopup"
-        :selected-response="selectedAutomation"
-        @save-automation="submitAutomation"
-      />
-    </woot-modal>
     <woot-confirm-modal
       ref="confirmDialog"
       :title="toggleModalTitle"

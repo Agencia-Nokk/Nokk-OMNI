@@ -60,6 +60,15 @@ class Captain::Tools::Copilot::CreateMacroService < Captain::Tools::BaseTool
   def execute(name:, actions:)
     return 'Macro name is required' if name.blank?
 
+    existing_macro = @assistant.account.macros.find_by('LOWER(name) = ?', name.downcase)
+    if existing_macro.present?
+      return {
+        'content' => "A macro named '#{existing_macro.name}' already exists (ID: #{existing_macro.id}). " \
+                     "Would you like to update the existing macro using the update_macro tool, or create a new one with a different name?",
+        'entities' => [format_macro_entity(existing_macro)]
+      }
+    end
+
     parsed_actions = parse_json_param(actions, 'actions')
     return parsed_actions if parsed_actions.is_a?(String)
 
@@ -73,7 +82,20 @@ class Captain::Tools::Copilot::CreateMacroService < Captain::Tools::BaseTool
       "#{self.class.name}: create_macro for assistant #{@assistant&.id} - #{details.inspect}"
     end
 
-    "Macro '#{name}' created successfully (ID: #{macro.id}) with #{normalized_actions.size} action(s)"
+    {
+      'content' => "Macro '#{name}' created successfully with #{normalized_actions.size} action(s)",
+      'entities' => [format_macro_entity(macro)]
+    }
+  end
+
+  def format_macro_entity(macro)
+    {
+      'type' => 'macro',
+      'id' => macro.id,
+      'name' => macro.name,
+      'visibility' => macro.visibility,
+      'actions_count' => macro.actions.size
+    }
   end
 
   def active?

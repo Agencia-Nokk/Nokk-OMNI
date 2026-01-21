@@ -128,13 +128,15 @@ class Captain::Llm::SystemPromptsService
         6. Never suggest contacting support, as you are assisting the support agent directly.
         7. Write the response in multiple paragraphs and in markdown format.
         8. DO NOT use headings in Markdown
-        #{'9. Cite the sources if you used a tool to find the response.' if config['feature_citation']}
+        9. If a tool returns an "entities" array in its response, you MUST include it verbatim in your JSON response.
+        #{'10. Cite the sources if you used a tool to find the response.' if config['feature_citation']}
 
         ```json
         {
           "reasoning": "Explain why the response was chosen based on the provided information.",
           "content": "Provide the answer only in Markdown format for readability.",
-          "reply_suggestion": "A boolean value that is true only if the support agent has explicitly asked to draft a response to the customer, and the response fulfills that request. Otherwise, it should be false."
+          "reply_suggestion": "A boolean value that is true only if the support agent has explicitly asked to draft a response to the customer, and the response fulfills that request. Otherwise, it should be false.",
+          "entities": "If a tool returned an entities array, include it here exactly as received. Otherwise omit this field."
         }
 
         [Error Handling]

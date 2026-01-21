@@ -352,18 +352,23 @@
       "EMPTY_LIST": "No assistants found, please create one to get started"
     },
     "COPILOT": {
-      "TITLE": "Copilot",
+      "TITLE": "Elai",
       "TRY_THESE_PROMPTS": "Try these prompts",
-      "PANEL_TITLE": "Get started with Copilot",
-      "KICK_OFF_MESSAGE": "Need a quick summary, want to check past conversations, or draft a better reply? Copilot’s here to speed things up.",
+      "PANEL_TITLE": "Get started with Elai",
+      "KICK_OFF_MESSAGE": "Need a quick summary, want to check past conversations, or draft a better reply? Elai’s here to speed things up.",
       "SEND_MESSAGE": "Send message...",
       "EMPTY_MESSAGE": "There was an error generating the response. Please try again.",
       "LOADER": "Captain is thinking",
       "YOU": "You",
       "USE": "Use this",
       "RESET": "Reset",
+      "INACTIVE": "inactive",
       "SHOW_STEPS": "Show steps",
       "SELECT_ASSISTANT": "Select Assistant",
+      "HISTORY": "Conversation history",
+      "NO_HISTORY": "No previous conversations",
+      "NEW_CONVERSATION": "New conversation",
+      "SELECT_CONVERSATION": "Select a conversation to continue",
       "PROMPTS": {
         "SUMMARIZE": {
           "LABEL": "Summarize this conversation",
@@ -384,6 +389,14 @@
         "LIST_CONTACTS": {
           "LABEL": "List contacts",
           "CONTENT": "Show me the list of top 10 contacts. Include name, email or phone number (if available), last seen time, tags (if any)."
+        },
+        "CREATE_MACRO": {
+          "LABEL": "Create a greeting macro",
+          "CONTENT": "Create a macro named 'Greeting' that sends 'Hello! Welcome to our support. How can I help you today?', adds the label 'greeted', and assigns to me."
+        },
+        "CREATE_AUTOMATION": {
+          "LABEL": "Create automation assign VIP",
+          "CONTENT": "Create automation 'Auto-assign VIP': event 'conversation created', condition 'contact label' equals 'VIP', action 'assign to team' Support."
         }
       }
     },

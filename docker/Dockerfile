@@ -62,9 +62,8 @@ COPY Gemfile Gemfile.lock ./
 # https://github.com/googleapis/google-cloud-ruby/issues/13306
 # adding xz as nokogiri was failing to build libxml
 # https://github.com/chatwoot/chatwoot/issues/4045
-# Adding yaml-dev for psych gem, cargo/rust for commonmarker, gcompat for glibc compatibility
-RUN apk update && apk add --no-cache build-base musl ruby-full ruby-dev gcc make musl-dev openssl openssl-dev g++ linux-headers xz vips yaml-dev cargo rust gcompat
-RUN bundle config set --local force_ruby_platform true
+# Adding yaml-dev for psych gem, gcompat for glibc compatibility
+RUN apk update && apk add --no-cache build-base musl ruby-full ruby-dev gcc make musl-dev openssl openssl-dev g++ linux-headers xz vips yaml-dev gcompat
 
 # Do not install development or test gems in production
 RUN if [ "$RAILS_ENV" = "production" ]; then \

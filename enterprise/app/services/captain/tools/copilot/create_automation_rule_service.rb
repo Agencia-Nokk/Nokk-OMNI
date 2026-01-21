@@ -151,6 +151,15 @@ class Captain::Tools::Copilot::CreateAutomationRuleService < Captain::Tools::Bas
     return 'Rule name is required' if name.blank?
     return "Invalid event_name. Valid events: #{VALID_EVENTS.join(', ')}" unless VALID_EVENTS.include?(event_name)
 
+    existing_rule = @assistant.account.automation_rules.find_by('LOWER(name) = ?', name.downcase)
+    if existing_rule.present?
+      return {
+        'content' => "An automation rule named '#{existing_rule.name}' already exists (ID: #{existing_rule.id}). " \
+                     "Would you like to update the existing rule using the update_automation_rule tool, or create a new one with a different name?",
+        'entities' => [format_rule_entity(existing_rule)]
+      }
+    end
+
     parsed_conditions = parse_json_param(conditions, 'conditions')
     return parsed_conditions if parsed_conditions.is_a?(String)
 
@@ -170,7 +179,20 @@ class Captain::Tools::Copilot::CreateAutomationRuleService < Captain::Tools::Bas
       "#{self.class.name}: create_automation_rule for assistant #{@assistant&.id} - #{details.inspect}"
     end
 
-    "Automation rule '#{name}' created successfully (ID: #{rule.id}) with #{normalized_conditions.size} condition(s) and #{normalized_actions.size} action(s)"
+    {
+      'content' => "Automation rule '#{name}' created successfully with #{normalized_conditions.size} condition(s) and #{normalized_actions.size} action(s)",
+      'entities' => [format_rule_entity(rule)]
+    }
+  end
+
+  def format_rule_entity(rule)
+    {
+      'type' => 'automation_rule',
+      'id' => rule.id,
+      'name' => rule.name,
+      'event' => rule.event_name,
+      'active' => rule.active
+    }
   end
 
   def active?

@@ -3,10 +3,10 @@
     "HEADER": "Automatização",
     "DESCRIPTION": "A automação pode substituir e racionalizar os processos existentes que requerem esforço manual, como a adição de etiquetas e a atribuição de conversas ao agente mais adequado. Isto permite que a equipa se foque em tarefas maiores, reduzindo o tempo gasto em tarefas rotineiras.",
     "LEARN_MORE": "Saber mais sobre automação",
-    "HEADER_BTN_TXT": "Adicionar regra de automação",
+    "HEADER_BTN_TXT": "Nova automação",
     "LOADING": "A procurar regras de automação",
     "ADD": {
-      "TITLE": "Adicionar regra de automação",
+      "TITLE": "Nova automação",
       "SUBMIT": "Criar",
       "CANCEL_BUTTON_TEXT": "Cancelar",
       "FORM": {
@@ -32,8 +32,8 @@
           "LABEL": "Ações"
         }
       },
-      "CONDITION_BUTTON_LABEL": "Adicionar condição",
-      "ACTION_BUTTON_LABEL": "Adicionar ação",
+      "CONDITION_BUTTON_LABEL": "Nova condição",
+      "ACTION_BUTTON_LABEL": "Nova ação",
       "API": {
         "SUCCESS_MESSAGE": "Regra de automação adicionada com sucesso",
         "ERROR_MESSAGE": "Não foi possível criar uma regra de automação, por favor, tente novamente mais tarde"

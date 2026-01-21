@@ -15,5 +15,18 @@ export default createStore({
     upsert({ commit }, data) {
       commit(mutationTypes.UPSERT, data);
     },
+    async get({ commit }, threadId) {
+      commit(mutationTypes.SET_UI_FLAG, { fetchingItem: true });
+      try {
+        const response = await CopilotMessagesAPI.get(threadId);
+        const messages = response.data.payload || [];
+        messages.forEach(message => {
+          commit(mutationTypes.UPSERT, message);
+        });
+        return messages;
+      } finally {
+        commit(mutationTypes.SET_UI_FLAG, { fetchingItem: false });
+      }
+    },
   }),
 });

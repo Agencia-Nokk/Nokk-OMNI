@@ -365,8 +365,13 @@
       "YOU": "Você",
       "USE": "Use isto",
       "RESET": "Reiniciar",
+      "INACTIVE": "inativa",
       "SHOW_STEPS": "Mostrar etapas",
       "SELECT_ASSISTANT": "Selecione o Assistente",
+      "HISTORY": "Histórico de conversas",
+      "NO_HISTORY": "Nenhuma conversa anterior",
+      "NEW_CONVERSATION": "Nova conversa",
+      "SELECT_CONVERSATION": "Selecione uma conversa para continuar",
       "PROMPTS": {
         "SUMMARIZE": {
           "LABEL": "Resumir esta conversa",
@@ -387,6 +392,14 @@
         "LIST_CONTACTS": {
           "LABEL": "Listar contatos",
           "CONTENT": "Mostre-me a lista dos 10 contatos mais frequentes. Inclua nome, e-mail ou número de telefone (se disponível), visto por última vez, etiquetas (se houver)."
+        },
+        "CREATE_MACRO": {
+          "LABEL": "Criar macro de saudação",
+          "CONTENT": "Crie uma macro chamada 'Saudação' que envia 'Olá! Bem-vindo ao nosso suporte. Como posso ajudá-lo hoje?', adiciona a etiqueta 'saudado' e atribui para mim."
+        },
+        "CREATE_AUTOMATION": {
+          "LABEL": "Criar automação atribuir VIP",
+          "CONTENT": "Crie uma automação 'Auto-atribuir VIP': evento 'conversa criada', condição 'etiqueta do contato' igual a 'VIP', ação 'atribuir ao time' Suporte."
         }
       }
     },

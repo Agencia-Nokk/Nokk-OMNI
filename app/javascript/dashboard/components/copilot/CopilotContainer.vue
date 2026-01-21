@@ -28,6 +28,7 @@ const assistants = useMapGetter('captainAssistants/getRecords');
 const uiFlags = useMapGetter('captainAssistants/getUIFlags');
 const inboxAssistant = useMapGetter('getCopilotAssistant');
 const currentChat = useMapGetter('getSelectedChat');
+const threads = useMapGetter('copilotThreads/getRecords');
 
 const isSmallScreen = computed(
   () => windowWidth.value < wootConstants.SMALL_SCREEN_BREAKPOINT
@@ -100,6 +101,15 @@ const handleReset = () => {
   selectedCopilotThreadId.value = null;
 };
 
+const handleSelectThread = async thread => {
+  try {
+    selectedCopilotThreadId.value = thread.id;
+    await store.dispatch('copilotMessages/get', thread.id);
+  } catch (error) {
+    useAlert(error.message);
+  }
+};
+
 const sendMessage = async message => {
   try {
     if (selectedCopilotThreadId.value) {
@@ -125,6 +135,7 @@ const sendMessage = async message => {
 onMounted(() => {
   if (isEnterprise) {
     store.dispatch('captainAssistants/get');
+    store.dispatch('copilotThreads/get');
   }
 });
 </script>
@@ -147,9 +158,12 @@ onMounted(() => {
       :conversation-inbox-type="conversationInboxType"
       :assistants="assistants"
       :active-assistant="activeAssistant"
+      :threads="threads"
+      :active-thread-id="selectedCopilotThreadId"
       @set-assistant="setAssistant"
       @send-message="sendMessage"
       @reset="handleReset"
+      @select-thread="handleSelectThread"
     />
   </div>
   <template v-else />

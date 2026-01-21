@@ -39,6 +39,14 @@ const routePromptMap = {
       label: 'CAPTAIN.COPILOT.PROMPTS.LIST_CONTACTS.LABEL',
       prompt: 'CAPTAIN.COPILOT.PROMPTS.LIST_CONTACTS.CONTENT',
     },
+    {
+      label: 'CAPTAIN.COPILOT.PROMPTS.CREATE_MACRO.LABEL',
+      prompt: 'CAPTAIN.COPILOT.PROMPTS.CREATE_MACRO.CONTENT',
+    },
+    {
+      label: 'CAPTAIN.COPILOT.PROMPTS.CREATE_AUTOMATION.LABEL',
+      prompt: 'CAPTAIN.COPILOT.PROMPTS.CREATE_AUTOMATION.CONTENT',
+    },
   ],
 };
 
@@ -61,8 +69,15 @@ const handleSuggestion = opt => {
 
 <template>
   <div class="flex-1 flex flex-col gap-6 px-2">
-    <div class="flex flex-col space-y-4 py-4">
-      <Icon icon="i-woot-captain" class="text-n-slate-9 text-4xl" />
+    <div class="flex flex-col items-start">
+      <div
+        class="w-[180px] h-[120px] overflow-hidden ml-[-30px] mt-[-20px] scale-90 transform origin-top-left align-top"
+      >
+        <Icon
+          icon="i-woot-captain"
+          class="text-n-slate-9 w-[160px] h-[180px]"
+        />
+      </div>
       <div class="space-y-1">
         <h3 class="text-base font-medium text-n-slate-12 leading-8">
           {{ $t('CAPTAIN.COPILOT.PANEL_TITLE') }}
