@@ -1,9 +1,11 @@
 # pre-build stage
 FROM node:24-alpine as node
-FROM ruby:3.4.4-alpine3.21 AS pre-builder
+FROM alpine:3.21 AS pre-builder
 
+ARG RUBY_VERSION="3.4.4"
 ARG NODE_VERSION="24.12.0"
 ARG PNPM_VERSION="10.2.0"
+ENV RUBY_VERSION=${RUBY_VERSION}
 ENV NODE_VERSION=${NODE_VERSION}
 ENV PNPM_VERSION=${PNPM_VERSION}
 
@@ -24,8 +26,10 @@ ENV NODE_OPTIONS ${NODE_OPTIONS}
 
 ENV BUNDLE_PATH="/gems"
 
+# Install dependencies for rbenv and Ruby compilation
 RUN apk update && apk add --no-cache \
   openssl \
+  openssl-dev \
   tar \
   build-base \
   tzdata \
@@ -34,7 +38,28 @@ RUN apk update && apk add --no-cache \
   git \
   curl \
   xz \
-  && mkdir -p /var/app \
+  bash \
+  linux-headers \
+  readline-dev \
+  zlib-dev \
+  libffi-dev \
+  yaml-dev \
+  && mkdir -p /var/app
+
+# Install rbenv and ruby-build
+ENV RBENV_ROOT="/root/.rbenv"
+ENV PATH="${RBENV_ROOT}/bin:${RBENV_ROOT}/shims:${PATH}"
+
+RUN git clone https://github.com/rbenv/rbenv.git ${RBENV_ROOT} \
+  && git clone https://github.com/rbenv/ruby-build.git ${RBENV_ROOT}/plugins/ruby-build \
+  && echo 'export RBENV_ROOT="/root/.rbenv"' >> /root/.bashrc \
+  && echo 'export PATH="${RBENV_ROOT}/bin:${RBENV_ROOT}/shims:${PATH}"' >> /root/.bashrc \
+  && echo 'eval "$(rbenv init -)"' >> /root/.bashrc
+
+# Install Ruby via rbenv
+RUN rbenv install ${RUBY_VERSION} \
+  && rbenv global ${RUBY_VERSION} \
+  && rbenv rehash \
   && gem install bundler
 
 COPY --from=node /usr/local/bin/node /usr/local/bin/
@@ -62,8 +87,8 @@ COPY Gemfile Gemfile.lock ./
 # https://github.com/googleapis/google-cloud-ruby/issues/13306
 # adding xz as nokogiri was failing to build libxml
 # https://github.com/chatwoot/chatwoot/issues/4045
-# Adding yaml-dev for psych gem, gcompat for glibc compatibility
-RUN apk update && apk add --no-cache build-base musl ruby-full ruby-dev gcc make musl-dev openssl openssl-dev g++ linux-headers xz vips yaml-dev gcompat
+# Adding gcompat for glibc compatibility (vips already installed above)
+RUN apk update && apk add --no-cache vips gcompat
 
 # Do not install development or test gems in production
 RUN if [ "$RAILS_ENV" = "production" ]; then \
@@ -90,16 +115,18 @@ RUN if [ "$RAILS_ENV" = "production" ]; then \
 RUN git rev-parse HEAD > /app/.git_sha
 
 # Remove unnecessary files
-RUN rm -rf /gems/ruby/3.4.0/cache/*.gem \
-  && find /gems/ruby/3.4.0/gems/ \( -name "*.c" -o -name "*.o" \) -delete \
+RUN rm -rf ${BUNDLE_PATH}/ruby/*/cache/*.gem \
+  && find ${BUNDLE_PATH}/ruby/*/gems/ \( -name "*.c" -o -name "*.o" \) -delete 2>/dev/null || true \
   && rm -rf .git \
   && rm .gitignore
 
 # final build stage
-FROM ruby:3.4.4-alpine3.21
+FROM alpine:3.21
 
+ARG RUBY_VERSION="3.4.4"
 ARG NODE_VERSION="24.12.0"
 ARG PNPM_VERSION="10.2.0"
+ENV RUBY_VERSION=${RUBY_VERSION}
 ENV NODE_VERSION=${NODE_VERSION}
 ENV PNPM_VERSION=${PNPM_VERSION}
 
@@ -120,14 +147,32 @@ ARG RAILS_ENV=production
 ENV RAILS_ENV ${RAILS_ENV}
 ENV BUNDLE_PATH="/gems"
 
+# rbenv environment
+ENV RBENV_ROOT="/root/.rbenv"
+ENV PATH="${RBENV_ROOT}/bin:${RBENV_ROOT}/shims:${PATH}"
+
 RUN apk update && apk add --no-cache \
   build-base \
   openssl \
+  openssl-dev \
   tzdata \
   postgresql-client \
   imagemagick \
   git \
   vips \
+  bash \
+  readline-dev \
+  zlib-dev \
+  libffi-dev \
+  yaml-dev
+
+# Copy rbenv from pre-builder
+COPY --from=pre-builder /root/.rbenv /root/.rbenv
+
+RUN echo 'export RBENV_ROOT="/root/.rbenv"' >> /root/.bashrc \
+  && echo 'export PATH="${RBENV_ROOT}/bin:${RBENV_ROOT}/shims:${PATH}"' >> /root/.bashrc \
+  && echo 'eval "$(rbenv init -)"' >> /root/.bashrc \
+  && rbenv rehash \
   && gem install bundler
 
 COPY --from=node /usr/local/bin/node /usr/local/bin/
