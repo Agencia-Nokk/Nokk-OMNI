@@ -1,141 +1,132 @@
-# pre-build stage
-FROM node:24-slim as node
-FROM ruby:3.4.4-slim-bookworm AS pre-builder
+# =========================
+# NODE BASE (somente para copiar binários)
+# =========================
+FROM node:24-slim AS node
 
-ARG NODE_VERSION="24.12.0"
+# =========================
+# PRE-BUILDER
+# =========================
+FROM ruby:3.4.4-slim AS pre-builder
+
+# ← ARGs para usar no BUILD
+ARG FRONTEND_URL
+ARG ACTION_CABLE_URL
 ARG PNPM_VERSION="10.2.0"
-ENV NODE_VERSION=${NODE_VERSION}
-ENV PNPM_VERSION=${PNPM_VERSION}
+ARG BUNDLER_VERSION="2.5.11"
 
-# ARG default to production settings
-# For development docker-compose file overrides ARGS
-ARG BUNDLE_WITHOUT="development:test"
-ENV BUNDLE_WITHOUT ${BUNDLE_WITHOUT}
-ENV BUNDLER_VERSION=2.5.11
-
-ARG RAILS_SERVE_STATIC_FILES=true
-ENV RAILS_SERVE_STATIC_FILES ${RAILS_SERVE_STATIC_FILES}
-
-ARG RAILS_ENV=production
-ENV RAILS_ENV ${RAILS_ENV}
-
-ARG NODE_OPTIONS="--max-old-space-size=4096 --openssl-legacy-provider"
-ENV NODE_OPTIONS ${NODE_OPTIONS}
-
+ENV RAILS_ENV=production
+ENV NODE_ENV=production
+ENV BUNDLE_WITHOUT="development:test"
 ENV BUNDLE_PATH="/gems"
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+ENV VITE_RUBY_SKIP_COMPATIBILITY_CHECK=true
+ENV DOCKER_BUILD=true
 
+# Dependências de build
 RUN apt-get update && apt-get install -y --no-install-recommends \
-  openssl \
-  tar \
   build-essential \
-  tzdata \
   libpq-dev \
   postgresql-client \
   git \
   curl \
-  xz-utils \
+  ca-certificates \
+  libvips42 \
   libvips-dev \
   libyaml-dev \
   && rm -rf /var/lib/apt/lists/* \
-  && mkdir -p /var/app \
-  && gem install bundler
-
-COPY --from=node /usr/local/bin/node /usr/local/bin/
-COPY --from=node /usr/local/lib/node_modules /usr/local/lib/node_modules
-RUN ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
-  && ln -s /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx
-
-RUN npm install -g pnpm@${PNPM_VERSION}
-
-# Persist the environment variables in Docker
-ENV PNPM_HOME="/root/.local/share/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
+  && gem install bundler -v ${BUNDLER_VERSION}
 
 WORKDIR /app
 
+# Node + npm
+COPY --from=node /usr/local/bin/node /usr/local/bin/
+COPY --from=node /usr/local/lib/node_modules /usr/local/lib/node_modules
+RUN ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
+ && ln -s /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx
+
+# pnpm
+RUN npm install -g pnpm@${PNPM_VERSION}
+ENV PNPM_HOME="/root/.local/share/pnpm"
+ENV PATH="${PNPM_HOME}:${PATH}"
+
+# Gems
 COPY Gemfile Gemfile.lock ./
+RUN bundle config set without 'development test' \
+ && bundle install -j 4 -r 3
 
-# Do not install development or test gems in production
-RUN if [ "$RAILS_ENV" = "production" ]; then \
-  bundle config set without 'development test'; bundle install -j 4 -r 3; \
-  else bundle install -j 4 -r 3; \
-  fi
-
+# JS deps
 COPY package.json pnpm-lock.yaml ./
-RUN pnpm i
+COPY config ./config
+RUN pnpm install --frozen-lockfile
 
+# Código
 COPY . /app
-
-# creating a log directory so that image wont fail when RAILS_LOG_TO_STDOUT is false
-# https://github.com/chatwoot/chatwoot/issues/701
 RUN mkdir -p /app/log
 
-# generate production assets if production environment
-RUN if [ "$RAILS_ENV" = "production" ]; then \
-  SECRET_KEY_BASE=precompile_placeholder RAILS_LOG_TO_STDOUT=enabled bundle exec rake assets:precompile \
-  && rm -rf spec node_modules tmp/cache; \
-  fi
+# =========================
+# BUILD DO SDK (ÚNICO build JS manual permitido)
+# =========================
+RUN echo "Building Chatwoot SDK..." \
+ && BUILD_MODE=library pnpm run build:sdk
 
-# Generate .git_sha file with current commit hash
-RUN git rev-parse HEAD > /app/.git_sha
+# =========================
+# ASSETS PRECOMPILE (VITE + RAILS)
+# =========================
+RUN SECRET_KEY_BASE=precompile_placeholder \
+    RAILS_LOG_TO_STDOUT=true \
+    DATABASE_URL=postgresql://postgres:postgres@localhost/chatwoot_production \
+    FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000} \
+    ACTION_CABLE_URL=${ACTION_CABLE_URL:-ws://localhost:3000/cable} \
+    VITE_RUBY_SKIP_COMPATIBILITY_CHECK=true \
+    bundle exec rake assets:precompile \
+ && rm -rf spec tmp/cache
 
-# Remove unnecessary files
-RUN rm -rf ${BUNDLE_PATH}/ruby/*/cache/*.gem \
-  && find ${BUNDLE_PATH}/ruby/*/gems/ \( -name "*.c" -o -name "*.o" \) -delete 2>/dev/null || true \
-  && rm -rf .git \
-  && rm .gitignore
+# git sha
+RUN git rev-parse HEAD > /app/.git_sha 2>/dev/null || echo "unknown" > /app/.git_sha
 
-# final build stage
-FROM ruby:3.4.4-slim-bookworm
+# limpeza
+RUN rm -rf /gems/ruby/3.4.0/cache/*.gem \
+ && find /gems/ruby/3.4.0/gems \( -name "*.c" -o -name "*.o" \) -delete \
+ && rm -rf .git .gitignore
 
-ARG NODE_VERSION="24.12.0"
-ARG PNPM_VERSION="10.2.0"
-ENV NODE_VERSION=${NODE_VERSION}
-ENV PNPM_VERSION=${PNPM_VERSION}
+# =========================
+# RUNTIME FINAL
+# =========================
+FROM ruby:3.4.4-slim
 
-ARG BUNDLE_WITHOUT="development:test"
-ENV BUNDLE_WITHOUT ${BUNDLE_WITHOUT}
-ENV BUNDLER_VERSION=2.5.11
+# ← ADICIONAR ARGs AQUI TAMBÉM
+ARG FRONTEND_URL
+ARG ACTION_CABLE_URL
+ARG BUNDLER_VERSION="2.5.11"
 
-ARG EXECJS_RUNTIME="Disabled"
-ENV EXECJS_RUNTIME ${EXECJS_RUNTIME}
-
-ARG RAILS_SERVE_STATIC_FILES=true
-ENV RAILS_SERVE_STATIC_FILES ${RAILS_SERVE_STATIC_FILES}
-
-ARG RAILS_ENV=production
-ENV RAILS_ENV ${RAILS_ENV}
+ENV RAILS_ENV=production
+ENV NODE_ENV=production
+ENV BUNDLE_WITHOUT="development:test"
 ENV BUNDLE_PATH="/gems"
+ENV RAILS_SERVE_STATIC_FILES=true
+ENV EXECJS_RUNTIME=Disabled
+
+# ← PROPAGAR PARA ENV (para runtime)
+ENV FRONTEND_URL=${FRONTEND_URL}
+ENV ACTION_CABLE_URL=${ACTION_CABLE_URL}
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-  build-essential \
-  openssl \
-  tzdata \
   postgresql-client \
+  libvips42 \
   imagemagick \
   git \
-  libvips42 \
+  ca-certificates \
   libyaml-0-2 \
   && rm -rf /var/lib/apt/lists/* \
-  && gem install bundler
+  && gem install bundler -v ${BUNDLER_VERSION}
 
+# Node (runtime para ExecJS / mini_racer / etc)
 COPY --from=node /usr/local/bin/node /usr/local/bin/
 COPY --from=node /usr/local/lib/node_modules /usr/local/lib/node_modules
 
-RUN if [ "$RAILS_ENV" != "production" ]; then \
-  apt-get update && apt-get install -y --no-install-recommends curl \
-  && rm -rf /var/lib/apt/lists/* \
-  && ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
-  && ln -s /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx \
-  && npm install -g pnpm@${PNPM_VERSION} \
-  && pnpm --version; \
-  fi
-
-COPY --from=pre-builder /gems/ /gems/
+# App
+COPY --from=pre-builder /gems /gems
 COPY --from=pre-builder /app /app
-
-# Copy .git_sha file from pre-builder stage
-COPY --from=pre-builder /app/.git_sha /app/.git_sha
 
 WORKDIR /app
 
