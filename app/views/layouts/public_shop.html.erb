@@ -25,7 +25,21 @@
       .text-shop-text { color: var(--shop-text); }
       .text-shop-secondary { color: var(--shop-secondary); }
 
-      /* Loading screen - previne FOUC */
+      /* Body base */
+      body {
+        margin: 0;
+      }
+
+      /* SOLUÇÃO 1: Conteúdo escondido até carregar */
+      .shop-content {
+        opacity: 0;
+        transition: opacity 0.3s ease-out;
+      }
+      .shop-content.loaded {
+        opacity: 1;
+      }
+
+      /* SOLUÇÃO 2: Loading screen - previne FOUC */
       .shop-loading {
         position: fixed;
         inset: 0;
@@ -34,6 +48,7 @@
         align-items: center;
         justify-content: center;
         z-index: 9999;
+        opacity: 1;
         transition: opacity 0.3s ease-out;
       }
       .shop-loading.hide {
@@ -52,7 +67,6 @@
         to { transform: rotate(360deg); }
       }
       /* CSS crítico inline para evitar FOUC */
-      body { margin: 0; }
       .min-h-screen { min-height: 100vh; }
       .flex { display: flex; }
       .flex-col { flex-direction: column; }
@@ -74,11 +88,14 @@
       @media (min-width: 640px) { .sm\\:block { display: block; } .sm\\:px-6 { padding-left: 1.5rem; padding-right: 1.5rem; } }
     </style>
   </head>
-  <body class="min-h-screen flex flex-col" style="background-color: var(--shop-background); color: var(--shop-text);">
-    <!-- Loading Screen -->
+  <body style="background-color: var(--shop-background); color: var(--shop-text);">
+    <!-- Loading Screen (fora do content wrapper para sempre ser visível) -->
     <div id="shop-loading" class="shop-loading">
       <div class="shop-loading-spinner"></div>
     </div>
+
+    <!-- Content Wrapper (escondido até carregar) -->
+    <div id="shop-content" class="shop-content min-h-screen flex flex-col">
     <!-- Banner (se configurado) -->
     <% if @settings.header_style == 'with_banner' && @settings.banner.attached? %>
       <div class="w-full h-32 sm:h-48 bg-slate-200 relative overflow-hidden">
@@ -187,6 +204,7 @@
         <% end %>
       </div>
     </footer>
+    </div><!-- /shop-content -->
 
     <!-- Toast Container -->
     <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2"></div>
@@ -372,6 +390,14 @@
       // Hide loading screen and show content
       function hideLoading() {
         const loading = document.getElementById('shop-loading');
+        const content = document.getElementById('shop-content');
+
+        // Primeiro mostra o conteúdo (opacity 1)
+        if (content) {
+          content.classList.add('loaded');
+        }
+
+        // Depois esconde o loading screen
         if (loading) {
           loading.classList.add('hide');
           setTimeout(() => loading.remove(), 300);
@@ -386,11 +412,17 @@
       // Hide loading only after ALL resources (CSS, images, etc) are loaded
       window.addEventListener('load', hideLoading);
 
-      // Fallback: hide loading after max 3 seconds
-      setTimeout(hideLoading, 3000);
+      // Fallback: hide loading after max 2 seconds (reduzido para melhor UX)
+      setTimeout(hideLoading, 2000);
 
-      // Also update on turbolinks load
+      // Also update on turbolinks/turbo load
       document.addEventListener('turbolinks:load', function() {
+        window.Shop.updateCartCount();
+        hideLoading();
+      });
+
+      // Turbo (Rails 7+)
+      document.addEventListener('turbo:load', function() {
         window.Shop.updateCartCount();
         hideLoading();
       });
