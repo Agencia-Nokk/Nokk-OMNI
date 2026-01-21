@@ -748,7 +748,8 @@
             "MAX_CONVERSATIONS": "Máximo de conversas",
             "SET_LIMIT": "Definir limite"
           },
-          "EMPTY_STATE": "Nenhum limite de caixa de entrada definido"
+          "EMPTY_STATE": "Nenhum limite de caixa de entrada definido",
+          "CURRENT_LIMITS": "Limites Atuais:"
         },
         "EXCLUSION_RULES": {
           "LABEL": "Regras de exclusão",

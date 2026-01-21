@@ -748,7 +748,8 @@
             "MAX_CONVERSATIONS": "Max conversazioni",
             "SET_LIMIT": "Imposta limite"
           },
-          "EMPTY_STATE": "Nessun limite Inbox impostato"
+          "EMPTY_STATE": "Nessun limite Inbox impostato",
+          "CURRENT_LIMITS": "Limiti Attuali:"
         },
         "EXCLUSION_RULES": {
           "LABEL": "Regole di esclusione",

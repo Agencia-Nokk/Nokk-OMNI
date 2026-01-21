@@ -748,7 +748,8 @@
             "MAX_CONVERSATIONS": "Max conversations",
             "SET_LIMIT": "Set limit"
           },
-          "EMPTY_STATE": "没有设置收件箱限制"
+          "EMPTY_STATE": "没有设置收件箱限制",
+          "CURRENT_LIMITS": "Current Limits:"
         },
         "EXCLUSION_RULES": {
           "LABEL": "Exclusion rules",

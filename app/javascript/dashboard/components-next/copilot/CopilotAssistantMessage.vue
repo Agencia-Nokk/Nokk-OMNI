@@ -27,9 +27,15 @@ const props = defineProps({
 });
 const hasEmptyMessageContent = computed(() => !props.message?.content);
 
-const hasEntities = computed(() => {
-  return props.message?.entities?.length > 0;
+// Filter valid entities - must have type, id, and name
+const validEntities = computed(() => {
+  if (!Array.isArray(props.message?.entities)) return [];
+  return props.message.entities.filter(
+    entity => entity && entity.type && entity.id && entity.name
+  );
 });
+
+const hasEntities = computed(() => validEntities.value.length > 0);
 
 const showUseButton = computed(() => {
   return (
@@ -70,7 +76,7 @@ const useCopilotResponse = () => {
       <div v-dompurify-html="messageContent" class="prose-sm break-words" />
       <div v-if="hasEntities" class="flex flex-col gap-2 mt-2">
         <CopilotEntityCard
-          v-for="entity in message.entities"
+          v-for="entity in validEntities"
           :key="`${entity.type}-${entity.id}`"
           :entity="entity"
         />

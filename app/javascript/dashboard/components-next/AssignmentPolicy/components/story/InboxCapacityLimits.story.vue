@@ -1,6 +1,9 @@
 <script setup>
 import InboxCapacityLimits from '../InboxCapacityLimits.vue';
 import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const mockInboxList = [
   {
@@ -97,7 +100,13 @@ const handleDelete = id => {
           @delete="handleDelete"
         />
         <div class="mt-4 p-4 bg-n-alpha-2 rounded-lg">
-          <h4 class="text-sm font-medium mb-2">Current Limits:</h4>
+          <h4 class="text-sm font-medium mb-2">
+            {{
+              t(
+                'ASSIGNMENT_POLICY.AGENT_CAPACITY_POLICY.FORM.INBOX_CAPACITY_LIMIT.CURRENT_LIMITS'
+              )
+            }}
+          </h4>
           <pre class="text-xs">{{
             JSON.stringify(inboxCapacityLimitsEmpty, null, 2)
           }}</pre>
