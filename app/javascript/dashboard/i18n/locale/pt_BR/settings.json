@@ -37,7 +37,7 @@
       },
       "INTERFACE_SECTION": {
         "TITLE": "Interface",
-        "NOTE": "Personalize a aparência do seu painel do Chatwoot.",
+        "NOTE": "Personalize a aparência do seu painel da Nokk.",
         "FONT_SIZE": {
           "TITLE": "Tamanho da fonte",
           "NOTE": "Ajuste o tamanho do texto do painel com base na sua preferência.",
@@ -469,8 +469,8 @@
       "COPY_SUCCESS": "Código copiado para área de transferência com sucesso",
       "SP_ENTITY_ID": {
         "LABEL": "SP Entity ID",
-        "HELP": "Identificador único para esta aplicação como provedor de serviços (gerado automaticamente).",
-        "TOOLTIP": "Identificador único para o Chatwoot como Provedor de Serviços - Configure isso nas configurações do seu IdP"
+        "HELP": "Unique identifier for this application as a service provider (auto-generated).",
+        "TOOLTIP": "Identificador único da Nokk como Provedor de Serviço - Configure nas configurações do seu IdP"
       },
       "IDP_ENTITY_ID": {
         "LABEL": "ID da Entidade do Provedor de Identidade",

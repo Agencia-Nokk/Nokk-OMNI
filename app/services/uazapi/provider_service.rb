@@ -187,7 +187,7 @@ class Uazapi::ProviderService
     false
   end
 
-  def send_carousel(phone_number, text:, cards:, track_id: nil) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+  def send_carousel(phone_number, text:, cards:, track_id: nil)
     log "[CAROUSEL] Sending carousel to #{phone_number} with #{cards.length} cards"
 
     body = {
@@ -212,7 +212,7 @@ class Uazapi::ProviderService
       body: body.to_json
     )
 
-    log "[CAROUSEL] Response: #{response.code} - #{response.body}"
+    log "[CAROUSEL] Response: #{response.code}"
 
     if response.success?
       result = JSON.parse(response.body)
@@ -335,6 +335,21 @@ class Uazapi::ProviderService
   rescue StandardError => e
     Rails.logger.error "[UAZAPI] Error fetching contact details: #{e.message}"
     nil
+  end
+
+  # Fetch all labels from UAZAPI instance
+  def fetch_labels
+    response = HTTParty.get(
+      "#{api_url}/labels",
+      headers: api_headers
+    )
+
+    return [] unless response.success?
+
+    JSON.parse(response.body)
+  rescue StandardError => e
+    Rails.logger.error "[UAZAPI] Error fetching labels: #{e.message}"
+    []
   end
 
   private

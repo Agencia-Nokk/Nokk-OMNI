@@ -259,7 +259,7 @@ onMounted(() => {
   <div class="flex flex-col w-full h-full overflow-auto">
     <!-- Loading State -->
     <div v-if="isLoading" class="flex items-center justify-center flex-1 py-20">
-      <Spinner size="large" />
+      <Spinner :size="32" />
     </div>
 
     <div v-else class="w-full">
