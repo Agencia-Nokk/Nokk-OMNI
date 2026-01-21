@@ -31,7 +31,6 @@ const showSettingsHeader = computed(
         :show-back-button="showBackButton"
         :back-url="backUrl"
         class="sticky top-0 z-20"
-        :class="{ 'max-w-6xl w-full mx-auto': fullWidth }"
       />
 
       <router-view v-slot="{ Component }" class="px-5 flex-1 overflow-hidden">

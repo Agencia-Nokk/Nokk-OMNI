@@ -151,7 +151,8 @@
       "ADD_PRIVATE_NOTE": "Add a Private Note",
       "CHANGE_PRIORITY": "Change Priority",
       "ADD_SLA": "Add SLA",
-      "OPEN_CONVERSATION": "Open conversation"
+      "OPEN_CONVERSATION": "Open conversation",
+      "EXECUTE_MACRO": "Execute Macro"
     },
     "MESSAGE_TYPES": {
       "INCOMING": "Incoming Message",
@@ -180,6 +181,29 @@
       "TEAM_NAME": "Team",
       "PRIORITY": "Priority",
       "LABELS": "Labels"
+    },
+    "FLOW": {
+      "VIEW_FORM": "Form View",
+      "VIEW_FLOW": "Visual Flow",
+      "TRIGGER": "Trigger",
+      "CONDITION": "Condition",
+      "ACTION": "Action",
+      "CONDITION_EMPTY": "Click to configure condition",
+      "ACTION_EMPTY": "Click to configure action",
+      "TRIGGER_EMPTY": "Click to configure trigger",
+      "NODE_PALETTE": "Node Palette",
+      "ADD_NODES": "Add Nodes",
+      "QUICK_ADD": "Quick Add",
+      "DRAG_TO_ADD_TRIGGER": "Drag to canvas to add trigger",
+      "DRAG_TO_ADD_CONDITION": "Drag to canvas to add condition",
+      "DRAG_TO_ADD_ACTION": "Drag to canvas to add action",
+      "CONFIGURE_NODE": "Configure Node",
+      "DELETE_NODE": "Delete node",
+      "CANNOT_REMOVE_TRIGGER": "Cannot remove trigger node",
+      "INVALID_CONNECTION": "Invalid connection. Trigger can only connect to conditions, conditions can connect to conditions or actions, and actions can connect to actions."
+    },
+    "FORM": {
+      "SAVE": "Save"
     }
   }
 }

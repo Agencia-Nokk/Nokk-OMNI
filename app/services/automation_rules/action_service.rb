@@ -61,4 +61,42 @@ class AutomationRules::ActionService < ActionService
       TeamNotifications::AutomationNotificationMailer.conversation_creation(@conversation, team, params[0][:message])&.deliver_now
     end
   end
+
+  def execute_macro(macro_ids)
+    return if macro_ids.blank?
+
+    macro_id = macro_ids[0]
+    macro = @account.macros.find_by(id: macro_id)
+    return unless macro
+
+    # Determine the user to use as 'self' for macro execution
+    # Priority: 1) Current assignee, 2) Last agent who sent a message, 3) nil
+    user = determine_macro_user
+
+    # Execute macro using Macros::ExecutionService
+    ::Macros::ExecutionService.new(macro, @conversation, user).perform
+  end
+
+  def determine_macro_user
+    # First, try to use the current assignee (if belongs to the account)
+    if @conversation.assignee.present? && @conversation.assignee.account_users.exists?(account_id: @account.id)
+      return @conversation.assignee
+    end
+
+    # If no assignee, try to find the last agent who sent a message in this conversation
+    last_agent_message = @conversation.messages
+                                      .where(sender_type: 'User')
+                                      .where.not(sender_id: nil)
+                                      .order(created_at: :desc)
+                                      .first
+
+    if last_agent_message&.sender.present?
+      user = last_agent_message.sender
+      # Ensure the user belongs to the account
+      return user if user.account_users.exists?(account_id: @account.id)
+    end
+
+    # If no agent found, return nil (macro actions that depend on 'self' won't work)
+    nil
+  end
 end

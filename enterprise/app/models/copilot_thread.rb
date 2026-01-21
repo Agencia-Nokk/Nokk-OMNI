@@ -22,7 +22,7 @@ class CopilotThread < ApplicationRecord
   belongs_to :assistant, class_name: 'Captain::Assistant'
   has_many :copilot_messages, dependent: :destroy_async
 
-  validates :title, presence: true
+  validates :title, presence: true, length: { maximum: 255 }
 
   def push_event_data
     {

@@ -6,8 +6,8 @@ class Captain::Tools::Copilot::UpdateAutomationRuleService < Captain::Tools::Bas
   description <<~DESC
     Update an existing automation rule. You can update name, description, event, conditions, actions, or active status.
 
-    **Important**: Before updating with assign_agent or assign_team actions,
-    use list_agents or list_teams to get the correct IDs.
+    **Important**: Before updating with assign_agent, assign_team, or execute_macro actions,
+    use list_agents, list_teams, or list_macros respectively to get the correct IDs.
 
     Provide only the fields you want to update. Fields not provided will remain unchanged.
     For conditions and actions, provide the complete new array (it replaces the existing one).
@@ -17,6 +17,9 @@ class Captain::Tools::Copilot::UpdateAutomationRuleService < Captain::Tools::Bas
 
     Example - Update name and description:
     { "rule_id": 1, "name": "New name", "description": "New description" }
+
+    Example - Add execute_macro action:
+    { "rule_id": 1, "actions": "[{\"action_name\": \"execute_macro\", \"action_params\": [macro_id]}]" }
   DESC
 
   param :rule_id, type: :integer, desc: 'ID of the automation rule to update', required: true

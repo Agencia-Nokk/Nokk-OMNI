@@ -9,6 +9,7 @@ import { useEditableAutomation } from 'dashboard/composables/useEditableAutomati
 import { generateAutomationPayload } from 'dashboard/helper/automationHelper';
 import { validateAutomation } from 'dashboard/helper/validations';
 import AutomationForm from './AutomationForm.vue';
+import AutomationFlowEditor from './flow/AutomationFlowEditor.vue';
 import { AUTOMATION_RULE_EVENTS, AUTOMATION_ACTION_TYPES } from './constants';
 
 const store = useStore();
@@ -20,6 +21,7 @@ const { t } = useI18n();
 const mode = ref('CREATE');
 const errors = ref({});
 const allCustomAttributes = ref([]);
+const viewMode = ref('flow');
 
 const start_value = {
   name: null,
@@ -92,6 +94,7 @@ const fetchDropdownData = () => {
   store.dispatch('teams/get');
   store.dispatch('labels/get');
   store.dispatch('campaigns/get');
+  store.dispatch('macros/get');
   if (isSLAEnabled.value) {
     store.dispatch('sla/get');
   }
@@ -171,27 +174,87 @@ const onCancel = () => {
       v-if="uiFlags.isFetching"
       :message="$t('AUTOMATION.LOADING')"
     />
-    <AutomationForm
-      v-if="automation && !uiFlags.isFetching"
-      :automation-data="automation"
-      :automation-types="automationTypes"
-      :automation-rule-events="automationRuleEvents"
-      :automation-action-types="automationActionTypes"
-      :all-custom-attributes="allCustomAttributes"
-      :mode="mode.toLowerCase()"
-      :errors="errors"
-      :get-condition-dropdown-values="getConditionDropdownValues"
-      :get-action-dropdown-values="getActionDropdownValues"
-      @update:automation-data="automation = $event"
-      @submit="saveAutomation"
-      @cancel="onCancel"
-      @event-change="onEventChange"
-      @append-new-condition="appendNewCondition"
-      @append-new-action="appendNewAction"
-      @remove-filter="removeFilter"
-      @remove-action="removeAction"
-      @reset-filter="resetFilter"
-      @reset-action="resetAction"
-    />
+    <div v-if="automation && !uiFlags.isFetching" class="flex flex-col h-full">
+      <!-- Toggle de Modo -->
+      <div class="flex items-center justify-start gap-2 p-4">
+        <button
+          class="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+          :class="[
+            viewMode === 'form'
+              ? 'bg-n-blue-9 text-white'
+              : 'bg-n-slate-3 dark:bg-n-solid-3 text-n-slate-11 hover:bg-n-slate-4',
+          ]"
+          @click="viewMode = 'form'"
+        >
+          <i class="ion-document-text mr-2" />
+          {{ $t('AUTOMATION.FLOW.VIEW_FORM') }}
+        </button>
+        <button
+          class="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+          :class="[
+            viewMode === 'flow'
+              ? 'bg-n-blue-9 text-white'
+              : 'bg-n-slate-3 dark:bg-n-solid-3 text-n-slate-11 hover:bg-n-slate-4',
+          ]"
+          @click="viewMode = 'flow'"
+        >
+          <i class="ion-share-alt mr-2" />
+          {{ $t('AUTOMATION.FLOW.VIEW_FLOW') }}
+        </button>
+      </div>
+
+      <!-- Modo Formulário -->
+      <AutomationForm
+        v-if="viewMode === 'form'"
+        :automation-data="automation"
+        :automation-types="automationTypes"
+        :automation-rule-events="automationRuleEvents"
+        :automation-action-types="automationActionTypes"
+        :all-custom-attributes="allCustomAttributes"
+        :mode="mode.toLowerCase()"
+        :errors="errors"
+        :get-condition-dropdown-values="getConditionDropdownValues"
+        :get-action-dropdown-values="getActionDropdownValues"
+        @update:automation-data="automation = $event"
+        @submit="saveAutomation"
+        @cancel="onCancel"
+        @event-change="onEventChange"
+        @append-new-condition="appendNewCondition"
+        @append-new-action="appendNewAction"
+        @remove-filter="removeFilter"
+        @remove-action="removeAction"
+        @reset-filter="resetFilter"
+        @reset-action="resetAction"
+      />
+
+      <!-- Modo Visual Flow -->
+      <div v-else class="flex-1 relative">
+        <AutomationFlowEditor
+          :automation-data="automation"
+          :automation-types="automationTypes"
+          :automation-rule-events="automationRuleEvents"
+          :automation-action-types="automationActionTypes"
+          :all-custom-attributes="allCustomAttributes"
+          :get-condition-dropdown-values="getConditionDropdownValues"
+          :get-action-dropdown-values="getActionDropdownValues"
+          @update:automation-data="automation = $event"
+        />
+        <!-- Barra de ações para modo flow -->
+        <div class="absolute bottom-4 right-4 flex gap-2 z-20">
+          <button
+            class="px-4 py-2 bg-n-slate-3 dark:bg-n-solid-3 text-n-slate-11 rounded-lg hover:bg-n-slate-4 font-medium"
+            @click="onCancel"
+          >
+            {{ $t('AUTOMATION.FORM.CANCEL') }}
+          </button>
+          <button
+            class="px-4 py-2 bg-n-blue-9 text-white rounded-lg hover:bg-n-blue-10 font-medium"
+            @click="saveAutomation(automation)"
+          >
+            {{ $t('AUTOMATION.FORM.SAVE') }}
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>

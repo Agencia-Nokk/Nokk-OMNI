@@ -5,9 +5,9 @@ class Captain::Tools::Copilot::CreateAutomationRuleService < Captain::Tools::Bas
 
   description <<~DESC
     Create a new automation rule (workflow) that triggers actions based on events and conditions. Automation rules help automate repetitive tasks and respond to specific conversation events automatically.
-    
+
     **When to use:** Use this tool to create automated workflows that respond to events. For example: auto-labeling messages containing keywords, assigning conversations based on content, or sending automatic responses.
-    
+
     **Complete Example:**
     To create a rule that auto-labels urgent messages:
     {
@@ -34,14 +34,14 @@ class Captain::Tools::Copilot::CreateAutomationRuleService < Captain::Tools::Bas
       ],
       "active": true
     }
-    
+
     **Events (Triggers):**
     - conversation_created: Triggers when a new conversation is created
     - conversation_updated: Triggers when conversation properties change (status, assignee, etc.)
     - conversation_opened: Triggers when a snoozed/resolved conversation is reopened
     - conversation_resolved: Triggers when a conversation is marked as resolved
     - message_created: Triggers when a new message is posted in a conversation
-    
+
     **Available Condition Attributes:**
     - content: Message content text
     - email: Contact email address
@@ -60,7 +60,7 @@ class Captain::Tools::Copilot::CreateAutomationRuleService < Captain::Tools::Bas
     - priority: Conversation priority (urgent, high, medium, low, none)
     - conversation_language: Conversation language
     - labels: Conversation labels
-    
+
     **Filter Operators:**
     - equal_to: Exact match
     - not_equal_to: Not equal
@@ -69,12 +69,12 @@ class Captain::Tools::Copilot::CreateAutomationRuleService < Captain::Tools::Bas
     - is_present: Field has value
     - is_not_present: Field is empty
     - starts_with: Starts with text
-    
+
     **Query Operators (for combining conditions):**
     - AND: All conditions must match
     - OR: Any condition can match
     - First condition doesn't need query_operator
-    
+
     **Available Actions:**
     - send_message: Send public message. Params: ["message text"]
     - add_label: Add labels. Params: ["label1", "label2"]
@@ -92,13 +92,17 @@ class Captain::Tools::Copilot::CreateAutomationRuleService < Captain::Tools::Bas
     - change_priority: Change priority. Params: ["urgent"|"high"|"medium"|"low"|"none"]
     - send_email_transcript: Send transcript via email. Params: ["email@example.com"]
     - add_private_note: Add private note. Params: ["note content"]
-    
+    - execute_macro: Execute an existing macro (runs all macro actions in sequence). Params: [macro_id]
+      Note: Use list_macros tool to find available macro IDs. The macro will execute with the conversation's assignee as 'self' (if available).
+
     **Common Use Cases:**
     1. Auto-label support requests: event="message_created", condition="content contains 'help'", action="add_label support"
     2. Assign VIP customers: event="conversation_created", condition="email contains '@vip.com'", action="assign_team [vip_team_id]"
     3. Auto-respond to keywords: event="message_created", condition="content contains 'refund'", action="send_message 'We process refunds within 5-7 business days'"
     4. Escalate urgent: event="message_created", condition="content contains 'urgent' AND priority equals 'none'", action="change_priority high, add_label urgent"
-    
+    5. Execute macro workflow: event="conversation_created", condition="status equals 'open'", action="execute_macro [macro_id]"
+      Use execute_macro when you need to run a complex sequence of actions that are already defined in a macro. First use list_macros to find the macro ID.
+
     Rules execute when the event occurs AND all conditions match. Actions run sequentially.
     For more details: https://www.chatwoot.com/hc/user-guide/articles/1677689800-how-to-use-automation
   DESC
@@ -112,7 +116,7 @@ class Captain::Tools::Copilot::CreateAutomationRuleService < Captain::Tools::Bas
     - filter_operator: One of the filter operators (equal_to, contains, is_present, etc.)
     - values: Array of values to match (can be empty for is_present/is_not_present)
     - query_operator: "AND" or "OR" (only needed for conditions after the first one)
-    
+
     Example:
     [
       {
@@ -133,14 +137,14 @@ class Captain::Tools::Copilot::CreateAutomationRuleService < Captain::Tools::Bas
     JSON string containing an array of action objects. Each action must have:
     - action_name: One of the available action types listed in the tool description
     - action_params: Array of parameters for that action (can be empty array)
-    
+
     Example:
     [
       {"action_name": "add_label", "action_params": ["urgent"]},
       {"action_name": "change_priority", "action_params": ["high"]},
       {"action_name": "send_message", "action_params": ["We've received your urgent request and will respond shortly."]}
     ]
-    
+
     Actions execute in the order provided.
   ACTIONS_DESC
   param :active, type: 'boolean', desc: 'Whether the rule is active (default: true)', required: false
@@ -180,7 +184,7 @@ class Captain::Tools::Copilot::CreateAutomationRuleService < Captain::Tools::Bas
     end
 
     {
-      'content' => "Automation rule '#{name}' created successfully with #{normalized_conditions.size} condition(s) and #{normalized_actions.size} action(s)",
+      'content' => "Automation rule created successfully!\n\n#{format_rule_details(rule)}",
       'entities' => [format_rule_entity(rule)]
     }
   end
@@ -193,6 +197,29 @@ class Captain::Tools::Copilot::CreateAutomationRuleService < Captain::Tools::Bas
       'event' => rule.event_name,
       'active' => rule.active
     }
+  end
+
+  def format_rule_details(rule)
+    conditions_detail = rule.conditions.map.with_index(1) do |cond, idx|
+      op = cond['query_operator'] ? " (#{cond['query_operator']})" : ''
+      "  #{idx}. #{cond['attribute_key']} #{cond['filter_operator']} #{cond['values']}#{op}"
+    end.join("\n")
+
+    actions_detail = rule.actions.map.with_index(1) do |action, idx|
+      params = action['action_params']&.join(', ') || 'none'
+      "  #{idx}. #{action['action_name']}: [#{params}]"
+    end.join("\n")
+
+    <<~DETAILS.strip
+      **Name:** #{rule.name}
+      **Description:** #{rule.description || 'None'}
+      **Event:** #{rule.event_name}
+      **Active:** #{rule.active}
+      **Conditions:**
+      #{conditions_detail}
+      **Actions:**
+      #{actions_detail}
+    DETAILS
   end
 
   def active?

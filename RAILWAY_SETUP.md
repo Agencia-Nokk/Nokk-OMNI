@@ -190,6 +190,7 @@ CREATE EXTENSION IF NOT EXISTS vector;
 Via Railway CLI:
 
 **Para serviços customizados (como pgvector Docker)**:
+
 ```bash
 # Use railway run com DATABASE_URL
 railway run psql $DATABASE_URL -c "CREATE EXTENSION IF NOT EXISTS vector;"
@@ -200,6 +201,7 @@ railway run psql $DATABASE_URL
 ```
 
 **Para serviços PostgreSQL padrão do Railway**:
+
 ```bash
 railway connect postgres
 # No psql:

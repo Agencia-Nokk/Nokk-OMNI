@@ -698,4 +698,9 @@ export const AUTOMATION_ACTION_TYPES = [
     label: 'ADD_SLA',
     inputType: 'search_select',
   },
+  {
+    key: 'execute_macro',
+    label: 'EXECUTE_MACRO',
+    inputType: 'search_select',
+  },
 ];

@@ -306,6 +306,26 @@ Cria uma nova regra de automação.
 - `equal_to`, `not_equal_to`, `contains`, `does_not_contain`
 - `is_present`, `is_not_present`, `starts_with`
 
+**Ações disponíveis:**
+- `send_message` - Enviar mensagem pública. Params: ["texto da mensagem"]
+- `add_label` - Adicionar etiquetas. Params: ["etiqueta1", "etiqueta2"]
+- `remove_label` - Remover etiquetas. Params: ["etiqueta1", "etiqueta2"]
+- `send_email_to_team` - Enviar email para membros do time. Params: [team_id, "mensagem"]
+- `assign_team` - Atribuir a um time. Params: [team_id]
+- `assign_agent` - Atribuir a um agente. Params: [agent_id]
+- `send_webhook_event` - Disparar webhook. Params: ["https://webhook.url"]
+- `mute_conversation` - Silenciar notificações. Params: []
+- `send_attachment` - Enviar anexo. Params: [blob_id]
+- `change_status` - Mudar status. Params: ["open"|"resolved"|"pending"]
+- `resolve_conversation` - Marcar como resolvida. Params: []
+- `open_conversation` - Reabrir conversa. Params: []
+- `snooze_conversation` - Adiar conversa. Params: []
+- `change_priority` - Mudar prioridade. Params: ["urgent"|"high"|"medium"|"low"|"none"]
+- `send_email_transcript` - Enviar transcrição por email. Params: ["email@example.com"]
+- `add_private_note` - Adicionar nota privada. Params: ["conteúdo da nota"]
+- `execute_macro` - Executar uma macro existente (executa todas as ações da macro em sequência). Params: [macro_id]
+  Nota: Use list_macros para encontrar o ID da macro disponível. A macro será executada com o assignee da conversa como 'self' (se disponível).
+
 ---
 
 ### update_automation_rule

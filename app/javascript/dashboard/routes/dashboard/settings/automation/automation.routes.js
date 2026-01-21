@@ -35,6 +35,7 @@ export default {
         headerTitle: 'AUTOMATION.HEADER',
         icon: 'flash-settings',
         showBackButton: true,
+        fullWidth: true,
       }),
       children: [
         {

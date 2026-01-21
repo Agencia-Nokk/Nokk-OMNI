@@ -1,9 +1,9 @@
 class Captain::Tools::CreateMacroTool < Captain::Tools::BasePublicTool
   description <<~DESC
     Create a new macro (automation workflow) with specified actions. Macros are sets of saved actions that help customer service agents complete tasks efficiently. When executed, macros run actions in sequence on conversations.
-    
+
     **When to use:** Use this tool when you need to create a reusable set of actions that agents can execute with one click. For example: closing conversations, adding labels, sending follow-up messages, or updating priorities.
-    
+
     **Complete Example:**
     To create a macro that labels urgent conversations and sends a confirmation message:
     {
@@ -14,7 +14,7 @@ class Captain::Tools::CreateMacroTool < Captain::Tools::BasePublicTool
         {"action_name": "send_message", "action_params": ["We've received your urgent request and will respond shortly."]}
       ]
     }
-    
+
     **Available actions and their parameters:**
     - send_message: Send a public message. Params: ["message text"]
     - add_label: Add a label to conversation. Params: ["label_name"]
@@ -30,13 +30,13 @@ class Captain::Tools::CreateMacroTool < Captain::Tools::BasePublicTool
     - send_email_transcript: Send conversation transcript via email. Params: ["email@example.com"]
     - add_private_note: Add internal private note. Params: ["note content"]
     - send_webhook_event: Trigger webhook event. Params: ["https://webhook.url"]
-    
+
     **Common Use Cases:**
     1. Close conversation: [{"action_name": "add_label", "action_params": ["resolved"]}, {"action_name": "resolve_conversation", "action_params": []}]
     2. Escalate to team: [{"action_name": "assign_team", "action_params": [team_id]}, {"action_name": "change_priority", "action_params": ["high"]}]
     3. Send welcome message: [{"action_name": "send_message", "action_params": ["Welcome! How can I help you today?"]}]
     4. Add private note: [{"action_name": "add_private_note", "action_params": ["Customer requested callback"]}]
-    
+
     Actions execute in the order provided. Macros created are global (visible to all agents).
     For more details, see: https://www.chatwoot.com/docs/product/features/macros
   DESC

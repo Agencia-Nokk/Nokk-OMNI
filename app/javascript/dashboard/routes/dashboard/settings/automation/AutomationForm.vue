@@ -124,6 +124,22 @@ const submit = () => {
 
 <template>
   <div class="flex flex-col w-full h-auto md:flex-row md:h-full">
+    <!-- Sidebar à esquerda -->
+    <div
+      class="w-full md:w-80 flex-shrink-0 pb-4 px-4 md:pl-4 md:pr-0 border-r border-n-strong"
+    >
+      <AutomationProperties
+        :automation-name="automation.name"
+        :automation-description="automation.description"
+        :errors="errors"
+        @update:name="updateName"
+        @update:description="updateDescription"
+        @submit="submit"
+        @cancel="$emit('cancel')"
+      />
+    </div>
+
+    <!-- Conteúdo principal -->
     <div
       class="flex-1 w-full h-full max-h-full px-8 py-6 overflow-y-auto md:w-auto"
     >
@@ -263,18 +279,6 @@ const submit = () => {
           </div>
         </section>
       </div>
-    </div>
-
-    <div class="w-full md:w-80 pb-4 px-4 md:px-0 md:pr-4">
-      <AutomationProperties
-        :automation-name="automation.name"
-        :automation-description="automation.description"
-        :errors="errors"
-        @update:name="updateName"
-        @update:description="updateDescription"
-        @submit="submit"
-        @cancel="$emit('cancel')"
-      />
     </div>
   </div>
 </template>
