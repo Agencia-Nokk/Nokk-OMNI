@@ -1,11 +1,9 @@
 # pre-build stage
-FROM node:24-alpine as node
-FROM alpine:3.21 AS pre-builder
+FROM node:24-slim as node
+FROM ruby:3.4.4-slim-bookworm AS pre-builder
 
-ARG RUBY_VERSION="3.4.4"
 ARG NODE_VERSION="24.12.0"
 ARG PNPM_VERSION="10.2.0"
-ENV RUBY_VERSION=${RUBY_VERSION}
 ENV NODE_VERSION=${NODE_VERSION}
 ENV PNPM_VERSION=${PNPM_VERSION}
 
@@ -26,40 +24,20 @@ ENV NODE_OPTIONS ${NODE_OPTIONS}
 
 ENV BUNDLE_PATH="/gems"
 
-# Install dependencies for rbenv and Ruby compilation
-RUN apk update && apk add --no-cache \
+RUN apt-get update && apt-get install -y --no-install-recommends \
   openssl \
-  openssl-dev \
   tar \
-  build-base \
+  build-essential \
   tzdata \
-  postgresql-dev \
+  libpq-dev \
   postgresql-client \
   git \
   curl \
-  xz \
-  bash \
-  linux-headers \
-  readline-dev \
-  zlib-dev \
-  libffi-dev \
-  yaml-dev \
-  && mkdir -p /var/app
-
-# Install rbenv and ruby-build
-ENV RBENV_ROOT="/root/.rbenv"
-ENV PATH="${RBENV_ROOT}/bin:${RBENV_ROOT}/shims:${PATH}"
-
-RUN git clone https://github.com/rbenv/rbenv.git ${RBENV_ROOT} \
-  && git clone https://github.com/rbenv/ruby-build.git ${RBENV_ROOT}/plugins/ruby-build \
-  && echo 'export RBENV_ROOT="/root/.rbenv"' >> /root/.bashrc \
-  && echo 'export PATH="${RBENV_ROOT}/bin:${RBENV_ROOT}/shims:${PATH}"' >> /root/.bashrc \
-  && echo 'eval "$(rbenv init -)"' >> /root/.bashrc
-
-# Install Ruby via rbenv
-RUN rbenv install ${RUBY_VERSION} \
-  && rbenv global ${RUBY_VERSION} \
-  && rbenv rehash \
+  xz-utils \
+  libvips-dev \
+  libyaml-dev \
+  && rm -rf /var/lib/apt/lists/* \
+  && mkdir -p /var/app \
   && gem install bundler
 
 COPY --from=node /usr/local/bin/node /usr/local/bin/
@@ -69,12 +47,6 @@ RUN ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
 
 RUN npm install -g pnpm@${PNPM_VERSION}
 
-RUN echo 'export PNPM_HOME="/root/.local/share/pnpm"' >> /root/.shrc \
-  && echo 'export PATH="$PNPM_HOME:$PATH"' >> /root/.shrc \
-  && export PNPM_HOME="/root/.local/share/pnpm" \
-  && export PATH="$PNPM_HOME:$PATH" \
-  && pnpm --version
-
 # Persist the environment variables in Docker
 ENV PNPM_HOME="/root/.local/share/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
@@ -82,13 +54,6 @@ ENV PATH="$PNPM_HOME:$PATH"
 WORKDIR /app
 
 COPY Gemfile Gemfile.lock ./
-
-# natively compile grpc and protobuf to support alpine musl (dialogflow-docker workflow)
-# https://github.com/googleapis/google-cloud-ruby/issues/13306
-# adding xz as nokogiri was failing to build libxml
-# https://github.com/chatwoot/chatwoot/issues/4045
-# Adding gcompat for glibc compatibility (vips already installed above)
-RUN apk update && apk add --no-cache vips gcompat
 
 # Do not install development or test gems in production
 RUN if [ "$RAILS_ENV" = "production" ]; then \
@@ -121,12 +86,10 @@ RUN rm -rf ${BUNDLE_PATH}/ruby/*/cache/*.gem \
   && rm .gitignore
 
 # final build stage
-FROM alpine:3.21
+FROM ruby:3.4.4-slim-bookworm
 
-ARG RUBY_VERSION="3.4.4"
 ARG NODE_VERSION="24.12.0"
 ARG PNPM_VERSION="10.2.0"
-ENV RUBY_VERSION=${RUBY_VERSION}
 ENV NODE_VERSION=${NODE_VERSION}
 ENV PNPM_VERSION=${PNPM_VERSION}
 
@@ -140,46 +103,28 @@ ENV EXECJS_RUNTIME ${EXECJS_RUNTIME}
 ARG RAILS_SERVE_STATIC_FILES=true
 ENV RAILS_SERVE_STATIC_FILES ${RAILS_SERVE_STATIC_FILES}
 
-ARG BUNDLE_FORCE_RUBY_PLATFORM=1
-ENV BUNDLE_FORCE_RUBY_PLATFORM ${BUNDLE_FORCE_RUBY_PLATFORM}
-
 ARG RAILS_ENV=production
 ENV RAILS_ENV ${RAILS_ENV}
 ENV BUNDLE_PATH="/gems"
 
-# rbenv environment
-ENV RBENV_ROOT="/root/.rbenv"
-ENV PATH="${RBENV_ROOT}/bin:${RBENV_ROOT}/shims:${PATH}"
-
-RUN apk update && apk add --no-cache \
-  build-base \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+  build-essential \
   openssl \
-  openssl-dev \
   tzdata \
   postgresql-client \
   imagemagick \
   git \
-  vips \
-  bash \
-  readline-dev \
-  zlib-dev \
-  libffi-dev \
-  yaml-dev
-
-# Copy rbenv from pre-builder
-COPY --from=pre-builder /root/.rbenv /root/.rbenv
-
-RUN echo 'export RBENV_ROOT="/root/.rbenv"' >> /root/.bashrc \
-  && echo 'export PATH="${RBENV_ROOT}/bin:${RBENV_ROOT}/shims:${PATH}"' >> /root/.bashrc \
-  && echo 'eval "$(rbenv init -)"' >> /root/.bashrc \
-  && rbenv rehash \
+  libvips42 \
+  libyaml-0-2 \
+  && rm -rf /var/lib/apt/lists/* \
   && gem install bundler
 
 COPY --from=node /usr/local/bin/node /usr/local/bin/
 COPY --from=node /usr/local/lib/node_modules /usr/local/lib/node_modules
 
 RUN if [ "$RAILS_ENV" != "production" ]; then \
-  apk add --no-cache curl \
+  apt-get update && apt-get install -y --no-install-recommends curl \
+  && rm -rf /var/lib/apt/lists/* \
   && ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
   && ln -s /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx \
   && npm install -g pnpm@${PNPM_VERSION} \
