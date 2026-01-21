@@ -12,6 +12,8 @@ class Webhooks::WhatsappEventsJob < ApplicationJob
     case channel.provider
     when 'whatsapp_cloud'
       Whatsapp::IncomingMessageWhatsappCloudService.new(inbox: channel.inbox, params: params).perform
+    when 'uazapi'
+      Uazapi::IncomingMessageService.new(inbox: channel.inbox, params: params).perform
     else
       Whatsapp::IncomingMessageService.new(inbox: channel.inbox, params: params).perform
     end
@@ -21,7 +23,7 @@ class Webhooks::WhatsappEventsJob < ApplicationJob
 
   def channel_is_inactive?(channel)
     return true if channel.blank?
-    return true if channel.reauthorization_required?
+    return true if channel.respond_to?(:reauthorization_required?) && channel.reauthorization_required?
     return true unless channel.account.active?
 
     false
@@ -30,7 +32,10 @@ class Webhooks::WhatsappEventsJob < ApplicationJob
   def find_channel_by_url_param(params)
     return unless params[:phone_number]
 
-    Channel::Whatsapp.find_by(phone_number: params[:phone_number])
+    channel = Channel::Whatsapp.find_by(phone_number: params[:phone_number])
+    channel ||= Channel::Uazapi.find_by(phone_number: params[:phone_number])
+
+    channel
   end
 
   def find_channel_from_whatsapp_business_payload(params)

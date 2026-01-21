@@ -25,12 +25,17 @@ class Public::ShopController < ApplicationController
   private
 
   def set_account
-    # Busca por slug (nome parametrizado) ou por ID como fallback
-    @account = Account.find_by('LOWER(name) = ?', params[:account_slug].tr('-', ' ').downcase)
-    @account ||= Account.find_by(id: params[:account_slug])
-
+    # Prioriza busca por slug (mais performático)
+    @account = Account.find_by(slug: params[:account_slug])
+    
+    # Fallback: busca por ID numérico
+    @account ||= Account.find_by(id: params[:account_slug]) if params[:account_slug].match?(/^\d+$/)
+    
+    # Fallback: busca por nome parametrizado (compatibilidade com URLs antigas)
+    @account ||= Account.find_each.find { |acc| acc.name.parameterize == params[:account_slug] }
+    
     return if @account
-
+    
     render file: Rails.public_path.join('404.html'), status: :not_found, layout: false
   end
 

@@ -36,6 +36,10 @@ class Channel::Uazapi < ApplicationRecord
     'UAZAPI'
   end
 
+  def provider
+    'uazapi'
+  end
+
   # Sync status methods
   def sync_status
     provider_config&.dig('sync_status') || 'pending'

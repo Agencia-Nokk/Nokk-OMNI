@@ -31,7 +31,7 @@ gem 'haikunator'
 # Template parsing safely
 gem 'liquid'
 # Parse Markdown to HTML
-gem 'commonmarker'
+gem "commonmarker", "~> 0.23.10"
 # Validate Data against JSON Schema
 gem 'json_schemer'
 # used in swagger build
@@ -194,7 +194,7 @@ gem 'ruby-openai'
 gem 'ai-agents', '>= 0.7.0'
 
 # TODO: Move this gem as a dependency of ai-agents
-gem 'ruby_llm', '>= 1.8.2'
+gem 'ruby_llm', '~> 1.8.2'
 gem 'ruby_llm-schema'
 
 # OpenTelemetry for LLM observability
