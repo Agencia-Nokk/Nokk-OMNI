@@ -22,7 +22,7 @@ class CopilotThread < ApplicationRecord
   belongs_to :assistant, class_name: 'Captain::Assistant'
   has_many :copilot_messages, dependent: :destroy_async
 
-  validates :title, presence: true
+  validates :title, presence: true, length: { maximum: 255 }
 
   def push_event_data
     {
@@ -38,11 +38,11 @@ class CopilotThread < ApplicationRecord
     copilot_messages
       .where(message_type: %w[user assistant])
       .order(created_at: :asc)
-      .map do |copilot_message|
-        {
-          content: copilot_message.message['content'],
-          role: copilot_message.message_type
-        }
+      .filter_map do |copilot_message|
+        content = copilot_message.message['content']
+        next if content.blank?
+
+        { content: content, role: copilot_message.message_type }
       end
   end
 end

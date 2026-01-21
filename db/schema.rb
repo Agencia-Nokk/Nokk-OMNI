@@ -10,13 +10,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_01_13_112543) do
+ActiveRecord::Schema[7.2].define(version: 2026_01_13_112543) do
   # These extensions should be enabled to support this database
-  enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
-  enable_extension "vector"
 
   create_table "access_tokens", force: :cascade do |t|
     t.string "owner_type"
@@ -160,10 +158,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_13_112543) do
   create_table "article_embeddings", force: :cascade do |t|
     t.bigint "article_id", null: false
     t.text "term", null: false
-    t.vector "embedding", limit: 1536
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["embedding"], name: "index_article_embeddings_on_embedding", using: :ivfflat
   end
 
   create_table "articles", force: :cascade do |t|
@@ -296,7 +292,6 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_13_112543) do
   create_table "captain_assistant_responses", force: :cascade do |t|
     t.string "question", null: false
     t.text "answer", null: false
-    t.vector "embedding", limit: 1536
     t.bigint "assistant_id", null: false
     t.bigint "documentable_id"
     t.bigint "account_id", null: false
@@ -307,7 +302,6 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_13_112543) do
     t.index ["account_id"], name: "index_captain_assistant_responses_on_account_id"
     t.index ["assistant_id"], name: "index_captain_assistant_responses_on_assistant_id"
     t.index ["documentable_id", "documentable_type"], name: "idx_cap_asst_resp_on_documentable"
-    t.index ["embedding"], name: "vector_idx_knowledge_entries_embedding", using: :ivfflat
     t.index ["status"], name: "index_captain_assistant_responses_on_status"
   end
 
@@ -1240,7 +1234,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_13_112543) do
     t.json "metadata", default: {}
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.boolean "featured", default: false
+    t.boolean "featured", default: false, null: false
     t.index ["account_id", "slug"], name: "index_shop_products_on_account_id_and_slug", unique: true
     t.index ["account_id"], name: "index_shop_products_on_account_id"
     t.index ["shop_category_id"], name: "index_shop_products_on_shop_category_id"
@@ -1275,7 +1269,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_13_112543) do
     t.string "secondary_color", default: "#6B7280"
     t.integer "products_per_row", default: 3
     t.string "card_style", default: "shadow"
-    t.boolean "show_featured_badge", default: true
+    t.boolean "show_featured_badge", default: true, null: false
     t.string "featured_badge_text", default: "Destaque"
     t.text "address"
     t.text "footer_text"

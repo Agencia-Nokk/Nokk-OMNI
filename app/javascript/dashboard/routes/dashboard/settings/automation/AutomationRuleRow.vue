@@ -15,7 +15,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['toggle', 'edit', 'delete', 'clone']);
+const emit = defineEmits(['toggle', 'delete', 'clone']);
 
 const readableDate = date => messageStamp(new Date(date), 'LLL d, yyyy');
 const readableDateWithTime = date =>
@@ -36,7 +36,17 @@ const automationActive = computed({
 
 <template>
   <tr>
-    <td class="py-4 ltr:pr-4 rtl:pl-4 min-w-[200px]">{{ automation.name }}</td>
+    <td class="py-4 ltr:pr-4 rtl:pl-4 min-w-[200px]">
+      <router-link
+        :to="{
+          name: 'automation_edit',
+          params: { automationId: automation.id },
+        }"
+        class="text-left hover:text-n-brand cursor-pointer hover:underline"
+      >
+        {{ automation.name }}
+      </router-link>
+    </td>
     <td class="py-4 ltr:pr-4 rtl:pl-4">{{ automation.description }}</td>
     <td class="py-4 ltr:pr-4 rtl:pl-4">
       <ToggleSwitch v-model="automationActive" />
@@ -49,15 +59,21 @@ const automationActive = computed({
     </td>
     <td class="py-4 min-w-xs">
       <div class="flex gap-1 justify-end flex-shrink-0">
-        <Button
-          v-tooltip.top="$t('AUTOMATION.FORM.EDIT')"
-          icon="i-lucide-pen"
-          slate
-          xs
-          faded
-          :is-loading="loading"
-          @click="$emit('edit', automation)"
-        />
+        <router-link
+          :to="{
+            name: 'automation_edit',
+            params: { automationId: automation.id },
+          }"
+        >
+          <Button
+            v-tooltip.top="$t('AUTOMATION.FORM.EDIT')"
+            icon="i-lucide-pen"
+            slate
+            xs
+            faded
+            :is-loading="loading"
+          />
+        </router-link>
         <Button
           v-tooltip.top="$t('AUTOMATION.CLONE.TOOLTIP')"
           icon="i-lucide-copy-plus"

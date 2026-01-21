@@ -11,7 +11,7 @@ export const getRecords =
     try {
       const response = await API.get(params);
       commit(mutationTypes.SET, response.data.payload);
-      commit(mutationTypes.SET_META, response.data.meta);
+      commit(mutationTypes.SET_META, response.data.meta || {});
       return response.data.payload;
     } catch (error) {
       return throwErrorMessage(error);

@@ -69,8 +69,8 @@ export const createMutations = mutationTypes => ({
   [mutationTypes.SET_META](state, meta) {
     state.meta = {
       ...state.meta,
-      totalCount: Number(meta.total_count),
-      page: Number(meta.page),
+      totalCount: Number(meta?.total_count || meta?.totalCount || 0),
+      page: Number(meta?.page || 1),
     };
   },
   [mutationTypes.SET]: MutationHelpers.set,

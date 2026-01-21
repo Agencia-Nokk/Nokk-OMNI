@@ -1,0 +1,33 @@
+{
+  "$schema": "https://railway.com/railway.schema.json",
+  "build": {
+    "builder": "DOCKERFILE",
+    "dockerfilePath": "docker/Dockerfile",
+    "watchPatterns": [
+      "app/**",
+      "config/**",
+      "lib/**",
+      "db/**",
+      "*.rb",
+      "*.js",
+      "*.vue",
+      "*.ts"
+    ]
+  },
+  "deploy": {
+    "startCommand": "bundle exec rails ip_lookup:setup && bundle exec rails server -p $PORT -e $RAILS_ENV",
+    "preDeployCommand": "POSTGRES_STATEMENT_TIMEOUT=600s bundle exec rails db:chatwoot_prepare",
+    "healthcheckPath": "/",
+    "healthcheckTimeout": 300,
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 5
+  },
+  "environments": {
+    "production": {
+      "deploy": {
+        "restartPolicyType": "ALWAYS",
+        "healthcheckTimeout": 600
+      }
+    }
+  }
+}

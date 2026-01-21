@@ -34,3 +34,13 @@
   title: 'Handoff to Human'
   description: 'Hand off the conversation to a human agent'
   icon: 'user-switch'
+
+- id: create_macro
+  title: 'Create Macro'
+  description: 'Create a new macro with specified actions for automation'
+  icon: 'automation'
+
+- id: create_automation_rule
+  title: 'Create Automation Rule'
+  description: 'Create a new automation rule (workflow) with triggers, conditions, and actions'
+  icon: 'automation'

@@ -99,6 +99,7 @@ export const getActionOptions = ({
   teams,
   labels,
   slaPolicies,
+  macros,
   type,
   addNoneToListFn,
   priorityOptions,
@@ -111,6 +112,9 @@ export const getActionOptions = ({
     remove_label: generateConditionOptions(labels, 'title'),
     change_priority: priorityOptions,
     add_sla: slaPolicies,
+    execute_macro: macros
+      ? macros.map(macro => ({ id: macro.id, name: macro.name }))
+      : [],
   };
   return actionsMap[type];
 };

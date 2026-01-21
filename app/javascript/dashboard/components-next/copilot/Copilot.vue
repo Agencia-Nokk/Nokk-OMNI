@@ -11,6 +11,7 @@ import CopilotAssistantMessage from './CopilotAssistantMessage.vue';
 import CopilotThinkingGroup from './CopilotThinkingGroup.vue';
 import ToggleCopilotAssistant from './ToggleCopilotAssistant.vue';
 import CopilotEmptyState from './CopilotEmptyState.vue';
+import CopilotThreadsList from './CopilotThreadsList.vue';
 import SidebarActionsHeader from 'dashboard/components-next/SidebarActionsHeader.vue';
 import { useI18n } from 'vue-i18n';
 
@@ -31,11 +32,26 @@ const props = defineProps({
     type: Object,
     default: () => ({}),
   },
+  threads: {
+    type: Array,
+    default: () => [],
+  },
+  activeThreadId: {
+    type: Number,
+    default: null,
+  },
 });
 
-const emit = defineEmits(['sendMessage', 'reset', 'setAssistant']);
+const emit = defineEmits([
+  'sendMessage',
+  'reset',
+  'setAssistant',
+  'selectThread',
+]);
 
 const { t } = useI18n();
+
+const showHistory = ref(false);
 
 const sendMessage = message => {
   emit('sendMessage', message);
@@ -98,22 +114,44 @@ const closeCopilotPanel = () => {
 const handleSidebarAction = action => {
   if (action === 'reset') {
     emit('reset');
+    showHistory.value = false;
+  } else if (action === 'history') {
+    showHistory.value = !showHistory.value;
   }
+};
+
+const handleSelectThread = thread => {
+  emit('selectThread', thread);
+  showHistory.value = false;
+};
+
+const handleNewThread = () => {
+  emit('reset');
+  showHistory.value = false;
 };
 
 const hasAssistants = computed(() => props.assistants.length > 0);
 const hasMessages = computed(() => props.messages.length > 0);
 const copilotButtons = computed(() => {
-  if (hasMessages.value) {
-    return [
-      {
-        key: 'reset',
-        icon: 'i-lucide-refresh-ccw',
-        tooltip: t('CAPTAIN.COPILOT.RESET'),
-      },
-    ];
+  const buttons = [];
+
+  if (props.threads.length > 0) {
+    buttons.push({
+      key: 'history',
+      icon: 'i-lucide-history',
+      tooltip: t('CAPTAIN.COPILOT.HISTORY'),
+    });
   }
-  return [];
+
+  if (hasMessages.value) {
+    buttons.push({
+      key: 'reset',
+      icon: 'i-lucide-refresh-ccw',
+      tooltip: t('CAPTAIN.COPILOT.RESET'),
+    });
+  }
+
+  return buttons;
 });
 watch(
   [() => props.messages],
@@ -132,7 +170,16 @@ watch(
       @click="handleSidebarAction"
       @close="closeCopilotPanel"
     />
+    <div v-if="showHistory" class="flex-1 flex overflow-hidden">
+      <CopilotThreadsList
+        :threads="threads"
+        :active-thread-id="activeThreadId"
+        @select-thread="handleSelectThread"
+        @new-thread="handleNewThread"
+      />
+    </div>
     <div
+      v-else
       ref="chatContainer"
       class="flex-1 flex px-4 py-4 overflow-y-auto items-start"
     >

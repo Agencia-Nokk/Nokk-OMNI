@@ -70,6 +70,68 @@ class Captain::Copilot::ChatService < Llm::BaseAiService
     tools << Captain::Tools::Copilot::SearchArticlesService.new(@assistant, user: @user)
     tools << Captain::Tools::Copilot::SearchContactsService.new(@assistant, user: @user)
     tools << Captain::Tools::Copilot::SearchLinearIssuesService.new(@assistant, user: @user)
+    # Macro tools
+    tools << Captain::Tools::Copilot::CreateMacroService.new(@assistant, user: @user)
+    tools << Captain::Tools::Copilot::ListMacrosService.new(@assistant, user: @user)
+    tools << Captain::Tools::Copilot::GetMacroService.new(@assistant, user: @user)
+    tools << Captain::Tools::Copilot::UpdateMacroService.new(@assistant, user: @user)
+    tools << Captain::Tools::Copilot::DeleteMacroService.new(@assistant, user: @user)
+
+    # Automation tools
+    tools << Captain::Tools::Copilot::CreateAutomationRuleService.new(@assistant, user: @user)
+    tools << Captain::Tools::Copilot::ListAutomationRulesService.new(@assistant, user: @user)
+    tools << Captain::Tools::Copilot::GetAutomationRuleService.new(@assistant, user: @user)
+    tools << Captain::Tools::Copilot::UpdateAutomationRuleService.new(@assistant, user: @user)
+    tools << Captain::Tools::Copilot::DeleteAutomationRuleService.new(@assistant, user: @user)
+
+    # Agent tools
+    tools << Captain::Tools::Copilot::ListAgentsService.new(@assistant, user: @user)
+    tools << Captain::Tools::Copilot::GetAgentService.new(@assistant, user: @user)
+    tools << Captain::Tools::Copilot::CreateAgentService.new(@assistant, user: @user)
+    tools << Captain::Tools::Copilot::UpdateAgentService.new(@assistant, user: @user)
+    tools << Captain::Tools::Copilot::DeleteAgentService.new(@assistant, user: @user)
+
+    # Team tools
+    tools << Captain::Tools::Copilot::ListTeamsService.new(@assistant, user: @user)
+    tools << Captain::Tools::Copilot::GetTeamService.new(@assistant, user: @user)
+    tools << Captain::Tools::Copilot::CreateTeamService.new(@assistant, user: @user)
+    tools << Captain::Tools::Copilot::UpdateTeamService.new(@assistant, user: @user)
+    tools << Captain::Tools::Copilot::DeleteTeamService.new(@assistant, user: @user)
+
+    # Label tools
+    tools << Captain::Tools::Copilot::ListLabelsService.new(@assistant, user: @user)
+    tools << Captain::Tools::Copilot::GetLabelService.new(@assistant, user: @user)
+    tools << Captain::Tools::Copilot::CreateLabelService.new(@assistant, user: @user)
+    tools << Captain::Tools::Copilot::UpdateLabelService.new(@assistant, user: @user)
+    tools << Captain::Tools::Copilot::DeleteLabelService.new(@assistant, user: @user)
+
+    # Canned Response tools
+    tools << Captain::Tools::Copilot::ListCannedResponsesService.new(@assistant, user: @user)
+    tools << Captain::Tools::Copilot::GetCannedResponseService.new(@assistant, user: @user)
+    tools << Captain::Tools::Copilot::CreateCannedResponseService.new(@assistant, user: @user)
+    tools << Captain::Tools::Copilot::UpdateCannedResponseService.new(@assistant, user: @user)
+    tools << Captain::Tools::Copilot::DeleteCannedResponseService.new(@assistant, user: @user)
+
+    # Agent Bot tools
+    tools << Captain::Tools::Copilot::ListAgentBotsService.new(@assistant, user: @user)
+    tools << Captain::Tools::Copilot::GetAgentBotService.new(@assistant, user: @user)
+    tools << Captain::Tools::Copilot::CreateAgentBotService.new(@assistant, user: @user)
+    tools << Captain::Tools::Copilot::UpdateAgentBotService.new(@assistant, user: @user)
+    tools << Captain::Tools::Copilot::DeleteAgentBotService.new(@assistant, user: @user)
+
+    # Custom Attribute tools
+    tools << Captain::Tools::Copilot::ListCustomAttributesService.new(@assistant, user: @user)
+    tools << Captain::Tools::Copilot::GetCustomAttributeService.new(@assistant, user: @user)
+    tools << Captain::Tools::Copilot::CreateCustomAttributeService.new(@assistant, user: @user)
+    tools << Captain::Tools::Copilot::UpdateCustomAttributeService.new(@assistant, user: @user)
+    tools << Captain::Tools::Copilot::DeleteCustomAttributeService.new(@assistant, user: @user)
+
+    # Custom Role tools
+    tools << Captain::Tools::Copilot::ListCustomRolesService.new(@assistant, user: @user)
+    tools << Captain::Tools::Copilot::GetCustomRoleService.new(@assistant, user: @user)
+    tools << Captain::Tools::Copilot::CreateCustomRoleService.new(@assistant, user: @user)
+    tools << Captain::Tools::Copilot::UpdateCustomRoleService.new(@assistant, user: @user)
+    tools << Captain::Tools::Copilot::DeleteCustomRoleService.new(@assistant, user: @user)
 
     tools.select(&:active?)
   end
@@ -101,13 +163,12 @@ class Captain::Copilot::ChatService < Llm::BaseAiService
     return [] unless conversation
 
     Rails.logger.info("#{self.class.name} Assistant: #{@assistant.id}, Setting viewing history for conversation_id=#{conversation_id}")
-    contact_id = conversation.contact_id
+
     [{
       role: 'system',
       content: <<~HISTORY.strip
-        You are currently viewing the conversation with the following details:
-        Conversation ID: #{conversation_id}
-        Contact ID: #{contact_id}
+        You are currently viewing the following conversation:
+        #{conversation.to_llm_text(include_private_messages: true, include_contact_details: true)}
       HISTORY
     }]
   end

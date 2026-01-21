@@ -9,6 +9,7 @@ import { COPILOT_EVENTS } from 'dashboard/helper/AnalyticsHelper/events';
 import MessageFormatter from 'shared/helpers/MessageFormatter.js';
 
 import Button from 'dashboard/components-next/button/Button.vue';
+import CopilotEntityCard from './CopilotEntityCard.vue';
 
 const props = defineProps({
   isLastMessage: {
@@ -25,6 +26,16 @@ const props = defineProps({
   },
 });
 const hasEmptyMessageContent = computed(() => !props.message?.content);
+
+// Filter valid entities - must have type, id, and name
+const validEntities = computed(() => {
+  if (!Array.isArray(props.message?.entities)) return [];
+  return props.message.entities.filter(
+    entity => entity && entity.type && entity.id && entity.name
+  );
+});
+
+const hasEntities = computed(() => validEntities.value.length > 0);
 
 const showUseButton = computed(() => {
   return (
@@ -61,11 +72,16 @@ const useCopilotResponse = () => {
     <span v-if="hasEmptyMessageContent" class="text-n-ruby-11">
       {{ $t('CAPTAIN.COPILOT.EMPTY_MESSAGE') }}
     </span>
-    <div
-      v-else
-      v-dompurify-html="messageContent"
-      class="prose-sm break-words"
-    />
+    <template v-else>
+      <div v-dompurify-html="messageContent" class="prose-sm break-words" />
+      <div v-if="hasEntities" class="flex flex-col gap-2 mt-2">
+        <CopilotEntityCard
+          v-for="entity in validEntities"
+          :key="`${entity.type}-${entity.id}`"
+          :entity="entity"
+        />
+      </div>
+    </template>
     <div class="flex flex-row mt-1">
       <Button
         v-if="showUseButton"

@@ -748,7 +748,8 @@
             "MAX_CONVERSATIONS": "מקסימום שיחות",
             "SET_LIMIT": "הגדר מגבלה"
           },
-          "EMPTY_STATE": "לא הוגדרה מגבלת תיבת דואר נכנס"
+          "EMPTY_STATE": "לא הוגדרה מגבלת תיבת דואר נכנס",
+          "CURRENT_LIMITS": "מגבלות נוכחיות:"
         },
         "EXCLUSION_RULES": {
           "LABEL": "כללי חריגה",

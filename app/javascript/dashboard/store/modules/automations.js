@@ -17,6 +17,9 @@ export const getters = {
   getAutomations(_state) {
     return _state.records.sort((a1, a2) => a1.id - a2.id);
   },
+  getAutomation: _state => id => {
+    return _state.records.find(record => record.id === id);
+  },
   getUIFlags(_state) {
     return _state.uiFlags;
   },

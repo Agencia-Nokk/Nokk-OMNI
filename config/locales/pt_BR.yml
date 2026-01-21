@@ -473,3 +473,7 @@ pt_BR:
         max_products_exceeded: 'Máximo de 10 produtos permitido'
       price:
         consult: 'Consulte'
+  activerecord:
+    errors:
+      messages:
+        record_invalid: 'A validação falhou'

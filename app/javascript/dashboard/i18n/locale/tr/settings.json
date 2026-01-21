@@ -748,7 +748,8 @@
             "MAX_CONVERSATIONS": "Maksimum Konuşma",
             "SET_LIMIT": "Sınır belirle"
           },
-          "EMPTY_STATE": "Gelen kutusu sınırı belirlenmemiş"
+          "EMPTY_STATE": "Gelen kutusu sınırı belirlenmemiş",
+          "CURRENT_LIMITS": "Mevcut Sınırlar:"
         },
         "EXCLUSION_RULES": {
           "LABEL": "Hariç tutma kuralları",

@@ -3,10 +3,10 @@
     "HEADER": "Automation",
     "DESCRIPTION": "Automation can replace and streamline existing processes that require manual effort, such as adding labels and assigning conversations to the most suitable agent. This allows the team to focus on their strengths while reducing time spent on routine tasks.",
     "LEARN_MORE": "Learn more about automation",
-    "HEADER_BTN_TXT": "Add Automation Rule",
+    "HEADER_BTN_TXT": "New Automation",
     "LOADING": "Fetching automation rules",
     "ADD": {
-      "TITLE": "Add Automation Rule",
+      "TITLE": "New Automation",
       "SUBMIT": "Create",
       "CANCEL_BUTTON_TEXT": "Cancel",
       "FORM": {
@@ -32,8 +32,8 @@
           "LABEL": "Actions"
         }
       },
-      "CONDITION_BUTTON_LABEL": "Add Condition",
-      "ACTION_BUTTON_LABEL": "Add Action",
+      "CONDITION_BUTTON_LABEL": "New Condition",
+      "ACTION_BUTTON_LABEL": "New Action",
       "API": {
         "SUCCESS_MESSAGE": "Automation rule added successfully",
         "ERROR_MESSAGE": "Could not able to create a automation rule, Please try again later"
@@ -84,7 +84,8 @@
       "CREATE": "Create",
       "DELETE": "Delete",
       "CANCEL": "Cancel",
-      "RESET_MESSAGE": "Changing event type will reset the conditions and events you have added below"
+      "RESET_MESSAGE": "Changing event type will reset the conditions and events you have added below",
+      "EDIT_NOTE": "Changes to automation rules will apply to new conversations only."
     },
     "CONDITION": {
       "DELETE_MESSAGE": "You need to have atleast one condition to save",
@@ -150,7 +151,8 @@
       "ADD_PRIVATE_NOTE": "Add a Private Note",
       "CHANGE_PRIORITY": "Change Priority",
       "ADD_SLA": "Add SLA",
-      "OPEN_CONVERSATION": "Open conversation"
+      "OPEN_CONVERSATION": "Open conversation",
+      "EXECUTE_MACRO": "Execute Macro"
     },
     "MESSAGE_TYPES": {
       "INCOMING": "Incoming Message",
@@ -179,6 +181,29 @@
       "TEAM_NAME": "Team",
       "PRIORITY": "Priority",
       "LABELS": "Labels"
+    },
+    "FLOW": {
+      "VIEW_FORM": "Form View",
+      "VIEW_FLOW": "Visual Flow",
+      "TRIGGER": "Trigger",
+      "CONDITION": "Condition",
+      "ACTION": "Action",
+      "CONDITION_EMPTY": "Click to configure condition",
+      "ACTION_EMPTY": "Click to configure action",
+      "TRIGGER_EMPTY": "Click to configure trigger",
+      "NODE_PALETTE": "Node Palette",
+      "ADD_NODES": "Add Nodes",
+      "QUICK_ADD": "Quick Add",
+      "DRAG_TO_ADD_TRIGGER": "Drag to canvas to add trigger",
+      "DRAG_TO_ADD_CONDITION": "Drag to canvas to add condition",
+      "DRAG_TO_ADD_ACTION": "Drag to canvas to add action",
+      "CONFIGURE_NODE": "Configure Node",
+      "DELETE_NODE": "Delete node",
+      "CANNOT_REMOVE_TRIGGER": "Cannot remove trigger node",
+      "INVALID_CONNECTION": "Invalid connection. Trigger can only connect to conditions, conditions can connect to conditions or actions, and actions can connect to actions."
+    },
+    "FORM": {
+      "SAVE": "Save"
     }
   }
 }
