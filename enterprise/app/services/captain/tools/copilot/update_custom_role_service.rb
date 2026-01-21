@@ -20,7 +20,7 @@ class Captain::Tools::Copilot::UpdateCustomRoleService < Captain::Tools::BaseToo
   param :custom_role_id, type: :integer, desc: 'ID of the custom role to update'
   param :name, type: :string, desc: 'New name for the custom role', required: false
   param :description, type: :string, desc: 'New description', required: false
-  param :permissions, type: :array, desc: 'New array of permissions', required: false
+  param :permissions, type: :string, desc: 'JSON array of new permissions', required: false
 
   VALID_PERMISSIONS = %w[
     conversation_manage
@@ -35,25 +35,12 @@ class Captain::Tools::Copilot::UpdateCustomRoleService < Captain::Tools::BaseToo
     custom_role = @assistant.account.custom_roles.find_by(id: custom_role_id)
     return 'Custom role not found' unless custom_role
 
-    attrs = {}
-    attrs[:name] = name.strip if name.present?
-    attrs[:description] = description if description.present?
-
-    if permissions.present?
-      invalid_perms = permissions - VALID_PERMISSIONS
-      return "Invalid permissions: #{invalid_perms.join(', ')}. Valid permissions are: #{VALID_PERMISSIONS.join(', ')}" if invalid_perms.any?
-
-      attrs[:permissions] = permissions
-    end
-
+    attrs = build_update_attrs(name, description, permissions)
+    return attrs if attrs.is_a?(String)
     return 'No changes provided' if attrs.empty?
 
     custom_role.update!(attrs)
-
-    {
-      'content' => "Custom role '#{custom_role.name}' updated successfully",
-      'entities' => [format_custom_role_entity(custom_role)]
-    }
+    build_success_response(custom_role)
   rescue ActiveRecord::RecordInvalid => e
     "Failed to update custom role: #{e.message}"
   end
@@ -63,6 +50,36 @@ class Captain::Tools::Copilot::UpdateCustomRoleService < Captain::Tools::BaseToo
   end
 
   private
+
+  def build_update_attrs(name, description, permissions)
+    attrs = {}
+    attrs[:name] = name.strip if name.present?
+    attrs[:description] = description if description.present?
+    return attrs if permissions.blank?
+
+    parsed = parse_permissions(permissions)
+    return parsed if parsed.is_a?(String)
+
+    attrs[:permissions] = parsed
+    attrs
+  end
+
+  def parse_permissions(permissions)
+    parsed = JSON.parse(permissions)
+    invalid_perms = parsed - VALID_PERMISSIONS
+    return "Invalid permissions: #{invalid_perms.join(', ')}. Valid: #{VALID_PERMISSIONS.join(', ')}" if invalid_perms.any?
+
+    parsed
+  rescue JSON::ParserError
+    'Invalid JSON format for permissions. Expected format: ["permission1", "permission2"]'
+  end
+
+  def build_success_response(custom_role)
+    {
+      'content' => "Custom role '#{custom_role.name}' updated successfully",
+      'entities' => [format_custom_role_entity(custom_role)]
+    }
+  end
 
   def format_custom_role_entity(custom_role)
     {
