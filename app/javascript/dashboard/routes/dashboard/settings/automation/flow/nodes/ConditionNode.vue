@@ -51,16 +51,16 @@ const handleDelete = event => {
 
 <template>
   <div
-    class="relative bg-n-yellow-9 dark:bg-n-yellow-10 text-white rounded-lg shadow-lg border-2 min-w-[200px] group"
+    class="relative bg-black text-white rounded-lg shadow-lg border-2 min-w-[200px] max-w-[280px] group z-10"
     :class="[
       selected
-        ? 'border-n-yellow-11 ring-2 ring-n-yellow-11'
-        : 'border-n-yellow-10',
+        ? 'border-n-yellow-9 ring-2 ring-n-yellow-9'
+        : 'border-n-slate-7',
     ]"
   >
     <!-- Botão de delete -->
     <button
-      class="absolute -top-2 -right-2 w-6 h-6 bg-n-ruby-9 hover:bg-n-ruby-10 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
+      class="absolute -top-2 -right-2 w-6 h-6 bg-n-ruby-9 hover:bg-n-ruby-10 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20"
       :title="$t('AUTOMATION.FLOW.DELETE_NODE')"
       @click="handleDelete"
     >
@@ -69,17 +69,19 @@ const handleDelete = event => {
 
     <div class="px-4 py-3">
       <div class="flex items-center justify-between gap-2 mb-2">
-        <span class="text-xs font-semibold uppercase tracking-wide opacity-80">
+        <span
+          class="text-xs font-semibold uppercase tracking-wide text-n-yellow-9"
+        >
           {{ $t('AUTOMATION.FLOW.CONDITION') }}
         </span>
         <span
           v-if="queryOperatorBadge"
-          class="px-2 py-0.5 text-xs font-bold bg-white bg-opacity-20 rounded"
+          class="px-2 py-0.5 text-xs font-bold bg-n-yellow-9 text-black rounded"
         >
           {{ queryOperatorBadge }}
         </span>
       </div>
-      <div class="text-sm font-medium line-clamp-2">
+      <div class="text-sm font-medium truncate" :title="conditionSummary">
         {{ conditionSummary }}
       </div>
     </div>
@@ -87,12 +89,12 @@ const handleDelete = event => {
     <Handle
       type="target"
       :position="Position.Left"
-      class="!bg-n-yellow-11 !w-3 !h-3 !border-2 !border-white"
+      class="!bg-n-yellow-9 !w-3 !h-3 !border-2 !border-white"
     />
     <Handle
       type="source"
       :position="Position.Right"
-      class="!bg-n-yellow-11 !w-3 !h-3 !border-2 !border-white"
+      class="!bg-n-yellow-9 !w-3 !h-3 !border-2 !border-white"
     />
   </div>
 </template>

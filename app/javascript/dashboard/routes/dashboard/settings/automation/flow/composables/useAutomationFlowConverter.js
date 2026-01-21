@@ -30,7 +30,7 @@ export function automationToFlow(automation) {
 
   // 1. Criar nó de trigger - usar posição salva se disponível
   const triggerPosition = getNodePosition(
-    automation.flowTriggerPosition,
+    automation.flow_trigger_position,
     currentX,
     currentY
   );
@@ -55,7 +55,7 @@ export function automationToFlow(automation) {
     const conditionId = `condition-${index}`;
     // Usar posição salva ou calcular nova (com offset vertical para cada condição)
     const conditionPosition = getNodePosition(
-      condition.flowPosition,
+      condition.flow_position,
       currentX,
       currentY + index * VERTICAL_SPACING
     );
@@ -85,7 +85,7 @@ export function automationToFlow(automation) {
 
     lastConditionId = conditionId;
     // Só avança X se não tiver posição salva
-    if (!condition.flowPosition) {
+    if (!condition.flow_position) {
       currentX += HORIZONTAL_SPACING;
     }
   });
@@ -93,13 +93,14 @@ export function automationToFlow(automation) {
   // Ajustar currentX para ações se houver condições com posições salvas
   if (
     conditions.length > 0 &&
-    !conditions[conditions.length - 1].flowPosition
+    !conditions[conditions.length - 1].flow_position
   ) {
     // currentX já está correto
   } else if (conditions.length > 0) {
     // Calcular X baseado na última condição
     const lastCondition = conditions[conditions.length - 1];
-    currentX = (lastCondition.flowPosition?.x || currentX) + HORIZONTAL_SPACING;
+    currentX =
+      (lastCondition.flow_position?.x || currentX) + HORIZONTAL_SPACING;
   }
 
   // 3. Criar nós de ações
@@ -110,7 +111,7 @@ export function automationToFlow(automation) {
     const actionId = `action-${index}`;
     // Usar posição salva ou calcular nova (com offset vertical para cada ação)
     const actionPosition = getNodePosition(
-      action.flowPosition,
+      action.flow_position,
       currentX,
       currentY + index * VERTICAL_SPACING
     );
@@ -139,7 +140,7 @@ export function automationToFlow(automation) {
 
     lastActionId = actionId;
     // Só avança X se não tiver posição salva
-    if (!action.flowPosition) {
+    if (!action.flow_position) {
       currentX += HORIZONTAL_SPACING;
     }
   });
@@ -204,7 +205,7 @@ export function flowToAutomation(nodes, edges) {
         delete conditionData.queryOperator;
       }
       // Salvar posição do nó
-      conditionData.flowPosition = { ...nextNode.position };
+      conditionData.flow_position = { ...nextNode.position };
       conditions.push(conditionData);
     } else if (nextNode.type === 'action') {
       // Chegamos nas ações, parar aqui
@@ -243,7 +244,7 @@ export function flowToAutomation(nodes, edges) {
       delete actionData.label;
       delete actionData.index;
       // Salvar posição do nó
-      actionData.flowPosition = { ...actionNode.position };
+      actionData.flow_position = { ...actionNode.position };
       actions.push(actionData);
 
       // Próxima ação
@@ -257,7 +258,7 @@ export function flowToAutomation(nodes, edges) {
     conditions,
     actions,
     // Salvar posição do trigger
-    flowTriggerPosition: triggerPosition,
+    flow_trigger_position: triggerPosition,
   };
 }
 
