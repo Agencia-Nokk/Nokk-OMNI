@@ -1,4 +1,4 @@
-require_relative '../../../../lib/captain/tools/automation_rule_description'
+require_relative '../../../../../lib/captain/tools/automation_rule_description'
 
 class Captain::Tools::Copilot::CreateAutomationRuleService < Captain::Tools::BaseTool
   include Captain::Tools::Concerns::AutomationRuleHelpers
