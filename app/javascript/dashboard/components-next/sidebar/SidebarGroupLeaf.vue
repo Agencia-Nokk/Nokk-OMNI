@@ -45,7 +45,7 @@ const shouldRenderComponent = computed(() => {
       />
       <template v-else>
         <Icon v-if="icon" :icon="icon" class="size-4 inline-block" />
-        <div class="flex-1 truncate min-w-0">{{ label }}</div>
+        <div class="flex-1 truncate min-w-0 text-base">{{ label }}</div>
       </template>
     </component>
   </Policy>
