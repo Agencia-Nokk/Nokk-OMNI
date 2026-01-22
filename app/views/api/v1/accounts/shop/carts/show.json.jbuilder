@@ -24,20 +24,20 @@ json.items @cart.items do |item|
   json.quantity item.quantity
   json.unit_price item.unit_price
   json.total_price item.total_price
-  
+
   json.product do
     json.id item.product.id
     json.name item.product.name
     json.price item.product.price
     if item.product.images.attached?
       json.primary_image rails_blob_url(item.product.images.first, only_path: true)
-      json.images item.product.images.map { |img| rails_blob_url(img, only_path: true) }
+      json.images(item.product.images.map { |img| rails_blob_url(img, only_path: true) })
     else
       json.primary_image nil
       json.images []
     end
   end
-  
+
   if item.variant
     json.variant do
       json.id item.variant.id
@@ -50,4 +50,3 @@ end
 
 json.created_at @cart.created_at
 json.updated_at @cart.updated_at
-

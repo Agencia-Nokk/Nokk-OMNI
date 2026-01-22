@@ -1,19 +1,13 @@
-class BaseMarkdownRenderer < CommonMarker::HtmlRenderer
-  def image(node)
-    src, title = extract_img_attributes(node)
+class BaseMarkdownRenderer < MarkdownRendererBase
+  def render_image(node)
+    src = escape_href(node.url)
+    title = escape_html(node.title)
     height = extract_image_height(src)
 
     render_img_tag(src, title, height)
   end
 
   private
-
-  def extract_img_attributes(node)
-    [
-      escape_href(node.url),
-      escape_html(node.title)
-    ]
-  end
 
   def extract_image_height(src)
     query_params = parse_query_params(src)
@@ -31,9 +25,6 @@ class BaseMarkdownRenderer < CommonMarker::HtmlRenderer
     title_attribute = title.present? ? " title=\"#{title}\"" : ''
     height_attribute = height ? " height=\"#{height}\" width=\"auto\"" : ''
 
-    plain do
-      # plain ensures that the content is not wrapped in a paragraph tag
-      out("<img src=\"#{src}\"#{title_attribute}#{height_attribute} />")
-    end
+    out("<img src=\"#{src}\"#{title_attribute}#{height_attribute} />")
   end
 end

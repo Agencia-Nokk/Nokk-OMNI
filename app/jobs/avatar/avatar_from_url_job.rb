@@ -7,6 +7,7 @@
 # - A 1 minute rate limit window is enforced via `last_avatar_sync_at`.
 class Avatar::AvatarFromUrlJob < ApplicationJob
   include UrlHelper
+
   queue_as :purgable
 
   MAX_DOWNLOAD_SIZE = 15 * 1024 * 1024

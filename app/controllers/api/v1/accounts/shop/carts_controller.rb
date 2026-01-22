@@ -23,7 +23,7 @@ class Api::V1::Accounts::Shop::CartsController < Api::V1::Accounts::BaseControll
     if @cart.save
       render :show, status: :created
     else
-      render json: { errors: @cart.errors }, status: :unprocessable_entity
+      render json: { errors: @cart.errors }, status: :unprocessable_content
     end
   end
 
@@ -35,7 +35,7 @@ class Api::V1::Accounts::Shop::CartsController < Api::V1::Accounts::BaseControll
     @item = @cart.add_item(product, quantity: quantity, variant: variant)
     render json: { cart: cart_json, item: item_json(@item) }
   rescue ActiveRecord::RecordInvalid => e
-    render json: { errors: e.record.errors }, status: :unprocessable_entity
+    render json: { errors: e.record.errors }, status: :unprocessable_content
   end
 
   def remove_item
@@ -55,7 +55,7 @@ class Api::V1::Accounts::Shop::CartsController < Api::V1::Accounts::BaseControll
     )
     render json: { order: order_json(@order) }, status: :created
   rescue ActiveRecord::RecordInvalid => e
-    render json: { errors: e.record.errors }, status: :unprocessable_entity
+    render json: { errors: e.record.errors }, status: :unprocessable_content
   end
 
   def destroy

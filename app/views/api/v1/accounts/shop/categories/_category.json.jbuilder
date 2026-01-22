@@ -7,4 +7,3 @@ json.image do
     json.thumbnail_url url_for(category.image.variant(resize_to_limit: [300, 300]))
   end
 end
-

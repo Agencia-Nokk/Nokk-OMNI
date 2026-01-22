@@ -320,7 +320,7 @@
     "CAPTAIN_INBOXES": "Caixas de Entrada",
     "CAPTAIN_SETTINGS": "Configurações",
     "HOME": "Principal",
-    "AGENTS": "Agentes",
+    "AGENTS": "Usuários",
     "AGENT_BOTS": "Robôs",
     "AUDIT_LOGS": "Auditoria",
     "INBOXES": "Caixas de Entrada",
@@ -358,11 +358,11 @@
     "SHOP_SETTINGS": "Configurações",
     "REPORTS_SLA": "SLA",
     "REPORTS_BOT": "Robôs",
-    "REPORTS_AGENT": "Agentes",
+    "REPORTS_AGENT": "Usuários",
     "REPORTS_LABEL": "Etiquetas",
     "REPORTS_INBOX": "Caixa de Entrada",
     "REPORTS_TEAM": "Time",
-    "AGENT_ASSIGNMENT": "Atribuição de Agentes",
+    "AGENT_ASSIGNMENT": "Atribuição de Usuários",
     "SET_AVAILABILITY_TITLE": "Defina como",
     "SET_YOUR_AVAILABILITY": "Disponibilidade",
     "SLA": "SLA",
@@ -552,25 +552,25 @@
   "ASSIGNMENT_POLICY": {
     "INDEX": {
       "HEADER": {
-        "TITLE": "Atribuição de agentes",
-        "DESCRIPTION": "Defina políticas para gerenciar efetivamente a carga de trabalho e rotear conversas com base nas necessidades das caixas de entrada e agentes. Saiba mais aqui"
+        "TITLE": "Atribuição de usuários",
+        "DESCRIPTION": "Defina políticas para gerenciar efetivamente a carga de trabalho e rotear conversas com base nas necessidades das caixas de entrada e usuários. Saiba mais aqui"
       },
       "ASSIGNMENT_POLICY": {
         "TITLE": "Política de atribuição",
         "DESCRIPTION": "Gerencie como as conversas são atribuídas nas caixas de entrada.",
         "FEATURES": [
           "Atribuir por conversas uniformemente ou por capacidade disponível",
-          "Adicionar regras de distribuição justa para evitar sobrecarregar qualquer agente",
+          "Adicionar regras de distribuição justa para evitar sobrecarregar qualquer usuário",
           "Adicionar caixas de entrada a uma política - uma política por caixa de entrada"
         ]
       },
       "AGENT_CAPACITY_POLICY": {
-        "TITLE": "Política de capacidade do agente",
-        "DESCRIPTION": "Gerencie a carga de trabalho dos agentes.",
+        "TITLE": "Política de capacidade do usuário",
+        "DESCRIPTION": "Gerencie a carga de trabalho dos usuários.",
         "FEATURES": [
           "Definir máximo de conversas por caixa de entrada",
           "Criar exceções com base em rótulos e tempo",
-          "Adicionar agentes a uma política - uma política por agente"
+          "Adicionar usuários a uma política - uma política por usuário"
         ]
       }
     },
@@ -645,7 +645,7 @@
           "LABEL": "Ordem de atribuição",
           "ROUND_ROBIN": {
             "LABEL": "Round robin",
-            "DESCRIPTION": "Atribuir conversas uniformemente entre os agentes."
+            "DESCRIPTION": "Atribuir conversas uniformemente entre os usuários."
           },
           "BALANCED": {
             "LABEL": "Balanceado",
@@ -665,9 +665,9 @@
         },
         "FAIR_DISTRIBUTION": {
           "LABEL": "Política de distribuição justa",
-          "DESCRIPTION": "Defina o número máximo de conversas que podem ser atribuídas por agente dentro de uma janela de tempo para evitar sobrecarregar qualquer agente. Este campo obrigatório tem como padrão 100 conversas por hora.",
+          "DESCRIPTION": "Defina o número máximo de conversas que podem ser atribuídas por usuário dentro de uma janela de tempo para evitar sobrecarregar qualquer usuário. Este campo obrigatório tem como padrão 100 conversas por hora.",
           "INPUT_MAX": "Atribuir máximo",
-          "DURATION": "Conversas por agente a cada"
+          "DURATION": "Conversas por usuário a cada"
         },
         "INBOXES": {
           "LABEL": "Caixas de entrada adicionadas",
@@ -692,48 +692,48 @@
     "AGENT_CAPACITY_POLICY": {
       "INDEX": {
         "HEADER": {
-          "TITLE": "Capacidade do agente",
+          "TITLE": "Capacidade do usuário",
           "CREATE_POLICY": "Nova política"
         },
         "CARD": {
-          "POPOVER": "Agentes adicionados",
+          "POPOVER": "Usuários adicionados",
           "EDIT": "Alterar"
         },
-        "NO_RECORDS_FOUND": "Nenhuma política de capacidade do agente encontrada"
+        "NO_RECORDS_FOUND": "Nenhuma política de capacidade do usuário encontrada"
       },
       "CREATE": {
         "HEADER": {
-          "TITLE": "Criar política de capacidade do agente"
+          "TITLE": "Criar política de capacidade do usuário"
         },
         "CREATE_BUTTON": "Criar política",
         "API": {
-          "SUCCESS_MESSAGE": "Política de capacidade do agente criada com sucesso",
-          "ERROR_MESSAGE": "Falha ao criar política de capacidade do agente"
+          "SUCCESS_MESSAGE": "Política de capacidade do usuário criada com sucesso",
+          "ERROR_MESSAGE": "Falha ao criar política de capacidade do usuário"
         }
       },
       "EDIT": {
         "HEADER": {
-          "TITLE": "Editar política de capacidade do agente"
+          "TITLE": "Editar política de capacidade do usuário"
         },
         "EDIT_BUTTON": "Atualizar política",
         "CONFIRM_ADD_AGENT_DIALOG": {
-          "TITLE": "Adicionar agente",
+          "TITLE": "Adicionar usuário",
           "DESCRIPTION": "{agentName} já está vinculado a outra política. Tem certeza de que deseja vinculá-lo a esta política? Ele será desvinculado da outra política.",
           "CONFIRM_BUTTON_LABEL": "Continuar",
           "CANCEL_BUTTON_LABEL": "Cancelar"
         },
         "API": {
-          "SUCCESS_MESSAGE": "Política de capacidade do agente atualizada com sucesso",
-          "ERROR_MESSAGE": "Falha ao atualizar política de capacidade do agente"
+          "SUCCESS_MESSAGE": "Política de capacidade do usuário atualizada com sucesso",
+          "ERROR_MESSAGE": "Falha ao atualizar política de capacidade do usuário"
         },
         "AGENT_API": {
           "ADD": {
-            "SUCCESS_MESSAGE": "Agente adicionado à política com sucesso",
-            "ERROR_MESSAGE": "Falha ao adicionar agente à política"
+            "SUCCESS_MESSAGE": "Usuário adicionado à política com sucesso",
+            "ERROR_MESSAGE": "Falha ao adicionar usuário à política"
           },
           "REMOVE": {
-            "SUCCESS_MESSAGE": "Agente removido da política com sucesso",
-            "ERROR_MESSAGE": "Falha ao remover agente da política"
+            "SUCCESS_MESSAGE": "Usuário removido da política com sucesso",
+            "ERROR_MESSAGE": "Falha ao remover usuário da política"
           }
         }
       },
@@ -759,7 +759,7 @@
         },
         "EXCLUSION_RULES": {
           "LABEL": "Regras de exclusão",
-          "DESCRIPTION": "Conversas que satisfazem as seguintes condições não contarão para a capacidade do agente",
+          "DESCRIPTION": "Conversas que satisfazem as seguintes condições não contarão para a capacidade do usuário",
           "TAGS": {
             "LABEL": "Excluir conversas marcadas com rótulos específicos",
             "ADD_TAG": "adicionar rótulo",
@@ -774,23 +774,23 @@
           }
         },
         "USERS": {
-          "LABEL": "Agentes atribuídos",
-          "DESCRIPTION": "Adicione agentes para os quais esta política será aplicável.",
-          "ADD_BUTTON": "Adicionar agente",
+          "LABEL": "Usuários atribuídos",
+          "DESCRIPTION": "Adicione usuários para os quais esta política será aplicável.",
+          "ADD_BUTTON": "Adicionar usuário",
           "DROPDOWN": {
-            "SEARCH_PLACEHOLDER": "Pesquisar e selecionar agentes para adicionar",
+            "SEARCH_PLACEHOLDER": "Pesquisar e selecionar usuários para adicionar",
             "ADD_BUTTON": "Adicionar"
           },
-          "EMPTY_STATE": "Nenhum agente adicionado",
+          "EMPTY_STATE": "Nenhum usuário adicionado",
           "API": {
-            "SUCCESS_MESSAGE": "Agente adicionado à política com sucesso",
-            "ERROR_MESSAGE": "Falha ao adicionar agente à política"
+            "SUCCESS_MESSAGE": "Usuário adicionado à política com sucesso",
+            "ERROR_MESSAGE": "Falha ao adicionar usuário à política"
           }
         }
       },
       "DELETE_POLICY": {
-        "SUCCESS_MESSAGE": "Política de capacidade do agente excluída com sucesso",
-        "ERROR_MESSAGE": "Falha ao excluir política de capacidade do agente"
+        "SUCCESS_MESSAGE": "Política de capacidade do usuário excluída com sucesso",
+        "ERROR_MESSAGE": "Falha ao excluir política de capacidade do usuário"
       }
     },
     "DELETE_POLICY": {

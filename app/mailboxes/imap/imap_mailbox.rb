@@ -1,6 +1,7 @@
 class Imap::ImapMailbox
   include MailboxHelper
   include IncomingEmailValidityHelper
+
   attr_accessor :channel, :account, :inbox, :conversation, :processed_mail
 
   FALLBACK_CONVERSATION_PATTERN = %r{account/(\d+)/conversation/([a-zA-Z0-9-]+)@}

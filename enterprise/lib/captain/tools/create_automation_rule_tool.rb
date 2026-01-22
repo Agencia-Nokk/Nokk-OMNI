@@ -104,7 +104,9 @@ class Captain::Tools::CreateAutomationRuleTool < Captain::Tools::BasePublicTool
   DESC
   param :name, type: 'string', desc: 'A descriptive name for the automation rule'
   param :description, type: 'string', desc: 'Optional description explaining what the rule does', required: false
-  param :event_name, type: 'string', desc: 'The event that triggers the rule: conversation_created, conversation_updated, conversation_opened, conversation_resolved, or message_created'
+  param :event_name, type: 'string',
+                     desc: 'The event that triggers the rule: conversation_created, conversation_updated, ' \
+                           'conversation_opened, conversation_resolved, or message_created'
   param :conditions, type: 'string', desc: <<~CONDITIONS_DESC
     JSON string containing an array of condition objects. Each condition must have:
     - attribute_key: One of the available attributes (content, email, status, etc.)
@@ -129,7 +131,7 @@ class Captain::Tools::CreateAutomationRuleTool < Captain::Tools::BasePublicTool
 
   VALID_EVENTS = %w[conversation_created conversation_updated conversation_opened conversation_resolved message_created].freeze
 
-  def perform(tool_context, name:, event_name:, conditions:, actions:, description: nil, active: true)
+  def perform(_tool_context, name:, event_name:, conditions:, actions:, description: nil, active: true)
     return 'Rule name is required' if name.blank?
     return "Invalid event_name. Valid events: #{VALID_EVENTS.join(', ')}" unless VALID_EVENTS.include?(event_name)
 
@@ -184,7 +186,8 @@ class Captain::Tools::CreateAutomationRuleTool < Captain::Tools::BasePublicTool
       return "Condition #{index + 1}: filter_operator is required" if filter_operator.blank?
 
       rule = AutomationRule.new(account: @assistant.account)
-      unless rule.conditions_attributes.include?(attribute_key) || @assistant.account.custom_attribute_definitions.pluck(:attribute_key).include?(attribute_key)
+      custom_attrs = @assistant.account.custom_attribute_definitions.pluck(:attribute_key)
+      unless rule.conditions_attributes.include?(attribute_key) || custom_attrs.include?(attribute_key)
         return "Condition #{index + 1}: Invalid attribute_key '#{attribute_key}'. Valid: #{rule.conditions_attributes.join(', ')}"
       end
 
@@ -193,13 +196,9 @@ class Captain::Tools::CreateAutomationRuleTool < Captain::Tools::BasePublicTool
         return "Condition #{index + 1}: Invalid filter_operator '#{filter_operator}'. Valid: #{valid_operators.join(', ')}"
       end
 
-      if index > 0 && query_operator.blank?
-        return "Condition #{index + 1}: query_operator is required (AND or OR)"
-      end
+      return "Condition #{index + 1}: query_operator is required (AND or OR)" if index.positive? && query_operator.blank?
 
-      if query_operator.present? && !%w[AND OR].include?(query_operator.upcase)
-        return "Condition #{index + 1}: query_operator must be 'AND' or 'OR'"
-      end
+      return "Condition #{index + 1}: query_operator must be 'AND' or 'OR'" if query_operator.present? && %w[AND OR].exclude?(query_operator.upcase)
 
       normalized << {
         'attribute_key' => attribute_key,
@@ -221,9 +220,7 @@ class Captain::Tools::CreateAutomationRuleTool < Captain::Tools::BasePublicTool
       action = action.with_indifferent_access
       action_name = action[:action_name]
 
-      unless rule.actions_attributes.include?(action_name)
-        return "Invalid action '#{action_name}'. Valid: #{rule.actions_attributes.join(', ')}"
-      end
+      return "Invalid action '#{action_name}'. Valid: #{rule.actions_attributes.join(', ')}" unless rule.actions_attributes.include?(action_name)
 
       { 'action_name' => action_name, 'action_params' => Array(action[:action_params]) }
     end

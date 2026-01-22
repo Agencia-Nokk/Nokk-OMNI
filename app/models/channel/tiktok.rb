@@ -19,6 +19,7 @@
 class Channel::Tiktok < ApplicationRecord
   include Channelable
   include Reauthorizable
+
   self.table_name = 'channel_tiktok'
 
   # TODO: Remove guard once encryption keys become mandatory (target 3-4 releases out).

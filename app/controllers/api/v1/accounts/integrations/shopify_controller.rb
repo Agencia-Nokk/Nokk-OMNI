@@ -1,12 +1,13 @@
 class Api::V1::Accounts::Integrations::ShopifyController < Api::V1::Accounts::BaseController
   include Shopify::IntegrationHelper
+
   before_action :setup_shopify_context, only: [:orders]
   before_action :fetch_hook, except: [:auth]
   before_action :validate_contact, only: [:orders]
 
   def auth
     shop_domain = params[:shop_domain]
-    return render json: { error: 'Shop domain is required' }, status: :unprocessable_entity if shop_domain.blank?
+    return render json: { error: 'Shop domain is required' }, status: :unprocessable_content if shop_domain.blank?
 
     state = generate_shopify_token(Current.account.id)
 
@@ -28,14 +29,14 @@ class Api::V1::Accounts::Integrations::ShopifyController < Api::V1::Accounts::Ba
     orders = fetch_orders(customers.first['id'])
     render json: { orders: orders }
   rescue ShopifyAPI::Errors::HttpResponseError => e
-    render json: { error: e.message }, status: :unprocessable_entity
+    render json: { error: e.message }, status: :unprocessable_content
   end
 
   def destroy
     @hook.destroy!
     head :ok
   rescue StandardError => e
-    render json: { error: e.message }, status: :unprocessable_entity
+    render json: { error: e.message }, status: :unprocessable_content
   end
 
   private
@@ -106,6 +107,6 @@ class Api::V1::Accounts::Integrations::ShopifyController < Api::V1::Accounts::Ba
     return unless contact.blank? || (contact.email.blank? && contact.phone_number.blank?)
 
     render json: { error: 'Contact information missing' },
-           status: :unprocessable_entity
+           status: :unprocessable_content
   end
 end

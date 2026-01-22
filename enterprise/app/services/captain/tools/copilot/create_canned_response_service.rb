@@ -26,7 +26,7 @@ class Captain::Tools::Copilot::CreateCannedResponseService < Captain::Tools::Bas
     if existing.present?
       return {
         'content' => "A canned response with short code '#{short_code}' already exists (ID: #{existing.id}). " \
-                     "Would you like to update it using update_canned_response tool, or create a new one with a different short code?",
+                     'Would you like to update it using update_canned_response tool, or create a new one with a different short code?',
         'entities' => [format_canned_response_entity(existing)]
       }
     end

@@ -5,7 +5,7 @@ class Migration::CompanyAccountBatchJob < ApplicationJob
     account.contacts
            .where.not(email: nil)
            .find_in_batches(batch_size: 1000) do |contact_batch|
-      process_contact_batch(contact_batch, account)
+             process_contact_batch(contact_batch, account)
     end
   end
 

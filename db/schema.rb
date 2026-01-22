@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_01_13_112543) do
+ActiveRecord::Schema[7.2].define(version: 2026_01_20_181024) do
   # These extensions should be enabled to support this database
   enable_extension "pg_trgm"
   enable_extension "pgcrypto"
@@ -71,6 +71,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_13_112543) do
     t.integer "status", default: 0
     t.jsonb "internal_attributes", default: {}, null: false
     t.jsonb "settings", default: {}
+    t.string "slug", null: false
+    t.index ["slug"], name: "index_accounts_on_slug", unique: true
     t.index ["status"], name: "index_accounts_on_status"
   end
 

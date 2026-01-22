@@ -4,49 +4,61 @@ class Messages::MarkdownRenderers::InstagramRenderer < Messages::MarkdownRendere
     @list_item_number = 0
   end
 
-  def strong(_node)
-    out('*', :children, '*')
+  def render_strong(node)
+    out('*')
+    node.each { |child| traverse(child) }
+    out('*')
   end
 
-  def emph(_node)
-    out('_', :children, '_')
+  def render_emph(node)
+    out('_')
+    node.each { |child| traverse(child) }
+    out('_')
   end
 
-  def code(node)
+  def render_code(node)
     out(node.string_content)
   end
 
-  def link(node)
+  def render_strikethrough(node)
+    out('~~')
+    node.each { |child| traverse(child) }
+    out('~~')
+  end
+
+  def render_link(node)
     out(node.url)
   end
 
-  def list(node)
+  def render_list(node)
     @list_type = node.list_type
-    @list_item_number = @list_type == :ordered_list ? node.list_start : 0
-    out(:children)
+    @list_item_number = @list_type == :ordered ? node.list_start : 0
+    node.each { |child| traverse(child) }
     cr
   end
 
-  def list_item(_node)
-    if @list_type == :ordered_list
-      out("#{@list_item_number}. ", :children)
+  def render_item(node)
+    if @list_type == :ordered
+      out("#{@list_item_number}. ")
+      node.each { |child| traverse(child) }
       @list_item_number += 1
     else
-      out('- ', :children)
+      out('- ')
+      node.each { |child| traverse(child) }
     end
     cr
   end
 
-  def blockquote(_node)
-    out(:children)
+  def render_block_quote(node)
+    node.each { |child| traverse(child) }
     cr
   end
 
-  def code_block(node)
+  def render_code_block(node)
     out(node.string_content)
   end
 
-  def softbreak(_node)
+  def render_softbreak(_node)
     out("\n")
   end
 end

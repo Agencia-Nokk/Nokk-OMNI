@@ -29,9 +29,9 @@ class AssignmentPolicy < ApplicationRecord
   validates :fair_distribution_limit, numericality: { greater_than: 0 }
   validates :fair_distribution_window, numericality: { greater_than: 0 }
 
-  enum conversation_priority: { earliest_created: 0, longest_waiting: 1 }
+  enum :conversation_priority, { earliest_created: 0, longest_waiting: 1 }
 
-  enum assignment_order: { round_robin: 0 } unless ChatwootApp.enterprise?
+  enum :assignment_order, { round_robin: 0 } unless ChatwootApp.enterprise?
 end
 
 AssignmentPolicy.include_mod_with('Concerns::AssignmentPolicy')

@@ -19,6 +19,7 @@
 #
 class Company < ApplicationRecord
   include Avatarable
+
   validates :account_id, presence: true
   validates :name, presence: true, length: { maximum: Limits::COMPANY_NAME_LENGTH_LIMIT }
   validates :domain, allow_blank: true, format: {

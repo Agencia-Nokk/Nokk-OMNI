@@ -1,5 +1,6 @@
 class Captain::Onboarding::WebsiteAnalyzerService < Llm::BaseAiService
   include Integrations::LlmInstrumentation
+
   MAX_CONTENT_LENGTH = 8000
 
   def initialize(website_url)

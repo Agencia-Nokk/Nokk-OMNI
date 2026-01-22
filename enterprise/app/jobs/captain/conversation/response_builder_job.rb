@@ -57,15 +57,15 @@ class Captain::Conversation::ResponseBuilderJob < ApplicationJob
       .where(message_type: [:incoming, :outgoing])
       .where(private: false)
       .map do |message|
-      message_hash = {
-        content: prepare_multimodal_message_content(message),
-        role: determine_role(message)
-      }
+        message_hash = {
+          content: prepare_multimodal_message_content(message),
+          role: determine_role(message)
+        }
 
-      # Include agent_name if present in additional_attributes
-      message_hash[:agent_name] = message.additional_attributes['agent_name'] if message.additional_attributes&.dig('agent_name').present?
+        # Include agent_name if present in additional_attributes
+        message_hash[:agent_name] = message.additional_attributes['agent_name'] if message.additional_attributes&.dig('agent_name').present?
 
-      message_hash
+        message_hash
     end
   end
 

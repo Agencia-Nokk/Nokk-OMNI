@@ -21,9 +21,7 @@ class Captain::Tools::Copilot::DeleteAgentService < Captain::Tools::BaseTool
     return 'Agent not found in this account' unless account_user
 
     # Prevent self-deletion
-    if @user && agent.id == @user.id
-      return 'You cannot remove yourself from the account'
-    end
+    return 'You cannot remove yourself from the account' if @user && agent.id == @user.id
 
     agent_name = agent.available_name || agent.name
     agent_email = agent.email

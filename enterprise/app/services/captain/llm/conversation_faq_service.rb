@@ -1,5 +1,6 @@
 class Captain::Llm::ConversationFaqService < Llm::BaseAiService
   include Integrations::LlmInstrumentation
+
   DISTANCE_THRESHOLD = 0.3
 
   def initialize(assistant, conversation)

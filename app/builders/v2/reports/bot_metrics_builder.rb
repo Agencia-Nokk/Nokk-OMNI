@@ -1,5 +1,6 @@
 class V2::Reports::BotMetricsBuilder
   include DateRangeHelper
+
   attr_reader :account, :params
 
   def initialize(account, params)

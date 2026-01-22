@@ -64,7 +64,7 @@ class Captain::Tools::Copilot::CreateMacroService < Captain::Tools::BaseTool
     if existing_macro.present?
       return {
         'content' => "A macro named '#{existing_macro.name}' already exists (ID: #{existing_macro.id}). " \
-                     "Would you like to update the existing macro using the update_macro tool, or create a new one with a different name?",
+                     'Would you like to update the existing macro using the update_macro tool, or create a new one with a different name?',
         'entities' => [format_macro_entity(existing_macro)]
       }
     end
@@ -120,9 +120,7 @@ class Captain::Tools::Copilot::CreateMacroService < Captain::Tools::BaseTool
       action = action.with_indifferent_access
       action_name = action[:action_name]
 
-      unless Macro::ACTIONS_ATTRS.include?(action_name)
-        return "Invalid action '#{action_name}'. Valid: #{Macro::ACTIONS_ATTRS.join(', ')}"
-      end
+      return "Invalid action '#{action_name}'. Valid: #{Macro::ACTIONS_ATTRS.join(', ')}" unless Macro::ACTIONS_ATTRS.include?(action_name)
 
       { 'action_name' => action_name, 'action_params' => Array(action[:action_params]) }
     end

@@ -19,7 +19,7 @@ class Captain::Tools::Copilot::UpdateAutomationRuleService < Captain::Tools::Bas
     { "rule_id": 1, "name": "New name", "description": "New description" }
 
     Example - Add execute_macro action:
-    { "rule_id": 1, "actions": "[{\"action_name\": \"execute_macro\", \"action_params\": [macro_id]}]" }
+    { "rule_id": 1, "actions": "[{"action_name": "execute_macro", "action_params": [macro_id]}]" }
   DESC
 
   param :rule_id, type: :integer, desc: 'ID of the automation rule to update', required: true

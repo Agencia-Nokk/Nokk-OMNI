@@ -1,5 +1,6 @@
 class Api::V1::Accounts::Conversations::DirectUploadsController < ActiveStorage::DirectUploadsController
   include EnsureCurrentAccountHelper
+
   before_action :current_account
   before_action :conversation
 

@@ -1,4 +1,4 @@
-class CustomMarkdownRenderer < CommonMarker::HtmlRenderer
+class CustomMarkdownRenderer < MarkdownRendererBase
   CONFIG_PATH = Rails.root.join('config/markdown_embeds.yml')
 
   def self.config
@@ -9,7 +9,7 @@ class CustomMarkdownRenderer < CommonMarker::HtmlRenderer
     @embed_regexes ||= config.transform_values { |embed_config| Regexp.new(embed_config['regex']) }
   end
 
-  def text(node)
+  def render_text(node)
     content = node.string_content
 
     if content.include?('^')
@@ -20,17 +20,19 @@ class CustomMarkdownRenderer < CommonMarker::HtmlRenderer
     end
   end
 
-  def link(node)
+  def render_link(node)
     return if surrounded_by_empty_lines?(node) && render_embedded_content(node)
 
     # If it's not a supported embed link, render normally
-    super
+    out('<a href="', escape_href(node.url), '">')
+    node.each { |child| traverse(child) }
+    out('</a>')
   end
 
   private
 
   def surrounded_by_empty_lines?(node)
-    prev_node_empty?(node.previous) && next_node_empty?(node.next)
+    prev_node_empty?(node.previous_sibling) && next_node_empty?(node.next_sibling)
   end
 
   def prev_node_empty?(prev_node)

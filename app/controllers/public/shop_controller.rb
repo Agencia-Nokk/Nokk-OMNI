@@ -27,15 +27,15 @@ class Public::ShopController < ApplicationController
   def set_account
     # Prioriza busca por slug (mais performático)
     @account = Account.find_by(slug: params[:account_slug])
-    
+
     # Fallback: busca por ID numérico
     @account ||= Account.find_by(id: params[:account_slug]) if params[:account_slug].match?(/^\d+$/)
-    
+
     # Fallback: busca por nome parametrizado (compatibilidade com URLs antigas)
     @account ||= Account.find_each.find { |acc| acc.name.parameterize == params[:account_slug] }
-    
+
     return if @account
-    
+
     render file: Rails.public_path.join('404.html'), status: :not_found, layout: false
   end
 

@@ -228,7 +228,7 @@ const onCancel = () => {
       />
 
       <!-- Modo Visual Flow -->
-      <div v-else class="flex-1 relative">
+      <div v-else class="flex-1">
         <AutomationFlowEditor
           :automation-data="automation"
           :automation-types="automationTypes"
@@ -238,22 +238,9 @@ const onCancel = () => {
           :get-condition-dropdown-values="getConditionDropdownValues"
           :get-action-dropdown-values="getActionDropdownValues"
           @update:automation-data="automation = $event"
+          @save="saveAutomation(automation)"
+          @cancel="onCancel"
         />
-        <!-- Barra de ações para modo flow -->
-        <div class="absolute bottom-4 right-4 flex gap-2 z-20">
-          <button
-            class="px-4 py-2 bg-n-slate-3 dark:bg-n-solid-3 text-n-slate-11 rounded-lg hover:bg-n-slate-4 font-medium"
-            @click="onCancel"
-          >
-            {{ $t('AUTOMATION.FORM.CANCEL') }}
-          </button>
-          <button
-            class="px-4 py-2 bg-n-blue-9 text-white rounded-lg hover:bg-n-blue-10 font-medium"
-            @click="saveAutomation(automation)"
-          >
-            {{ $t('AUTOMATION.FORM.SAVE') }}
-          </button>
-        </div>
       </div>
     </div>
   </div>

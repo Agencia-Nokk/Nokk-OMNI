@@ -52,6 +52,6 @@ class Whatsapp::PhoneInfoService
   def sanitize_phone_number(phone_number)
     return phone_number if phone_number.blank?
 
-    phone_number.gsub(/[\s\-\(\)\.\+]/, '').strip
+    phone_number.gsub(/[\s\-().+]/, '').strip
   end
 end

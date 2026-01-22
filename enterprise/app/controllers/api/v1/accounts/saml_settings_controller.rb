@@ -11,7 +11,7 @@ class Api::V1::Accounts::SamlSettingsController < Api::V1::Accounts::BaseControl
     if @saml_settings.save
       render :show
     else
-      render json: { errors: @saml_settings.errors.full_messages }, status: :unprocessable_entity
+      render json: { errors: @saml_settings.errors.full_messages }, status: :unprocessable_content
     end
   end
 
@@ -19,7 +19,7 @@ class Api::V1::Accounts::SamlSettingsController < Api::V1::Accounts::BaseControl
     if @saml_settings.update(saml_settings_params)
       render :show
     else
-      render json: { errors: @saml_settings.errors.full_messages }, status: :unprocessable_entity
+      render json: { errors: @saml_settings.errors.full_messages }, status: :unprocessable_content
     end
   end
 

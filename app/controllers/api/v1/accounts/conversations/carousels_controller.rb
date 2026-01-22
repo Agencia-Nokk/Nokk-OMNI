@@ -9,7 +9,7 @@ class Api::V1::Accounts::Conversations::CarouselsController < Api::V1::Accounts:
     if result[:success]
       render json: { success: true, message: result[:message] }, status: :created
     else
-      render json: { success: false, error: result[:error] }, status: :unprocessable_entity
+      render json: { success: false, error: result[:error] }, status: :unprocessable_content
     end
   end
 
