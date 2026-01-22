@@ -45,12 +45,12 @@ export const handleContactOperationErrors = error => {
 };
 
 export const actions = {
-  search: async ({ commit }, { search, page, sortAttr, label, perPage }) => {
+  search: async ({ commit }, { search, page, sortAttr, label }) => {
     commit(types.SET_CONTACT_UI_FLAG, { isFetching: true });
     try {
       const {
         data: { payload, meta },
-      } = await ContactAPI.search(search, page, sortAttr, label, perPage);
+      } = await ContactAPI.search(search, page, sortAttr, label);
       commit(types.CLEAR_CONTACTS);
       commit(types.SET_CONTACTS, payload);
       commit(types.SET_CONTACT_META, meta);
@@ -60,12 +60,12 @@ export const actions = {
     }
   },
 
-  get: async ({ commit }, { page = 1, sortAttr, label, perPage } = {}) => {
+  get: async ({ commit }, { page = 1, sortAttr, label } = {}) => {
     commit(types.SET_CONTACT_UI_FLAG, { isFetching: true });
     try {
       const {
         data: { payload, meta },
-      } = await ContactAPI.get(page, sortAttr, label, perPage);
+      } = await ContactAPI.get(page, sortAttr, label);
       commit(types.CLEAR_CONTACTS);
       commit(types.SET_CONTACTS, payload);
       commit(types.SET_CONTACT_META, meta);
@@ -75,12 +75,12 @@ export const actions = {
     }
   },
 
-  active: async ({ commit }, { page = 1, sortAttr, perPage } = {}) => {
+  active: async ({ commit }, { page = 1, sortAttr } = {}) => {
     commit(types.SET_CONTACT_UI_FLAG, { isFetching: true });
     try {
       const {
         data: { payload, meta },
-      } = await ContactAPI.active(page, sortAttr, perPage);
+      } = await ContactAPI.active(page, sortAttr);
       commit(types.CLEAR_CONTACTS);
       commit(types.SET_CONTACTS, payload);
       commit(types.SET_CONTACT_META, meta);
@@ -275,13 +275,13 @@ export const actions = {
 
   filter: async (
     { commit },
-    { page = 1, sortAttr, queryPayload, resetState = true, perPage } = {}
+    { page = 1, sortAttr, queryPayload, resetState = true } = {}
   ) => {
     commit(types.SET_CONTACT_UI_FLAG, { isFetching: true });
     try {
       const {
         data: { payload, meta },
-      } = await ContactAPI.filter(page, sortAttr, queryPayload, perPage);
+      } = await ContactAPI.filter(page, sortAttr, queryPayload);
       if (resetState) {
         commit(types.CLEAR_CONTACTS);
         commit(types.SET_CONTACTS, payload);

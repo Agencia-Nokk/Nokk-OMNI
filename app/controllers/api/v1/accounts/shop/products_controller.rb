@@ -2,7 +2,7 @@ class Api::V1::Accounts::Shop::ProductsController < Api::V1::Accounts::BaseContr
   before_action :set_product, only: [:show, :update, :destroy]
 
   def index
-    @products = Current.account.shop_products.includes(:category, :variants, images_attachments: :blob)
+    @products = Current.account.shop_products.includes(:category, :variants)
     @products = @products.active if params[:active_only]
     @products = @products.in_stock if params[:in_stock_only]
     @products = @products.by_category(params[:category_id]) if params[:category_id].present?
@@ -17,7 +17,7 @@ class Api::V1::Accounts::Shop::ProductsController < Api::V1::Accounts::BaseContr
     if @product.save
       render :show, status: :created
     else
-      render json: { errors: @product.errors.full_messages }, status: :unprocessable_content
+      render json: { errors: @product.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
@@ -32,7 +32,7 @@ class Api::V1::Accounts::Shop::ProductsController < Api::V1::Accounts::BaseContr
     if @product.update(product_params)
       render :show
     else
-      render json: { errors: @product.errors.full_messages }, status: :unprocessable_content
+      render json: { errors: @product.errors.full_messages }, status: :unprocessable_entity
     end
   end
 

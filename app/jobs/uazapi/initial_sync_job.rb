@@ -1,288 +1,132 @@
-# rubocop:disable Metrics/ClassLength
 class Uazapi::InitialSyncJob < ApplicationJob
   queue_as :low
 
-  # UAZAPI color index (0-19) to hex color mapping
-  UAZAPI_COLOR_MAP = {
-    0 => '#64748b',  # Cinza
-    1 => '#ec4899',  # Rosa
-    2 => '#f97316',  # Laranja
-    3 => '#eab308',  # Amarelo
-    4 => '#22c55e',  # Verde
-    5 => '#14b8a6',  # Teal
-    6 => '#06b6d4',  # Ciano
-    7 => '#3b82f6',  # Azul
-    8 => '#6366f1',  # Indigo
-    9 => '#8b5cf6',  # Violeta
-    10 => '#a855f7', # Roxo
-    11 => '#d946ef', # Fúcsia
-    12 => '#ef4444', # Vermelho
-    13 => '#78716c', # Stone
-    14 => '#84cc16', # Lime
-    15 => '#10b981', # Emerald
-    16 => '#0ea5e9', # Sky
-    17 => '#6d28d9', # Violet Dark
-    18 => '#be185d', # Pink Dark
-    19 => '#b91c1c'  # Red Dark
-  }.freeze
-
-  # WhatsApp system labels to skip
-  SYSTEM_LABELS = %w[grupos não-lidas favoritos nao-lidas].freeze
-
-  # Batch size for scheduling child jobs
-  BATCH_SIZE = 50
-
-  def perform(channel_id, options = {})
+  def perform(channel_id)
     @channel = Channel::Uazapi.find_by(id: channel_id)
     return unless @channel&.inbox
 
-    @options = options.with_indifferent_access
-    @label_map = {}
+    log 'Starting initial sync...'
+    update_sync_status('syncing', 0, 0)
 
-    if @options[:batch_mode]
-      # Processing a specific batch of chats
-      process_batch
-    else
-      # Orchestrator mode: sync labels and schedule batches
-      orchestrate_sync
-    end
+    sync_chats
+    update_sync_status('completed', @total_synced, @total_chats)
+
+    log "Initial sync completed! Synced #{@total_synced} contacts."
   rescue StandardError => e
     log "ERROR: #{e.class} - #{e.message}"
-    update_sync_status('failed', current_progress[:synced], current_progress[:total], e.message)
+    update_sync_status('failed', @total_synced || 0, @total_chats || 0, e.message)
     raise
   end
 
   private
 
-  # ============ ORCHESTRATOR MODE ============
+  def sync_chats
+    @total_synced = 0
+    @total_chats = 0
+    offset = 0
+    batch_size = 500
 
-  def orchestrate_sync
-    log 'Starting initial sync (orchestrator)...'
-    update_sync_status('syncing', 0, 0)
+    loop do
+      result = provider_service.fetch_chats(limit: batch_size, offset: offset)
+      chats = result[:chats]
+      pagination = result[:pagination]
 
-    # Step 1: Sync labels first (fast, do it here)
-    sync_labels
-    store_label_map
+      break if chats.empty?
 
-    # Step 2: Fetch total chat count and schedule batches
-    schedule_batches
-  end
+      @total_chats = pagination['totalRecords'] || chats.length
+      log "Fetched #{chats.length} chats (offset: #{offset}, total: #{@total_chats})"
 
-  def sync_labels
-    errors_count = 0
-    uazapi_labels = provider_service.fetch_labels
+      chats.each do |chat_data|
+        sync_chat(chat_data)
+        @total_synced += 1
 
-    uazapi_labels.each do |uazapi_label|
-      label_id = uazapi_label['id'] || uazapi_label['labelid']
-      label_name = uazapi_label['name']
-      label_color = uazapi_label['color']
-
-      next if label_id.blank? || label_name.blank?
-
-      sanitized_title = sanitize_label_title(label_name)
-      next if sanitized_title.blank?
-      next if SYSTEM_LABELS.include?(sanitized_title)
-
-      chatwoot_label = account.labels.find_or_create_by!(title: sanitized_title) do |label|
-        label.color = UAZAPI_COLOR_MAP[label_color.to_i] || '#7a4aff'
-        label.description = "Importado da UAZAPI: #{label_name}"
-        label.show_on_sidebar = true
+        # Update progress every 50 contacts
+        update_sync_status('syncing', @total_synced, @total_chats) if (@total_synced % 50).zero?
       end
 
-      @label_map[label_id.to_s] = chatwoot_label.title
-    rescue ActiveRecord::RecordInvalid
-      errors_count += 1
+      offset += batch_size
+      break if offset >= @total_chats
+
+      # Small delay to avoid rate limiting
+      sleep 0.5
     end
-
-    log "Labels: #{@label_map.keys.length} synced, #{errors_count} errors"
   end
 
-  def store_label_map
-    # Store label map in provider_config for batch jobs to use
-    config = @channel.provider_config || {}
-    config['label_map'] = @label_map
-    @channel.update_column(:provider_config, config)
-  end
-
-  def schedule_batches
-    # Fetch all chats in one request to get the list
-    result = provider_service.fetch_chats(limit: 5000, offset: 0)
-    all_chats = result[:chats]
-    total = all_chats.length
-
-    if all_chats.empty?
-      update_sync_status('completed', 0, 0)
-      log 'No chats to sync'
-      return
-    end
-
-    # Initialize progress tracking
-    update_sync_status('syncing', 0, total)
-    init_batch_tracking(total)
-
-    # Schedule batch jobs
-    all_chats.each_slice(BATCH_SIZE).with_index do |batch_chats, batch_index|
-      # Extract minimal data needed for batch processing
-      chat_ids = batch_chats.map { |c| { id: c['wa_chatid'] || c['id'], data: c } }
-
-      Uazapi::InitialSyncJob.perform_later(
-        @channel.id,
-        {
-          batch_mode: true,
-          batch_index: batch_index,
-          chats: chat_ids,
-          total: total
-        }
-      )
-
-      log "Scheduled batch #{batch_index + 1} with #{batch_chats.length} chats"
-    end
-
-    log "Orchestrator done: scheduled #{(total.to_f / BATCH_SIZE).ceil} batches for #{total} chats"
-  end
-
-  def init_batch_tracking(total)
-    config = @channel.provider_config || {}
-    config['sync_batches'] = {
-      'total_chats' => total,
-      'total_batches' => (total.to_f / BATCH_SIZE).ceil,
-      'completed_batches' => 0,
-      'synced_contacts' => 0,
-      'started_at' => Time.current.iso8601
-    }
-    @channel.update_column(:provider_config, config)
-  end
-
-  # ============ BATCH MODE ============
-
-  def process_batch
-    batch_index = @options[:batch_index]
-    chats = @options[:chats]
-    total = @options[:total]
-
-    log "Processing batch #{batch_index + 1} with #{chats.length} chats..."
-
-    # Load label map from provider_config
-    @label_map = @channel.provider_config&.dig('label_map') || {}
-
-    synced = 0
-    chats.each do |chat_info|
-      chat_id = chat_info['id'] || chat_info[:id]
-      chat_data = chat_info['data'] || chat_info[:data]
-
-      sync_chat(chat_data, chat_id)
-      synced += 1
-
-      # Small delay between contacts to avoid overwhelming
-      sleep 0.1
-    end
-
-    # Update batch completion
-    update_batch_progress(batch_index, synced, total)
-  end
-
-  def update_batch_progress(batch_index, synced_in_batch, total)
-    config = @channel.reload.provider_config || {}
-    batches = config['sync_batches'] || {}
-
-    batches['completed_batches'] = (batches['completed_batches'] || 0) + 1
-    batches['synced_contacts'] = (batches['synced_contacts'] || 0) + synced_in_batch
-
-    total_synced = batches['synced_contacts']
-    total_batches = batches['total_batches']
-    completed_batches = batches['completed_batches']
-
-    config['sync_batches'] = batches
-    @channel.update_column(:provider_config, config)
-
-    # Broadcast progress
-    broadcast_sync_status('syncing', total_synced, total, nil)
-
-    # Check if all batches completed
-    finalize_sync(total_synced, total) if completed_batches >= total_batches
-
-    log "Batch #{batch_index + 1} done: #{synced_in_batch} contacts (#{total_synced}/#{total} total)"
-  end
-
-  def finalize_sync(total_synced, total)
-    update_sync_status('completed', total_synced, total)
-    log "Sync completed: #{total_synced}/#{total} contacts"
-  end
-
-  # ============ CHAT SYNC LOGIC ============
-
-  def sync_chat(chat_data, chat_id)
+  def sync_chat(chat_data)
+    chat_id = chat_data['wa_chatid'] || chat_data['id']
     return if chat_id.blank?
 
     is_group = chat_id.include?('@g.us')
     source_id = is_group ? chat_id : chat_id.gsub(/@.*/, '')
 
+    # Get last message timestamp from chat data
     @current_chat_timestamp = extract_chat_timestamp(chat_data)
-    @current_chat_data = chat_data
 
+    # Check if contact already exists
     contact_inbox = @channel.inbox.contact_inboxes.find_by(source_id: source_id)
     if contact_inbox
-      sync_conversation_for_contact(contact_inbox, chat_id)
+      # If contact exists but no conversation, create one and sync messages
+      sync_messages_for_contact_inbox(contact_inbox, chat_id)
       return
     end
 
+    # Create contact
     contact = find_or_create_contact(chat_data, source_id, is_group)
     return unless contact
 
+    # Create contact inbox
     contact_inbox = ContactInbox.create!(
       contact: contact,
       inbox: @channel.inbox,
       source_id: source_id
     )
 
-    sync_conversation_for_contact(contact_inbox, chat_id)
+    # Create conversation and sync messages
+    sync_messages_for_contact_inbox(contact_inbox, chat_id)
+
+    log "Synced: #{contact.name} (#{source_id})"
   rescue ActiveRecord::RecordNotUnique
-    # Already exists
+    # Already exists, skip
   rescue StandardError => e
     log "Error syncing chat #{chat_id}: #{e.message}"
   end
 
-  def sync_conversation_for_contact(contact_inbox, chat_id)
+  def extract_chat_timestamp(chat_data)
+    # Try various fields that might contain the last message time
+    timestamp = chat_data['lastMessageTime'] || chat_data['last_message_time'] ||
+                chat_data['timestamp'] || chat_data['t'] || chat_data['muteExpiration']
+    return Time.at(timestamp) if timestamp.is_a?(Integer) && timestamp.positive?
+
+    1.year.ago # Default to 1 year ago for chats without timestamp
+  end
+
+  def sync_messages_for_contact_inbox(contact_inbox, chat_id)
+    # Find or create conversation
     conversation = contact_inbox.conversations.first
     conversation ||= create_conversation(contact_inbox)
     return unless conversation
 
-    apply_labels_to_conversation(conversation)
-
-    # Fetch limited messages (reduce load)
-    messages = provider_service.fetch_messages(chat_id, limit: 20)
+    # Fetch and import messages
+    messages = provider_service.fetch_messages(chat_id, limit: 50)
 
     if messages.empty?
+      # Mark conversation as having no history available
       conversation.update!(
         additional_attributes: (conversation.additional_attributes || {}).merge('uazapi_no_history' => true)
       )
+      log "No messages available for #{contact_inbox.source_id}"
       return
     end
 
     import_messages(conversation, messages)
 
+    # Update conversation last_activity_at to most recent message
     last_message = conversation.messages.order(created_at: :desc).first
     conversation.update!(last_activity_at: last_message.created_at) if last_message
+
+    log "Imported #{messages.length} messages for #{contact_inbox.source_id}"
   rescue StandardError => e
-    log "Error syncing messages for #{chat_id}: #{e.message}"
-  end
-
-  def apply_labels_to_conversation(conversation)
-    return if @label_map.blank? || @current_chat_data.blank?
-
-    wa_label_raw = @current_chat_data['wa_label']
-    return if wa_label_raw.blank?
-
-    label_ids = wa_label_raw.is_a?(String) ? JSON.parse(wa_label_raw) : wa_label_raw
-    return if label_ids.blank? || !label_ids.is_a?(Array)
-
-    chatwoot_labels = label_ids.filter_map { |id| @label_map[id.to_s] }.uniq
-    return if chatwoot_labels.blank?
-
-    conversation.update_labels(chatwoot_labels)
-    conversation.contact&.update_labels(chatwoot_labels)
-  rescue JSON::ParserError, StandardError
-    # Skip label errors silently
+    log "Error syncing messages for #{contact_inbox.source_id}: #{e.message}"
   end
 
   def create_conversation(contact_inbox)
@@ -297,8 +141,12 @@ class Uazapi::InitialSyncJob < ApplicationJob
   end
 
   def import_messages(conversation, messages)
+    # Sort by timestamp (oldest first)
     sorted_messages = messages.sort_by { |m| m['timestamp'] || 0 }
-    sorted_messages.each { |msg| import_message(conversation, msg) }
+
+    sorted_messages.each do |msg_data|
+      import_message(conversation, msg_data)
+    end
   end
 
   def import_message(conversation, msg_data)
@@ -310,23 +158,23 @@ class Uazapi::InitialSyncJob < ApplicationJob
     from_me = msg_data['fromMe'] == true
     timestamp = msg_data['timestamp']
 
-    conversation.messages.create!(
+    message = conversation.messages.create!(
       account: @channel.inbox.account,
       inbox: @channel.inbox,
       content: content,
       message_type: from_me ? :outgoing : :incoming,
       source_id: message_id,
       sender: from_me ? nil : conversation.contact,
-      created_at: timestamp ? Time.zone.at(timestamp) : Time.current
+      created_at: timestamp ? Time.at(timestamp) : Time.current
     )
 
-    # Skip media on initial sync to speed up (can be fetched on-demand)
-    # import_media(message, msg_data) if has_media?(msg_data)
-  rescue ActiveRecord::RecordNotUnique, StandardError
-    # Skip silently
+    # Import media if present
+    import_media(message, msg_data) if has_media?(msg_data)
+  rescue ActiveRecord::RecordNotUnique
+    # Already imported
+  rescue StandardError => e
+    log "Error importing message #{message_id}: #{e.message}"
   end
-
-  # ============ HELPERS ============
 
   def extract_message_id(msg_data)
     raw_id = msg_data['messageid'] || msg_data['id']
@@ -335,21 +183,63 @@ class Uazapi::InitialSyncJob < ApplicationJob
     raw_id.include?(':') ? raw_id.split(':').last : raw_id
   end
 
-  def extract_chat_timestamp(chat_data)
-    timestamp = chat_data['lastMessageTime'] || chat_data['last_message_time'] ||
-                chat_data['timestamp'] || chat_data['t']
-    return Time.zone.at(timestamp) if timestamp.is_a?(Integer) && timestamp.positive?
-
-    1.year.ago
+  def has_media?(msg_data)
+    type = (msg_data['type'] || msg_data['messageType'] || '').downcase
+    media_type = (msg_data['mediaType'] || '').downcase
+    %w[image video audio document sticker ptt media].any? { |t| type.include?(t) || media_type.include?(t) }
   end
 
-  def sanitize_label_title(name)
-    name.to_s
-        .downcase
-        .gsub(/\s+/, '-')
-        .gsub(/[^a-z0-9\-_\u00C0-\u024F]/, '').squeeze('-')
-        .gsub(/^-|-$/, '')
-        .truncate(50, omission: '')
+  def import_media(message, msg_data)
+    msg_id = extract_message_id(msg_data)
+    return if msg_id.blank?
+
+    response = HTTParty.post(
+      "#{@channel.api_url}/message/download",
+      headers: @channel.api_headers,
+      body: { id: msg_id, return_link: true }.to_json
+    )
+
+    return unless response.success?
+
+    body = JSON.parse(response.body)
+    url = body['fileURL'] || body['url']
+    return if url.blank?
+
+    file = Down.download(url)
+    file_type = determine_file_type(msg_data)
+
+    message.attachments.create!(
+      account_id: @channel.inbox.account_id,
+      file_type: file_type,
+      file: {
+        io: file,
+        filename: "#{file_type}_#{Time.current.to_i}#{mime_extension(msg_data)}",
+        content_type: msg_data['mimetype'] || 'application/octet-stream'
+      }
+    )
+  rescue StandardError => e
+    log "Error importing media: #{e.message}"
+  end
+
+  def determine_file_type(msg_data)
+    type = (msg_data['mediaType'] || msg_data['type'] || '').downcase
+    case type
+    when 'image' then 'image'
+    when 'video' then 'video'
+    when 'audio', 'ptt' then 'audio'
+    else 'file'
+    end
+  end
+
+  def mime_extension(msg_data)
+    mimetype = msg_data['mimetype'] || ''
+    case mimetype
+    when %r{image/jpeg} then '.jpg'
+    when %r{image/png} then '.png'
+    when %r{video/mp4} then '.mp4'
+    when %r{audio/} then '.ogg'
+    else ''
+    end
   end
 
   def find_or_create_contact(chat_data, source_id, is_group)
@@ -362,31 +252,50 @@ class Uazapi::InitialSyncJob < ApplicationJob
 
   def create_group_contact(chat_data, source_id)
     name = chat_data['wa_name'] || chat_data['name'] || "Grupo #{source_id.split('@').first[-6..]}"
+    image_url = chat_data['imagePreview'] || chat_data['image']
 
-    Contact.find_or_create_by!(
+    contact = Contact.find_or_create_by!(
       account: @channel.inbox.account,
       identifier: source_id
     ) do |c|
       c.name = name
-      c.additional_attributes = { is_group: true, group_id: source_id }
+      c.additional_attributes = {
+        is_group: true,
+        group_id: source_id,
+        group_image_url: image_url
+      }
     end
+
+    attach_avatar(contact, image_url) if image_url.present? && !contact.avatar.attached?
+    contact
   end
 
   def create_individual_contact(chat_data, source_id)
     phone = "+#{source_id.delete('+')}"
     name = chat_data['wa_name'] || chat_data['wa_contactName'] || chat_data['name'] || phone
+    image_url = chat_data['imagePreview'] || chat_data['image']
 
-    Contact.find_or_create_by!(
+    contact = Contact.find_or_create_by!(
       account: @channel.inbox.account,
       phone_number: phone
     ) do |c|
       c.name = name
+      c.additional_attributes = { contact_image_url: image_url }
     end
+
+    attach_avatar(contact, image_url) if image_url.present? && !contact.avatar.attached?
+    contact
   end
 
-  def current_progress
-    batches = @channel.reload.provider_config&.dig('sync_batches') || {}
-    { synced: batches['synced_contacts'] || 0, total: batches['total_chats'] || 0 }
+  def attach_avatar(contact, image_url)
+    file = Down.download(image_url)
+    contact.avatar.attach(
+      io: file,
+      filename: "avatar_#{contact.id}.jpg",
+      content_type: 'image/jpeg'
+    )
+  rescue StandardError => e
+    log "Failed to download avatar: #{e.message}"
   end
 
   def update_sync_status(status, synced, total, error = nil)
@@ -397,6 +306,7 @@ class Uazapi::InitialSyncJob < ApplicationJob
     config['sync_updated_at'] = Time.current.iso8601
     @channel.update_column(:provider_config, config)
 
+    # Broadcast update to frontend
     broadcast_sync_status(status, synced, total, error)
   end
 
@@ -416,16 +326,12 @@ class Uazapi::InitialSyncJob < ApplicationJob
         }
       }
     )
-  rescue StandardError
-    # Silent
+  rescue StandardError => e
+    log "Failed to broadcast: #{e.message}"
   end
 
   def provider_service
     @provider_service ||= Uazapi::ProviderService.new(channel: @channel)
-  end
-
-  def account
-    @channel.inbox.account
   end
 
   def log(message)
@@ -435,4 +341,3 @@ class Uazapi::InitialSyncJob < ApplicationJob
     end
   end
 end
-# rubocop:enable Metrics/ClassLength

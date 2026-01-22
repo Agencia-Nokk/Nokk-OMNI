@@ -1,6 +1,5 @@
 class Api::V1::Accounts::ContactsController < Api::V1::Accounts::BaseController
   include Sift
-
   sort_on :email, type: :string
   sort_on :name, internal_name: :order_on_name, type: :scope, scope_params: [:direction]
   sort_on :phone_number, type: :string
@@ -11,12 +10,9 @@ class Api::V1::Accounts::ContactsController < Api::V1::Accounts::BaseController
   sort_on :country, internal_name: :order_on_country_name, type: :scope, scope_params: [:direction]
 
   RESULTS_PER_PAGE = 15
-  ALLOWED_PER_PAGE = [15, 50, 100, 200].freeze
-  MAX_PER_PAGE = 10_000 # For "all" option
 
   before_action :check_authorization
   before_action :set_current_page, only: [:index, :active, :search, :filter]
-  before_action :set_per_page, only: [:index, :active, :search, :filter]
   before_action :fetch_contact, only: [:show, :update, :destroy, :avatar, :contactable_inboxes, :destroy_custom_attributes]
   before_action :set_include_contact_inboxes, only: [:index, :active, :search, :filter, :show, :update]
 
@@ -26,7 +22,7 @@ class Api::V1::Accounts::ContactsController < Api::V1::Accounts::BaseController
   end
 
   def search
-    render json: { error: 'Specify search string with parameter q' }, status: :unprocessable_content if params[:q].blank? && return
+    render json: { error: 'Specify search string with parameter q' }, status: :unprocessable_entity if params[:q].blank? && return
 
     contacts = resolved_contacts.where(
       'name ILIKE :search OR email ILIKE :search OR phone_number ILIKE :search OR contacts.identifier LIKE :search
@@ -38,7 +34,7 @@ class Api::V1::Accounts::ContactsController < Api::V1::Accounts::BaseController
   end
 
   def import
-    render json: { error: I18n.t('errors.contacts.import.failed') }, status: :unprocessable_content and return if params[:import_file].blank?
+    render json: { error: I18n.t('errors.contacts.import.failed') }, status: :unprocessable_entity and return if params[:import_file].blank?
 
     ActiveRecord::Base.transaction do
       import = Current.account.data_imports.create!(data_type: 'contacts')
@@ -136,17 +132,6 @@ class Api::V1::Accounts::ContactsController < Api::V1::Accounts::BaseController
     @current_page = params[:page] || 1
   end
 
-  def set_per_page
-    requested = params[:per_page].to_i
-    @per_page = if params[:per_page] == 'all'
-                  MAX_PER_PAGE
-                elsif ALLOWED_PER_PAGE.include?(requested)
-                  requested
-                else
-                  RESULTS_PER_PAGE
-                end
-  end
-
   def fetch_contacts(contacts)
     # Build includes hash to avoid separate query when contact_inboxes are needed
     includes_hash = { avatar_attachment: [:blob] }
@@ -155,7 +140,7 @@ class Api::V1::Accounts::ContactsController < Api::V1::Accounts::BaseController
     filtrate(contacts)
       .includes(includes_hash)
       .page(@current_page)
-      .per(@per_page || RESULTS_PER_PAGE)
+      .per(RESULTS_PER_PAGE)
   end
 
   def build_contact_inbox

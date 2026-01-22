@@ -43,7 +43,6 @@ class Uazapi::SendCarouselService
 
   def send_carousel(products)
     cards = products.map { |product| build_card(product) }
-
     provider_service.send_carousel(
       phone_number,
       text: carousel_text,
@@ -81,25 +80,6 @@ class Uazapi::SendCarouselService
   end
 
   def product_image_url(product)
-    return nil unless product.images.attached?
-
-    first_image = product.images.first
-    return nil unless first_image
-
-    # Use base64 to avoid UAZAPI download latency
-    product_image_base64(first_image)
-  end
-
-  def product_image_base64(image)
-    content_type = image.content_type || 'image/jpeg'
-    file_data = image.blob.open(&:read)
-    "data:#{content_type};base64,#{Base64.strict_encode64(file_data)}"
-  rescue StandardError => e
-    Rails.logger.error "[UAZAPI Carousel] Base64 error: #{e.message}"
-    nil
-  end
-
-  def product_image_url_original(product)
     return nil unless product.images.attached?
 
     first_image = product.images.first
@@ -143,11 +123,10 @@ class Uazapi::SendCarouselService
   end
 
   def create_local_message(products, source_id) # rubocop:disable Metrics/MethodLength
-    # Use URL (not base64) for local message - Chatwoot can display from URL
     cards_data = products.map do |product|
       {
         body: "#{product.name}\n#{product_description(product)}",
-        image_url: product_image_url_original(product),
+        image_url: product_image_url(product),
         buttons: build_buttons(product).map do |btn|
           { type: btn[:type].downcase, display_text: btn[:text], id: btn[:id] }
         end
