@@ -3,9 +3,9 @@
 module Captain::Tools::Concerns::AutomationRuleHelpers
   extend ActiveSupport::Concern
 
-  include AutomationRuleValidators
-  include AutomationRuleFormatters
-  include AutomationRuleResolvers
+  include Captain::Tools::Concerns::AutomationRuleValidators
+  include Captain::Tools::Concerns::AutomationRuleFormatters
+  include Captain::Tools::Concerns::AutomationRuleResolvers
 
   private
 
