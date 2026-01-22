@@ -40,8 +40,15 @@ class ConfigLoader
   def reconcile_general_config
     general_configs.each do |config|
       new_config = config.with_indifferent_access
-      existing_config = InstallationConfig.find_by(name: new_config[:name])
-      save_general_config(existing_config, new_config)
+      begin
+        existing_config = InstallationConfig.find_by(name: new_config[:name])
+        save_general_config(existing_config, new_config)
+      rescue TypeError, Psych::DisallowedClass => e
+        # Handle corrupted YAML data in database
+        Rails.logger.warn("Error loading config #{new_config[:name]}: #{e.message}. Recreating...")
+        InstallationConfig.where(name: new_config[:name]).destroy_all
+        save_as_new_config(new_config)
+      end
     end
   end
 
@@ -55,8 +62,14 @@ class ConfigLoader
   end
 
   def compare_values(existing, latest)
-    existing.value != latest[:value] ||
-      (!latest[:locked].nil? && existing.locked != latest[:locked])
+    begin
+      existing.value != latest[:value] ||
+        (!latest[:locked].nil? && existing.locked != latest[:locked])
+    rescue TypeError, Psych::DisallowedClass => e
+      # If we can't read the existing value, consider it different
+      Rails.logger.warn("Error comparing config #{existing.name}: #{e.message}")
+      true
+    end
   end
 
   def save_as_new_config(latest)
@@ -67,25 +80,44 @@ class ConfigLoader
   end
 
   def reconcile_feature_config
-    config = InstallationConfig.find_by(name: 'ACCOUNT_LEVEL_FEATURE_DEFAULTS')
+    begin
+      config = InstallationConfig.find_by(name: 'ACCOUNT_LEVEL_FEATURE_DEFAULTS')
 
-    if config
-      return false if config.value.to_s == account_features.to_s
-
-      compare_and_save_feature(config)
-    else
-      save_as_new_config({ name: 'ACCOUNT_LEVEL_FEATURE_DEFAULTS', value: account_features, locked: true })
+      if config
+        begin
+          return false if config.value.to_s == account_features.to_s
+          compare_and_save_feature(config)
+        rescue TypeError, Psych::DisallowedClass => e
+          # Handle corrupted YAML data
+          Rails.logger.warn("Error loading ACCOUNT_LEVEL_FEATURE_DEFAULTS: #{e.message}. Recreating...")
+          config.destroy
+          save_as_new_config({ name: 'ACCOUNT_LEVEL_FEATURE_DEFAULTS', value: account_features, locked: true })
+        end
+      else
+        save_as_new_config({ name: 'ACCOUNT_LEVEL_FEATURE_DEFAULTS', value: account_features, locked: true })
+      end
+    rescue => e
+      Rails.logger.error("Error in reconcile_feature_config: #{e.message}")
+      raise
     end
   end
 
   def compare_and_save_feature(config)
-    features = if @reconcile_only_new
-                 # leave the existing feature flag values as it is and add new feature flags with default values
-                 (config.value + account_features).uniq { |h| h['name'] }
-               else
-                 # update the existing feature flag values with default values and add new feature flags with default values
-                 (account_features + config.value).uniq { |h| h['name'] }
-               end
-    config.update({ name: 'ACCOUNT_LEVEL_FEATURE_DEFAULTS', value: features, locked: true })
+    begin
+      existing_value = config.value
+      features = if @reconcile_only_new
+                   # leave the existing feature flag values as it is and add new feature flags with default values
+                   (existing_value + account_features).uniq { |h| h['name'] }
+                 else
+                   # update the existing feature flag values with default values and add new feature flags with default values
+                   (account_features + existing_value).uniq { |h| h['name'] }
+                 end
+      config.update({ name: 'ACCOUNT_LEVEL_FEATURE_DEFAULTS', value: features, locked: true })
+    rescue TypeError, Psych::DisallowedClass => e
+      # Handle corrupted YAML data
+      Rails.logger.warn("Error reading feature config: #{e.message}. Recreating...")
+      config.destroy
+      save_as_new_config({ name: 'ACCOUNT_LEVEL_FEATURE_DEFAULTS', value: account_features, locked: true })
+    end
   end
 end
