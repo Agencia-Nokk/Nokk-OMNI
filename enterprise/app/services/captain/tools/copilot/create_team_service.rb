@@ -1,4 +1,6 @@
 class Captain::Tools::Copilot::CreateTeamService < Captain::Tools::BaseTool
+  include Captain::Tools::Concerns::TeamHelpers
+
   def self.name
     'create_team'
   end
@@ -19,32 +21,10 @@ class Captain::Tools::Copilot::CreateTeamService < Captain::Tools::BaseTool
   param :member_ids, type: :string, desc: 'JSON array of agent IDs to add as members', required: false
 
   def execute(name:, description: nil, allow_auto_assign: nil, member_ids: nil)
-    return 'Team name is required' if name.blank?
+    validation = validate_team_name(name)
+    return validation if validation
 
-    existing = @assistant.account.teams.find_by(name: name.downcase)
-    if existing.present?
-      return {
-        'content' => "A team with name '#{name}' already exists.",
-        'entities' => [format_team_entity(existing)]
-      }
-    end
-
-    attrs = { name: name.downcase.strip }
-    attrs[:description] = description if description.present?
-    attrs[:allow_auto_assign] = allow_auto_assign unless allow_auto_assign.nil?
-
-    team = @assistant.account.teams.create!(attrs)
-
-    # Add members if provided
-    if member_ids.present?
-      ids = parse_member_ids(member_ids)
-      team.add_members(ids) if ids.any?
-    end
-
-    {
-      'content' => "Team '#{team.name}' created successfully with #{team.members.count} member(s).",
-      'entities' => [format_team_entity(team.reload)]
-    }
+    create_team_with_members(name, description, allow_auto_assign, member_ids)
   rescue ActiveRecord::RecordInvalid => e
     "Failed to create team: #{e.message}"
   end
@@ -55,26 +35,40 @@ class Captain::Tools::Copilot::CreateTeamService < Captain::Tools::BaseTool
 
   private
 
-  def parse_member_ids(member_ids)
-    return [] if member_ids.blank?
+  def validate_team_name(name)
+    return 'Team name is required' if name.blank?
 
-    if member_ids.is_a?(Array)
-      member_ids.map(&:to_i)
-    else
-      JSON.parse(member_ids).map(&:to_i)
-    end
-  rescue JSON::ParserError
-    []
+    existing = @assistant.account.teams.find_by(name: name.downcase)
+    return unless existing.present?
+
+    {
+      'content' => "A team with name '#{name}' already exists.",
+      'entities' => [format_team_entity(existing)]
+    }
   end
 
-  def format_team_entity(team)
+  def create_team_with_members(name, description, allow_auto_assign, member_ids)
+    attrs = build_team_attrs(name, description, allow_auto_assign)
+    team = @assistant.account.teams.create!(attrs)
+    add_team_members(team, member_ids)
+
     {
-      'type' => 'team',
-      'id' => team.id,
-      'name' => team.name,
-      'description' => team.description,
-      'members_count' => team.members.count,
-      'allow_auto_assign' => team.allow_auto_assign
+      'content' => "Team '#{team.name}' created successfully with #{team.members.count} member(s).",
+      'entities' => [format_team_entity(team.reload)]
     }
+  end
+
+  def build_team_attrs(name, description, allow_auto_assign)
+    attrs = { name: name.downcase.strip }
+    attrs[:description] = description if description.present?
+    attrs[:allow_auto_assign] = allow_auto_assign unless allow_auto_assign.nil?
+    attrs
+  end
+
+  def add_team_members(team, member_ids)
+    return unless member_ids.present?
+
+    ids = parse_member_ids(member_ids)
+    team.add_members(ids) if ids.any?
   end
 end

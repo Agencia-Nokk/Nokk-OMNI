@@ -1,4 +1,6 @@
 class Captain::Tools::Copilot::ListAgentsService < Captain::Tools::BaseTool
+  include Captain::Tools::Concerns::AgentHelpers
+
   def self.name
     'list_agents'
   end
@@ -22,19 +24,5 @@ class Captain::Tools::Copilot::ListAgentsService < Captain::Tools::BaseTool
 
   def active?
     true
-  end
-
-  private
-
-  def format_agent_entity(agent)
-    account_user = agent.account_users.find { |au| au.account_id == @assistant.account.id }
-    {
-      'type' => 'agent',
-      'id' => agent.id,
-      'name' => agent.available_name || agent.name,
-      'email' => agent.email,
-      'role' => account_user&.role,
-      'availability' => account_user&.availability
-    }
   end
 end

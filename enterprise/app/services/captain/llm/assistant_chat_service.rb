@@ -45,10 +45,35 @@ class Captain::Llm::AssistantChatService < Llm::BaseAiService
     tools << Captain::Tools::Copilot::UpdateAutomationRuleService.new(@assistant, user: nil)
     tools << Captain::Tools::Copilot::DeleteAutomationRuleService.new(@assistant, user: nil)
 
-    # Helper tools for entity references
+    # Agent tools
+    tools << Captain::Tools::Copilot::CreateAgentService.new(@assistant, user: nil)
+    tools << Captain::Tools::Copilot::GetAgentService.new(@assistant, user: nil)
+    tools << Captain::Tools::Copilot::UpdateAgentService.new(@assistant, user: nil)
+    tools << Captain::Tools::Copilot::DeleteAgentService.new(@assistant, user: nil)
     tools << Captain::Tools::Copilot::ListAgentsService.new(@assistant, user: nil)
+
+    # Team tools
+    tools << Captain::Tools::Copilot::CreateTeamService.new(@assistant, user: nil)
+    tools << Captain::Tools::Copilot::GetTeamService.new(@assistant, user: nil)
+    tools << Captain::Tools::Copilot::UpdateTeamService.new(@assistant, user: nil)
+    tools << Captain::Tools::Copilot::DeleteTeamService.new(@assistant, user: nil)
     tools << Captain::Tools::Copilot::ListTeamsService.new(@assistant, user: nil)
+
+    # Label tools
+    tools << Captain::Tools::Copilot::CreateLabelService.new(@assistant, user: nil)
+    tools << Captain::Tools::Copilot::UpdateLabelService.new(@assistant, user: nil)
+    tools << Captain::Tools::Copilot::DeleteLabelService.new(@assistant, user: nil)
     tools << Captain::Tools::Copilot::ListLabelsService.new(@assistant, user: nil)
+
+    # Canned Response tools
+    tools << Captain::Tools::Copilot::CreateCannedResponseService.new(@assistant, user: nil)
+    tools << Captain::Tools::Copilot::UpdateCannedResponseService.new(@assistant, user: nil)
+    tools << Captain::Tools::Copilot::DeleteCannedResponseService.new(@assistant, user: nil)
+
+    # Custom Attribute tools
+    tools << Captain::Tools::Copilot::CreateCustomAttributeService.new(@assistant, user: nil)
+    tools << Captain::Tools::Copilot::UpdateCustomAttributeService.new(@assistant, user: nil)
+    tools << Captain::Tools::Copilot::DeleteCustomAttributeService.new(@assistant, user: nil)
 
     tools.select(&:active?)
   end

@@ -18,20 +18,10 @@ class Captain::Tools::Copilot::UpdateLabelService < Captain::Tools::BaseTool
     label = @assistant.account.labels.find_by(id: label_id)
     return 'Label not found' unless label
 
-    attrs = {}
-    attrs[:title] = title.downcase.strip if title.present?
-    attrs[:color] = color if color.present?
-    attrs[:description] = description if description.present?
-    attrs[:show_on_sidebar] = show_on_sidebar unless show_on_sidebar.nil?
-
+    attrs = build_label_attrs(title, color, description, show_on_sidebar)
     return 'No changes provided' if attrs.empty?
 
-    label.update!(attrs)
-
-    {
-      'content' => "Label '#{label.title}' updated successfully",
-      'entities' => [format_label_entity(label)]
-    }
+    apply_label_update(label, attrs)
   rescue ActiveRecord::RecordInvalid => e
     "Failed to update label: #{e.message}"
   end
@@ -41,6 +31,24 @@ class Captain::Tools::Copilot::UpdateLabelService < Captain::Tools::BaseTool
   end
 
   private
+
+  def build_label_attrs(title, color, description, show_on_sidebar)
+    attrs = {}
+    attrs[:title] = title.downcase.strip if title.present?
+    attrs[:color] = color if color.present?
+    attrs[:description] = description if description.present?
+    attrs[:show_on_sidebar] = show_on_sidebar unless show_on_sidebar.nil?
+    attrs
+  end
+
+  def apply_label_update(label, attrs)
+    label.update!(attrs)
+
+    {
+      'content' => "Label '#{label.title}' updated successfully",
+      'entities' => [format_label_entity(label)]
+    }
+  end
 
   def format_label_entity(label)
     {

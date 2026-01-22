@@ -19,27 +19,10 @@ class Captain::Tools::Copilot::CreateCannedResponseService < Captain::Tools::Bas
   param :content, type: :string, desc: 'Message content (can include variables like {{ contact.name }})'
 
   def execute(short_code:, content:)
-    return 'Short code is required' if short_code.blank?
-    return 'Content is required' if content.blank?
+    validation = validate_params(short_code, content)
+    return validation if validation
 
-    existing = @assistant.account.canned_responses.find_by(short_code: short_code)
-    if existing.present?
-      return {
-        'content' => "A canned response with short code '#{short_code}' already exists (ID: #{existing.id}). " \
-                     'Would you like to update it using update_canned_response tool, or create a new one with a different short code?',
-        'entities' => [format_canned_response_entity(existing)]
-      }
-    end
-
-    canned_response = @assistant.account.canned_responses.create!(
-      short_code: short_code.strip,
-      content: content
-    )
-
-    {
-      'content' => "Canned response '#{canned_response.short_code}' created successfully. Agents can now use /#{canned_response.short_code} to insert this response.",
-      'entities' => [format_canned_response_entity(canned_response)]
-    }
+    create_canned_response(short_code, content)
   rescue ActiveRecord::RecordInvalid => e
     "Failed to create canned response: #{e.message}"
   end
@@ -49,6 +32,34 @@ class Captain::Tools::Copilot::CreateCannedResponseService < Captain::Tools::Bas
   end
 
   private
+
+  def validate_params(short_code, content)
+    return 'Short code is required' if short_code.blank?
+    return 'Content is required' if content.blank?
+
+    check_existing(short_code)
+  end
+
+  def check_existing(short_code)
+    existing = @assistant.account.canned_responses.find_by(short_code: short_code)
+    return nil unless existing.present?
+
+    {
+      'content' => "A canned response with short code '#{short_code}' already exists (ID: #{existing.id}). " \
+                   'Would you like to update it using update_canned_response tool, or create a new one with a different short code?',
+      'entities' => [format_canned_response_entity(existing)]
+    }
+  end
+
+  def create_canned_response(short_code, content)
+    canned_response = @assistant.account.canned_responses.create!(short_code: short_code.strip, content: content)
+
+    {
+      'content' => "Canned response '#{canned_response.short_code}' created successfully. " \
+                   "Agents can now use /#{canned_response.short_code} to insert this response.",
+      'entities' => [format_canned_response_entity(canned_response)]
+    }
+  end
 
   def format_canned_response_entity(canned_response)
     {

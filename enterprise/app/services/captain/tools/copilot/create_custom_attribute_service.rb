@@ -1,4 +1,6 @@
 class Captain::Tools::Copilot::CreateCustomAttributeService < Captain::Tools::BaseTool
+  VALID_DISPLAY_TYPES = %w[text number currency percent link date list checkbox].freeze
+
   def self.name
     'create_custom_attribute'
   end
@@ -30,47 +32,20 @@ class Captain::Tools::Copilot::CreateCustomAttributeService < Captain::Tools::Ba
   param :attribute_description, type: :string, desc: 'Description of the attribute', required: false
   param :attribute_values, type: :string, desc: 'JSON array of values for list type', required: false
 
-  def execute(attribute_display_name:, attribute_key:, attribute_model:, attribute_display_type:, attribute_description: nil, attribute_values: nil)
-    return 'Display name is required' if attribute_display_name.blank?
-    return 'Attribute key is required' if attribute_key.blank?
+  # rubocop:disable Metrics/ParameterLists
+  def execute(attribute_display_name:, attribute_key:, attribute_model:, attribute_display_type:,
+              attribute_description: nil, attribute_values: nil)
+    validation = validate_params(attribute_display_name, attribute_key, attribute_model, attribute_display_type)
+    return validation unless validation.is_a?(Array)
 
-    model_type = parse_model_type(attribute_model)
-    return 'Invalid attribute model. Use "conversation" or "contact"' unless model_type
-
-    display_type = parse_display_type(attribute_display_type)
-    return 'Invalid display type. Use: text, number, currency, percent, link, date, list, checkbox' unless display_type
-
-    existing = @assistant.account.custom_attribute_definitions.find_by(
-      attribute_key: attribute_key.downcase,
-      attribute_model: model_type
-    )
-
-    if existing.present?
-      return {
-        'content' => "A custom attribute with key '#{attribute_key}' already exists for #{attribute_model}.",
-        'entities' => [format_attribute_entity(existing)]
-      }
-    end
-
-    attrs = {
-      attribute_display_name: attribute_display_name.strip,
-      attribute_key: attribute_key.downcase.strip.gsub(/\s+/, '_'),
-      attribute_model: model_type,
-      attribute_display_type: display_type
-    }
-
-    attrs[:attribute_description] = attribute_description if attribute_description.present?
-    attrs[:attribute_values] = parse_values(attribute_values) if attribute_values.present? && display_type == :list
-
-    attr = @assistant.account.custom_attribute_definitions.create!(attrs)
-
-    {
-      'content' => "Custom attribute '#{attr.attribute_display_name}' created successfully for #{attr.attribute_model.humanize}.",
-      'entities' => [format_attribute_entity(attr)]
-    }
+    model_type, display_type = validation
+    params = { display_name: attribute_display_name, key: attribute_key, model_type: model_type,
+               display_type: display_type, description: attribute_description, values: attribute_values }
+    create_attribute(params)
   rescue ActiveRecord::RecordInvalid => e
     "Failed to create custom attribute: #{e.message}"
   end
+  # rubocop:enable Metrics/ParameterLists
 
   def active?
     user_has_permission('administrator')
@@ -78,19 +53,68 @@ class Captain::Tools::Copilot::CreateCustomAttributeService < Captain::Tools::Ba
 
   private
 
+  def validate_params(display_name, key, model, display_type)
+    return 'Display name is required' if display_name.blank?
+    return 'Attribute key is required' if key.blank?
+
+    model_type = parse_model_type(model)
+    return 'Invalid attribute model. Use "conversation" or "contact"' unless model_type
+
+    parsed_type = parse_display_type(display_type)
+    return 'Invalid display type. Use: text, number, currency, percent, link, date, list, checkbox' unless parsed_type
+
+    existing = find_existing_attribute(key, model_type)
+    return existing_response(existing, model) if existing.present?
+
+    [model_type, parsed_type]
+  end
+
+  def find_existing_attribute(key, model_type)
+    @assistant.account.custom_attribute_definitions.find_by(
+      attribute_key: key.downcase,
+      attribute_model: model_type
+    )
+  end
+
+  def existing_response(attr, model)
+    {
+      'content' => "A custom attribute with key '#{attr.attribute_key}' already exists for #{model}.",
+      'entities' => [format_attribute_entity(attr)]
+    }
+  end
+
+  def create_attribute(params)
+    attrs = build_attrs(params)
+    attr = @assistant.account.custom_attribute_definitions.create!(attrs)
+
+    {
+      'content' => "Custom attribute '#{attr.attribute_display_name}' created successfully for #{attr.attribute_model.humanize}.",
+      'entities' => [format_attribute_entity(attr)]
+    }
+  end
+
+  def build_attrs(params)
+    attrs = {
+      attribute_display_name: params[:display_name].strip,
+      attribute_key: params[:key].downcase.strip.gsub(/\s+/, '_'),
+      attribute_model: params[:model_type],
+      attribute_display_type: params[:display_type]
+    }
+    attrs[:attribute_description] = params[:description] if params[:description].present?
+    attrs[:attribute_values] = parse_values(params[:values]) if params[:values].present? && params[:display_type] == :list
+    attrs
+  end
+
   def parse_model_type(model)
     case model.to_s.downcase
-    when 'conversation', 'conversation_attribute'
-      :conversation_attribute
-    when 'contact', 'contact_attribute'
-      :contact_attribute
+    when 'conversation', 'conversation_attribute' then :conversation_attribute
+    when 'contact', 'contact_attribute' then :contact_attribute
     end
   end
 
   def parse_display_type(type)
-    valid_types = %w[text number currency percent link date list checkbox]
     type = type.to_s.downcase
-    type.to_sym if valid_types.include?(type)
+    type.to_sym if VALID_DISPLAY_TYPES.include?(type)
   end
 
   def parse_values(values)
