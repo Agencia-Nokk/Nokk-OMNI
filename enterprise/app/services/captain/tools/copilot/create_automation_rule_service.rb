@@ -36,6 +36,10 @@ class Captain::Tools::Copilot::CreateAutomationRuleService < Captain::Tools::Bas
   end
   # rubocop:enable Metrics/ParameterLists
 
+  def active?
+    true
+  end
+
   private
 
   def validate_basic_params(name, event_name)
@@ -76,10 +80,6 @@ class Captain::Tools::Copilot::CreateAutomationRuleService < Captain::Tools::Bas
       'content' => "Automation rule created successfully!\n\n#{format_rule_details(rule)}",
       'entities' => [format_rule_entity(rule)]
     }
-  end
-
-  def active?
-    true
   end
 
   def find_existing_rule(name)
