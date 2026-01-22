@@ -346,7 +346,7 @@
     }
   },
   "CAPTAIN": {
-    "NAME": "Capitão",
+    "NAME": "Elai Robot",
     "HEADER_KNOW_MORE": "Know more",
     "ASSISTANT_SWITCHER": {
       "ASSISTANTS": "Assistentes",
@@ -355,13 +355,13 @@
       "EMPTY_LIST": "No assistants found, please create one to get started"
     },
     "COPILOT": {
-      "TITLE": "Copiloto",
+      "TITLE": "Elai Robot",
       "TRY_THESE_PROMPTS": "Experimente estes comandos",
-      "PANEL_TITLE": "Comece a usar o Copiloto",
-      "KICK_OFF_MESSAGE": "Precisa de um resumo rápido, quer verificar conversas passadas ou redigir uma resposta melhor? O Copiloto está aqui para acelerar as coisas.",
+      "PANEL_TITLE": "Comece a usar o Elai",
+      "KICK_OFF_MESSAGE": "Precisa de um resumo rápido, quer verificar conversas passadas ou redigir uma resposta melhor? O Elai está aqui para acelerar as coisas.",
       "SEND_MESSAGE": "Enviar mensagem...",
       "EMPTY_MESSAGE": "Houve um erro ao gerar a resposta. Por favor, tente novamente.",
-      "LOADER": "Capitão está pensando",
+      "LOADER": "Elai Robot está pensando",
       "YOU": "Você",
       "USE": "Use isto",
       "RESET": "Reiniciar",
@@ -441,11 +441,11 @@
       "MESSAGE_PLACEHOLDER": "Digite sua mensagem...",
       "HEADER": "Playground",
       "DESCRIPTION": "Use este playground para enviar mensagens para seu assistente e verificar se ele responde com precisão, rápido e no tom que você espera.",
-      "CREDIT_NOTE": "As mensagens enviadas aqui usam os créditos do seu Capitão."
+      "CREDIT_NOTE": "As mensagens enviadas aqui usam os créditos do seu Elai Robot."
     },
     "PAYWALL": {
-      "TITLE": "Atualize para usar o Capitão IA",
-      "AVAILABLE_ON": "O Capitão não está disponível no plano gratuito.",
+      "TITLE": "Atualize para usar o Elai Robot",
+      "AVAILABLE_ON": "O Elai Robot não está disponível no plano gratuito.",
       "UPGRADE_PROMPT": "Atualize seu plano para ter acesso aos nossos assistentes, copilotos e muito mais.",
       "UPGRADE_NOW": "Atualizar agora",
       "CANCEL_ANYTIME": "Você pode alterar ou cancelar seu plano a qualquer momento"
@@ -455,8 +455,8 @@
       "ASK_ADMIN": "Entre em contato com seu administrador para fazer a atualização."
     },
     "BANNER": {
-      "RESPONSES": "Você usou mais de 80% do seu limite de respostas. Para continuar usando o Capitão AI, faça o upgrade.",
-      "DOCUMENTS": "Limite de documentos atingido. Atualize para continuar usando o Capitão AI."
+      "RESPONSES": "Você usou mais de 80% do seu limite de respostas. Para continuar usando o Elai Robot, faça o upgrade.",
+      "DOCUMENTS": "Limite de documentos atingido. Atualize para continuar usando o Elai Robot."
     },
     "FORM": {
       "CANCEL": "Cancelar",
