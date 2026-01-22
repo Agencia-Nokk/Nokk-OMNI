@@ -10,6 +10,7 @@ import { useWindowSize } from '@vueuse/core';
 import { vOnClickOutside } from '@vueuse/components';
 import { FEATURE_FLAGS } from 'dashboard/featureFlags';
 import wootConstants from 'dashboard/constants/globals';
+import { useResizableSidebar } from 'dashboard/composables/useResizableSidebar';
 
 defineProps({
   conversationInboxType: {
@@ -32,6 +33,11 @@ const threads = useMapGetter('copilotThreads/getRecords');
 
 const isSmallScreen = computed(
   () => windowWidth.value < wootConstants.SMALL_SCREEN_BREAKPOINT
+);
+
+const { widthStyle, resizeHandleClass, handleMouseDown } = useResizableSidebar(
+  'copilot',
+  320
 );
 
 const selectedCopilotThreadId = ref(null);
@@ -144,7 +150,8 @@ onMounted(() => {
   <div
     v-if="shouldShowCopilotPanel"
     v-on-click-outside="() => closeCopilotPanel()"
-    class="bg-n-background h-full overflow-hidden flex-col fixed top-0 ltr:right-0 rtl:left-0 z-40 w-full max-w-sm transition-transform duration-300 ease-in-out md:static md:w-[320px] md:min-w-[320px] ltr:border-l rtl:border-r border-n-weak 2xl:min-w-[360px] 2xl:w-[360px] shadow-lg md:shadow-none"
+    class="bg-n-background h-full overflow-hidden flex-col fixed top-0 ltr:right-0 rtl:left-0 z-40 w-full max-w-sm transition-transform duration-300 ease-in-out md:static ltr:border-l rtl:border-r border-n-weak shadow-lg md:shadow-none relative"
+    :style="widthStyle"
     :class="[
       {
         'md:flex': shouldShowCopilotPanel,
@@ -152,6 +159,7 @@ onMounted(() => {
       },
     ]"
   >
+    <div :class="resizeHandleClass" @mousedown="handleMouseDown" />
     <Copilot
       :messages="messages"
       :support-agent="currentUser"

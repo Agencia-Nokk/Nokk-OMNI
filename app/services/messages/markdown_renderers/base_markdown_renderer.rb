@@ -1,39 +1,34 @@
-class Messages::MarkdownRenderers::BaseMarkdownRenderer < CommonMarker::Renderer
-  def document(_node)
-    out(:children)
+class Messages::MarkdownRenderers::BaseMarkdownRenderer < MarkdownRendererBase
+  def render_document(node)
+    node.each { |child| traverse(child) }
   end
 
-  def paragraph(_node)
-    out(:children)
+  def render_paragraph(node)
+    node.each { |child| traverse(child) }
     cr
   end
 
-  def text(node)
+  def render_text(node)
     out(node.string_content)
   end
 
-  def softbreak(_node)
+  def render_softbreak(_node)
     out(' ')
   end
 
-  def linebreak(_node)
+  def render_linebreak(_node)
     out("\n")
   end
 
-  def strikethrough(_node)
+  def render_strikethrough(node)
     out('<del>')
-    out(:children)
+    node.each { |child| traverse(child) }
     out('</del>')
   end
 
-  def method_missing(method_name, node = nil, *args, **kwargs, &)
-    return super unless node.is_a?(CommonMarker::Node)
-
-    out(:children)
+  # Handle unknown node types by rendering children and adding newline
+  def render_default(node)
+    node.each { |child| traverse(child) }
     cr unless %i[text softbreak linebreak].include?(node.type)
-  end
-
-  def respond_to_missing?(_method_name, _include_private = false)
-    true
   end
 end

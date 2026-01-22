@@ -84,7 +84,7 @@ module Reauthorizable
   end
 
   def invalidate_inbox_cache
-    inbox.update_account_cache if inbox.present?
+    (inbox.presence&.update_account_cache)
   end
 
   def authorization_error_count_key

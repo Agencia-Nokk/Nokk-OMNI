@@ -8,7 +8,7 @@ class Api::V1::Accounts::Conversations::MessagesController < Api::V1::Accounts::
 
   def edit
     new_content = params[:content]
-    return render json: { error: 'Content is required' }, status: :unprocessable_entity if new_content.blank?
+    return render json: { error: 'Content is required' }, status: :unprocessable_content if new_content.blank?
 
     ActiveRecord::Base.transaction do
       edit_message_in_channel(new_content)

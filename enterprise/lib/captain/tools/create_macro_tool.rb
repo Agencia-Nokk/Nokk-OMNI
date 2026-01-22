@@ -52,7 +52,7 @@ class Captain::Tools::CreateMacroTool < Captain::Tools::BasePublicTool
     Actions will execute in the order provided.
   ACTIONS_DESC
 
-  def perform(tool_context, name:, actions:)
+  def perform(_tool_context, name:, actions:)
     actions = parse_json_param(actions, 'actions')
     return actions if actions.is_a?(String)
     return 'Macro name is required' if name.blank?
@@ -85,9 +85,7 @@ class Captain::Tools::CreateMacroTool < Captain::Tools::BasePublicTool
       action = action.with_indifferent_access
       action_name = action[:action_name]
 
-      unless Macro::ACTIONS_ATTRS.include?(action_name)
-        return "Invalid action '#{action_name}'. Valid: #{Macro::ACTIONS_ATTRS.join(', ')}"
-      end
+      return "Invalid action '#{action_name}'. Valid: #{Macro::ACTIONS_ATTRS.join(', ')}" unless Macro::ACTIONS_ATTRS.include?(action_name)
 
       { 'action_name' => action_name, 'action_params' => Array(action[:action_params]) }
     end

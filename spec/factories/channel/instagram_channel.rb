@@ -8,7 +8,7 @@ FactoryBot.define do
     account
 
     before :create do |_channel|
-      WebMock::API.stub_request(:post, 'https://graph.facebook.com/v3.2/me/subscribed_apps')
+      WebMock::API.stub_request(:post, %r{https://graph\.facebook\.com/v\d+\.\d+/me/subscribed_apps})
     end
   end
 end

@@ -1,4 +1,6 @@
 class Captain::Tools::Copilot::ListTeamsService < Captain::Tools::BaseTool
+  include Captain::Tools::Concerns::TeamHelpers
+
   def self.name
     'list_teams'
   end
@@ -21,18 +23,5 @@ class Captain::Tools::Copilot::ListTeamsService < Captain::Tools::BaseTool
 
   def active?
     true
-  end
-
-  private
-
-  def format_team_entity(team)
-    {
-      'type' => 'team',
-      'id' => team.id,
-      'name' => team.name,
-      'description' => team.description,
-      'members_count' => team.members.count,
-      'allow_auto_assign' => team.allow_auto_assign
-    }
   end
 end

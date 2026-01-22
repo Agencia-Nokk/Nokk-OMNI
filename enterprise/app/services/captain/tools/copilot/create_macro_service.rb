@@ -1,4 +1,6 @@
 class Captain::Tools::Copilot::CreateMacroService < Captain::Tools::BaseTool
+  include Captain::Tools::Concerns::JsonHelpers
+
   def self.name
     'create_macro'
   end
@@ -58,34 +60,11 @@ class Captain::Tools::Copilot::CreateMacroService < Captain::Tools::BaseTool
   ACTIONS_DESC
 
   def execute(name:, actions:)
-    return 'Macro name is required' if name.blank?
+    validation = validate_macro_params(name, actions)
+    return validation unless validation.is_a?(Array)
 
-    existing_macro = @assistant.account.macros.find_by('LOWER(name) = ?', name.downcase)
-    if existing_macro.present?
-      return {
-        'content' => "A macro named '#{existing_macro.name}' already exists (ID: #{existing_macro.id}). " \
-                     "Would you like to update the existing macro using the update_macro tool, or create a new one with a different name?",
-        'entities' => [format_macro_entity(existing_macro)]
-      }
-    end
-
-    parsed_actions = parse_json_param(actions, 'actions')
-    return parsed_actions if parsed_actions.is_a?(String)
-
-    normalized_actions = normalize_actions(parsed_actions)
-    return normalized_actions if normalized_actions.is_a?(String)
-
-    macro = create_macro(name, normalized_actions)
-
-    Rails.logger.info do
-      details = { macro_id: macro.id, name: name, actions_count: normalized_actions.size }
-      "#{self.class.name}: create_macro for assistant #{@assistant&.id} - #{details.inspect}"
-    end
-
-    {
-      'content' => "Macro '#{name}' created successfully with #{normalized_actions.size} action(s)",
-      'entities' => [format_macro_entity(macro)]
-    }
+    parsed_actions, normalized_actions = validation
+    create_macro_with_logging(name, normalized_actions)
   end
 
   def format_macro_entity(macro)
@@ -104,12 +83,44 @@ class Captain::Tools::Copilot::CreateMacroService < Captain::Tools::BaseTool
 
   private
 
-  def parse_json_param(value, param_name)
-    return value if value.is_a?(Array)
+  def validate_macro_params(name, actions)
+    return 'Macro name is required' if name.blank?
 
-    JSON.parse(value)
-  rescue JSON::ParserError
-    "Invalid JSON for #{param_name}. Please provide a valid JSON array."
+    existing = check_existing_macro(name)
+    return existing if existing.is_a?(Hash)
+
+    parsed_actions = parse_json_param(actions, 'actions')
+    return parsed_actions if parsed_actions.is_a?(String)
+
+    normalized_actions = normalize_actions(parsed_actions)
+    return normalized_actions if normalized_actions.is_a?(String)
+
+    [parsed_actions, normalized_actions]
+  end
+
+  def check_existing_macro(name)
+    existing_macro = @assistant.account.macros.find_by('LOWER(name) = ?', name.downcase)
+    return nil unless existing_macro.present?
+
+    {
+      'content' => "A macro named '#{existing_macro.name}' already exists (ID: #{existing_macro.id}). " \
+                   'Would you like to update the existing macro using the update_macro tool, or create a new one with a different name?',
+      'entities' => [format_macro_entity(existing_macro)]
+    }
+  end
+
+  def create_macro_with_logging(name, normalized_actions)
+    macro = create_macro(name, normalized_actions)
+
+    Rails.logger.info do
+      details = { macro_id: macro.id, name: name, actions_count: normalized_actions.size }
+      "#{self.class.name}: create_macro for assistant #{@assistant&.id} - #{details.inspect}"
+    end
+
+    {
+      'content' => "Macro '#{name}' created successfully with #{normalized_actions.size} action(s)",
+      'entities' => [format_macro_entity(macro)]
+    }
   end
 
   def normalize_actions(actions)
@@ -120,9 +131,7 @@ class Captain::Tools::Copilot::CreateMacroService < Captain::Tools::BaseTool
       action = action.with_indifferent_access
       action_name = action[:action_name]
 
-      unless Macro::ACTIONS_ATTRS.include?(action_name)
-        return "Invalid action '#{action_name}'. Valid: #{Macro::ACTIONS_ATTRS.join(', ')}"
-      end
+      return "Invalid action '#{action_name}'. Valid: #{Macro::ACTIONS_ATTRS.join(', ')}" unless Macro::ACTIONS_ATTRS.include?(action_name)
 
       { 'action_name' => action_name, 'action_params' => Array(action[:action_params]) }
     end

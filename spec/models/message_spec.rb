@@ -751,7 +751,8 @@ RSpec.describe Message do
     context 'when advanced search feature is not enabled for account on chatwoot cloud' do
       before do
         allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(true)
-        account.disable_features('advanced_search_indexing')
+        allow(account).to receive(:feature_enabled?).and_call_original
+        allow(account).to receive(:feature_enabled?).with('advanced_search_indexing').and_return(false)
       end
 
       it 'returns false' do
@@ -828,7 +829,8 @@ RSpec.describe Message do
 
       it 'does not call reindex_for_search for unpaid account on cloud' do
         allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(true)
-        account.disable_features('advanced_search_indexing')
+        allow(account).to receive(:feature_enabled?).and_call_original
+        allow(account).to receive(:feature_enabled?).with('advanced_search_indexing').and_return(false)
         message = build(:message, conversation: conversation, account: account, message_type: :incoming)
         expect(message).not_to receive(:reindex_for_search)
         message.save!

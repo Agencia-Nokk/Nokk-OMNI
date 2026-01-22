@@ -12,7 +12,7 @@ class Api::V1::Accounts::Shop::OrdersController < Api::V1::Accounts::BaseControl
     if @order.update(order_params)
       render :show
     else
-      render json: { errors: @order.errors }, status: :unprocessable_entity
+      render json: { errors: @order.errors }, status: :unprocessable_content
     end
   end
 
@@ -25,7 +25,7 @@ class Api::V1::Accounts::Shop::OrdersController < Api::V1::Accounts::BaseControl
     @order.cancel!
     render :show
   rescue StandardError => e
-    render json: { error: e.message }, status: :unprocessable_entity
+    render json: { error: e.message }, status: :unprocessable_content
   end
 
   private

@@ -549,7 +549,10 @@ RSpec.describe Conversation do
         updated_at: conversation.updated_at.to_f,
         waiting_since: conversation.waiting_since.to_i,
         priority: nil,
-        unread_count: 0
+        unread_count: 0,
+        applied_sla: nil,
+        sla_events: [],
+        sla_policy_id: nil
       }
     end
 

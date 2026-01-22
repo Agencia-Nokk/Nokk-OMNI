@@ -3,7 +3,7 @@
     "HEADER": "Conversas",
     "LOADING_CHART": "Carregando dados do gráfico...",
     "NO_ENOUGH_DATA": "Não existem dados suficientes para gerar o relatório. Tente novamente mais tarde.",
-    "DOWNLOAD_AGENT_REPORTS": "Baixar relatórios de agentes",
+    "DOWNLOAD_AGENT_REPORTS": "Baixar relatórios de usuários",
     "DATA_FETCHING_FAILED": "Falha ao buscar dados, tente novamente mais tarde.",
     "SUMMARY_FETCHING_FAILED": "Não foi possível obter o resumo. Tente novamente mais tarde.",
     "METRICS": {
@@ -127,12 +127,12 @@
     }
   },
   "AGENT_REPORTS": {
-    "HEADER": "Visão Geral de Agentes",
-    "DESCRIPTION": "Acompanhe facilmente o desempenho do agente com métricas-chave, como conversas, tempos de resposta, tempos de resolução e casos resolvidos. Clique no nome de um agente para saber mais.",
+    "HEADER": "Visão Geral de Usuários",
+    "DESCRIPTION": "Acompanhe facilmente o desempenho do usuário com métricas-chave, como conversas, tempos de resposta, tempos de resolução e casos resolvidos. Clique no nome de um usuário para saber mais.",
     "LOADING_CHART": "Carregando dados do gráfico...",
     "NO_ENOUGH_DATA": "Não existem dados suficientes para gerar o relatório. Tente novamente mais tarde.",
-    "DOWNLOAD_AGENT_REPORTS": "Baixar relatórios de agentes",
-    "FILTER_DROPDOWN_LABEL": "Selecione Agente",
+    "DOWNLOAD_AGENT_REPORTS": "Baixar relatórios de usuários",
+    "FILTER_DROPDOWN_LABEL": "Selecione Usuário",
     "METRICS": {
       "CONVERSATIONS": {
         "NAME": "Conversas",
@@ -407,13 +407,13 @@
     "DOWNLOAD_FAILED": "Falha ao baixar Relatórios CSAT",
     "FILTERS": {
       "AGENTS": {
-        "PLACEHOLDER": "Escolher agentes"
+        "PLACEHOLDER": "Escolher usuários"
       }
     },
     "TABLE": {
       "HEADER": {
         "CONTACT_NAME": "Contato",
-        "AGENT_NAME": "Agente atribuído",
+        "AGENT_NAME": "Usuário atribuído",
         "RATING": "Classificação",
         "FEEDBACK_TEXT": "Comentário do feedback"
       }
@@ -450,7 +450,7 @@
       },
       "HANDOFF_RATE": {
         "LABEL": "Taxa de entrega",
-        "TOOLTIP": "Número total de conversas entregues a agentes / número total de conversas mantidas pelo bot * 100"
+        "TOOLTIP": "Número total de conversas entregues a usuários / número total de conversas mantidas pelo bot * 100"
       }
     }
   },
@@ -480,11 +480,11 @@
       "DOWNLOAD_REPORT": "Baixar relatório"
     },
     "AGENT_CONVERSATIONS": {
-      "HEADER": "Conversas por agentes",
-      "LOADING_MESSAGE": "Carregando métricas de agente...",
-      "NO_AGENTS": "Não há conversas por agentes",
+      "HEADER": "Conversas por usuários",
+      "LOADING_MESSAGE": "Carregando métricas de usuário...",
+      "NO_AGENTS": "Não há conversas por usuários",
       "TABLE_HEADER": {
-        "AGENT": "Agente",
+        "AGENT": "Usuário",
         "OPEN": "Abertas",
         "UNATTENDED": "Não atendidas",
         "STATUS": "Status"
@@ -503,7 +503,7 @@
       }
     },
     "AGENT_STATUS": {
-      "HEADER": "Status do agente",
+      "HEADER": "Status do usuário",
       "ONLINE": "Disponível",
       "BUSY": "Ocupado",
       "OFFLINE": "Desconectado"
@@ -533,14 +533,14 @@
       "SEARCH": "Filtro de pesquisa",
       "INPUT_PLACEHOLDER": {
         "SLA": "Nome do SLA",
-        "AGENTS": "Nome do Agente",
+        "AGENTS": "Nome do Usuário",
         "INBOXES": "Nome da Caixa de Entrada",
         "LABELS": "Nome da etiqueta",
         "TEAMS": "Nome do Time"
       },
       "SLA": "Política SLA",
       "INBOXES": "Caixa de Entrada",
-      "AGENTS": "Agente",
+      "AGENTS": "Usuário",
       "LABELS": "Nome do campo",
       "TEAMS": "Time"
     },
@@ -563,14 +563,14 @@
       "HEADER": {
         "POLICY": "Política",
         "CONVERSATION": "Conversas",
-        "AGENT": "Agente"
+        "AGENT": "Usuário"
       },
       "VIEW_DETAILS": "Ver detalhes"
     }
   },
   "SUMMARY_REPORTS": {
     "INBOX": "Caixa de Entrada",
-    "AGENT": "Agente",
+    "AGENT": "Usuário",
     "TEAM": "Time",
     "LABEL": "Nome do campo",
     "AVG_RESOLUTION_TIME": "Tempo Médio de Resolução",

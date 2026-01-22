@@ -1,5 +1,6 @@
 module PortalHelper
   include UrlHelper
+
   def set_og_image_url(portal_name, title)
     cdn_url = GlobalConfig.get('OG_IMAGE_CDN_URL')['OG_IMAGE_CDN_URL']
     return if cdn_url.blank?

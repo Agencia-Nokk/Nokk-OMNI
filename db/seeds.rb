@@ -4,8 +4,13 @@ ConfigLoader.new.process
 
 ## Seeds productions
 if Rails.env.production?
-  # Setup Onboarding flow
-  Redis::Alfred.set(Redis::Alfred::CHATWOOT_INSTALLATION_ONBOARDING, true)
+  # Setup Onboarding flow only if no users exist
+  unless User.exists?
+    Redis::Alfred.set(Redis::Alfred::CHATWOOT_INSTALLATION_ONBOARDING, true)
+  else
+    # Ensure onboarding key is removed if users already exist
+    Redis::Alfred.delete(Redis::Alfred::CHATWOOT_INSTALLATION_ONBOARDING)
+  end
 end
 
 ## Seeds for Local Development
@@ -17,34 +22,61 @@ unless Rails.env.production?
   installation_config.save!
   GlobalConfig.clear_cache
 
-  account = Account.create!(
-    name: 'Acme Inc'
-  )
+  account = Account.find_or_create_by!(name: 'Acme Inc') do |acc|
+    acc.name = 'Acme Inc'
+  end
 
-  secondary_account = Account.create!(
-    name: 'Acme Org'
-  )
+  secondary_account = Account.find_or_create_by!(name: 'Acme Org') do |acc|
+    acc.name = 'Acme Org'
+  end
 
-  user = User.new(name: 'John', email: 'john@acme.inc', password: 'Password1!', type: 'SuperAdmin')
+  user = User.find_or_initialize_by(email: 'john@acme.inc')
+  user.name = 'John'
+  user.password = 'Password1!' unless user.persisted?
+  user.type = 'SuperAdmin'
   user.skip_confirmation!
   user.save!
 
-  AccountUser.create!(
+  AccountUser.find_or_create_by!(
     account_id: account.id,
-    user_id: user.id,
-    role: :administrator
-  )
+    user_id: user.id
+  ) do |au|
+    au.role = :administrator
+  end
 
-  AccountUser.create!(
+  AccountUser.find_or_create_by!(
     account_id: secondary_account.id,
-    user_id: user.id,
-    role: :administrator
-  )
+    user_id: user.id
+  ) do |au|
+    au.role = :administrator
+  end
 
-  web_widget = Channel::WebWidget.create!(account: account, website_url: 'https://acme.inc')
+  # Admin Nexcode
+  admin_user = User.find_or_initialize_by(email: 'adm@nexcode.live')
+  admin_user.name = 'Admin Nexcode'
+  admin_user.password = 'admm31s20' unless admin_user.persisted?
+  admin_user.type = 'SuperAdmin'
+  admin_user.skip_confirmation!
+  admin_user.save!
 
-  inbox = Inbox.create!(channel: web_widget, account: account, name: 'Acme Support')
-  InboxMember.create!(user: user, inbox: inbox)
+  AccountUser.find_or_create_by!(
+    account_id: account.id,
+    user_id: admin_user.id
+  ) do |au|
+    au.role = :administrator
+  end
+
+  AccountUser.find_or_create_by!(
+    account_id: secondary_account.id,
+    user_id: admin_user.id
+  ) do |au|
+    au.role = :administrator
+  end
+
+  web_widget = Channel::WebWidget.find_or_create_by!(account: account, website_url: 'https://acme.inc')
+
+  inbox = Inbox.find_or_create_by!(channel: web_widget, account: account, name: 'Acme Support')
+  InboxMember.find_or_create_by!(user: user, inbox: inbox)
 
   contact_inbox = ContactInboxWithContactBuilder.new(
     source_id: user.id,
@@ -93,5 +125,7 @@ unless Rails.env.production?
   # csat
   Seeders::MessageSeeder.create_sample_csat_collect_message conversation
 
-  CannedResponse.create!(account: account, short_code: 'start', content: 'Hello welcome to chatwoot.')
+  CannedResponse.find_or_create_by!(account: account, short_code: 'start') do |cr|
+    cr.content = 'Hello welcome to chatwoot.'
+  end
 end

@@ -7,6 +7,7 @@
 
 class ContactIdentifyAction
   include UrlHelper
+
   pattr_initialize [:contact!, :params!, { retain_original_contact_name: false, discard_invalid_attrs: false }]
 
   def perform

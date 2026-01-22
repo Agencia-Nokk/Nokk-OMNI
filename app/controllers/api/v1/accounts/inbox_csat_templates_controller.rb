@@ -29,7 +29,7 @@ class Api::V1::Accounts::InboxCsatTemplatesController < Api::V1::Accounts::BaseC
     result = create_template_via_provider(template_params)
     render_template_creation_result(result)
   rescue ActionController::ParameterMissing
-    render json: { error: 'Template parameters are required' }, status: :unprocessable_entity
+    render json: { error: 'Template parameters are required' }, status: :unprocessable_content
   rescue StandardError => e
     Rails.logger.error "Error creating CSAT template: #{e.message}"
     render json: { error: 'Template creation failed' }, status: :internal_server_error
@@ -54,7 +54,7 @@ class Api::V1::Accounts::InboxCsatTemplatesController < Api::V1::Accounts::BaseC
   end
 
   def render_missing_message_error
-    render json: { error: 'Message is required' }, status: :unprocessable_entity
+    render json: { error: 'Message is required' }, status: :unprocessable_content
   end
 
   def create_template_via_provider(template_params)
@@ -95,7 +95,7 @@ class Api::V1::Accounts::InboxCsatTemplatesController < Api::V1::Accounts::BaseC
     render json: {
       error: error_message,
       details: whatsapp_error[:technical_details]
-    }, status: :unprocessable_entity
+    }, status: :unprocessable_content
   end
 
   def delete_existing_template_if_needed

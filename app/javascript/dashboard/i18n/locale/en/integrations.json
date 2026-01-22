@@ -343,7 +343,7 @@
     }
   },
   "CAPTAIN": {
-    "NAME": "Captain",
+    "NAME": "Elai Robot",
     "HEADER_KNOW_MORE": "Know more",
     "ASSISTANT_SWITCHER": {
       "ASSISTANTS": "Assistants",
@@ -352,13 +352,13 @@
       "EMPTY_LIST": "No assistants found, please create one to get started"
     },
     "COPILOT": {
-      "TITLE": "Elai",
+      "TITLE": "Elai Robot",
       "TRY_THESE_PROMPTS": "Try these prompts",
-      "PANEL_TITLE": "Get started with Elai",
-      "KICK_OFF_MESSAGE": "Need a quick summary, want to check past conversations, or draft a better reply? Elai’s here to speed things up.",
+      "PANEL_TITLE": "Get started with Elai Robot",
+      "KICK_OFF_MESSAGE": "Need a quick summary, want to check past conversations, or draft a better reply? Elai Robot’s here to speed things up.",
       "SEND_MESSAGE": "Send message...",
       "EMPTY_MESSAGE": "There was an error generating the response. Please try again.",
-      "LOADER": "Captain is thinking",
+      "LOADER": "Elai Robot is thinking",
       "YOU": "You",
       "USE": "Use this",
       "RESET": "Reset",
@@ -397,6 +397,38 @@
         "CREATE_AUTOMATION": {
           "LABEL": "Create automation assign VIP",
           "CONTENT": "Create automation 'Auto-assign VIP': event 'conversation created', condition 'contact label' equals 'VIP', action 'assign to team' Support."
+        },
+        "CREATE_SLA_POLICY": {
+          "LABEL": "Create Premium SLA",
+          "CONTENT": "Create an SLA policy named 'Premium' with first response in 1 hour, next response in 2 hours and resolution in 24 hours, valid only during business hours."
+        },
+        "CREATE_TEAM": {
+          "LABEL": "Create support team",
+          "CONTENT": "Create a team named 'tech-support' with description 'L2 technical support team' and enable automatic conversation distribution."
+        },
+        "CREATE_LABEL": {
+          "LABEL": "Create urgent label",
+          "CONTENT": "Create a label 'urgent' with red color (#e53e3e), description 'Cases that need immediate attention' and show on sidebar."
+        },
+        "CREATE_CANNED_RESPONSE": {
+          "LABEL": "Create quick reply",
+          "CONTENT": "Create a canned response with code 'welcome' and content 'Hello {{ contact.name }}, thank you for reaching out! How can I help you today?'"
+        },
+        "CREATE_CUSTOM_ATTRIBUTE": {
+          "LABEL": "Create plan attribute",
+          "CONTENT": "Create a custom attribute for contacts named 'Subscription Plan' of type list with options: Free, Starter, Pro and Enterprise."
+        },
+        "CREATE_CUSTOM_ROLE": {
+          "LABEL": "Create leader role",
+          "CONTENT": "Create a custom role 'Support Lead' with permissions to manage conversations and view reports."
+        },
+        "CREATE_AGENT": {
+          "LABEL": "Invite new agent",
+          "CONTENT": "Invite a new agent with email 'new.agent@company.com', name 'John Smith' and role 'agent'."
+        },
+        "CREATE_AGENT_BOT": {
+          "LABEL": "Create welcome bot",
+          "CONTENT": "Create a bot named 'Welcome Bot' with description 'Greets customers and collects initial information'."
         }
       }
     },
@@ -409,8 +441,8 @@
       "CREDIT_NOTE": "Messages sent here will count toward your Captain credits."
     },
     "PAYWALL": {
-      "TITLE": "Upgrade to use Captain AI",
-      "AVAILABLE_ON": "Captain is not available on the free plan.",
+      "TITLE": "Upgrade to use Elai Robot",
+      "AVAILABLE_ON": "Elai Robot is not available on the free plan.",
       "UPGRADE_PROMPT": "Upgrade your plan to get access to our assistants, copilot and more.",
       "UPGRADE_NOW": "Upgrade now",
       "CANCEL_ANYTIME": "You can change or cancel your plan anytime"
@@ -420,8 +452,8 @@
       "ASK_ADMIN": "Please reach out to your administrator for the upgrade."
     },
     "BANNER": {
-      "RESPONSES": "You've used over 80% of your response limit. To continue using Captain AI, please upgrade.",
-      "DOCUMENTS": "Document limit reached. Upgrade to continue using Captain AI."
+      "RESPONSES": "You've used over 80% of your response limit. To continue using Elai Robot, please upgrade.",
+      "DOCUMENTS": "Document limit reached. Upgrade to continue using Elai Robot."
     },
     "FORM": {
       "CANCEL": "Cancel",

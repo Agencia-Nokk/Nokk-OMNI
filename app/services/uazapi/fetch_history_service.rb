@@ -255,7 +255,7 @@ class Uazapi::FetchHistoryService
     raw_id.include?(':') ? raw_id.split(':').last : raw_id
   end
 
-  def has_media?(msg_data) # rubocop:disable Naming/PredicateName
+  def has_media?(msg_data)
     type = (msg_data['type'] || msg_data['messageType'] || '').downcase
     media_type = (msg_data['mediaType'] || '').downcase
     media_types = %w[image video audio document sticker ptt media]

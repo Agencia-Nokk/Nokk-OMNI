@@ -31,8 +31,8 @@ class Account < ApplicationRecord
 
   before_validation :generate_slug, on: :create
   before_validation :regenerate_slug_if_name_changed, on: :update
-  
-  validates :slug, presence: true, uniqueness: true, format: { with: /\A[a-z0-9\-]+\z/ }
+
+  validates :slug, presence: true, uniqueness: true, format: { with: /\A[a-z0-9-]+\z/ }
 
   SETTINGS_PARAMS_SCHEMA = {
     'type': 'object',
@@ -202,21 +202,22 @@ class Account < ApplicationRecord
 
   def generate_slug
     return if slug.present?
-    
+
     base_slug = name.parameterize
     new_slug = base_slug
     counter = 1
-    
+
     while Account.exists?(slug: new_slug)
       new_slug = "#{base_slug}-#{counter}"
       counter += 1
     end
-    
+
     self.slug = new_slug
   end
-  
+
   def regenerate_slug_if_name_changed
     return unless name_changed? && !slug_changed?
+
     generate_slug
   end
 end

@@ -1,4 +1,6 @@
 class Captain::Tools::Copilot::DeleteAgentService < Captain::Tools::BaseTool
+  include Captain::Tools::Concerns::AgentHelpers
+
   def self.name
     'delete_agent'
   end
@@ -14,26 +16,11 @@ class Captain::Tools::Copilot::DeleteAgentService < Captain::Tools::BaseTool
   param :agent_id, type: :number, desc: 'ID of the agent to remove'
 
   def execute(agent_id:)
-    agent = find_agent(agent_id)
-    return 'Agent not found' unless agent
+    result = find_and_validate_agent_for_deletion(agent_id)
+    return result if result.is_a?(String)
 
-    account_user = agent.account_users.find { |au| au.account_id == @assistant.account.id }
-    return 'Agent not found in this account' unless account_user
-
-    # Prevent self-deletion
-    if @user && agent.id == @user.id
-      return 'You cannot remove yourself from the account'
-    end
-
-    agent_name = agent.available_name || agent.name
-    agent_email = agent.email
-
-    account_user.destroy!
-
-    # Delete user record if they have no other accounts
-    DeleteObjectJob.perform_later(agent) if agent.reload.account_users.blank?
-
-    "Agent '#{agent_name}' (#{agent_email}) has been removed from the account"
+    agent, account_user = result
+    delete_agent(agent, account_user)
   end
 
   def active?
@@ -42,9 +29,24 @@ class Captain::Tools::Copilot::DeleteAgentService < Captain::Tools::BaseTool
 
   private
 
-  def find_agent(agent_id)
-    @assistant.account.users.includes(:account_users)
-              .where(account_users: { role: [:agent, :administrator] })
-              .find_by(id: agent_id)
+  def find_and_validate_agent_for_deletion(agent_id)
+    agent = find_agent(agent_id)
+    return 'Agent not found' unless agent
+
+    account_user = find_account_user(agent)
+    return 'Agent not found in this account' unless account_user
+    return 'You cannot remove yourself from the account' if @user && agent.id == @user.id
+
+    [agent, account_user]
+  end
+
+  def delete_agent(agent, account_user)
+    agent_name = agent.available_name || agent.name
+    agent_email = agent.email
+
+    account_user.destroy!
+    DeleteObjectJob.perform_later(agent) if agent.reload.account_users.blank?
+
+    "Agent '#{agent_name}' (#{agent_email}) has been removed from the account"
   end
 end

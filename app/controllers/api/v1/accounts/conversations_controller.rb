@@ -69,7 +69,7 @@ class Api::V1::Accounts::ConversationsController < Api::V1::Accounts::BaseContro
   end
 
   def transcript
-    render json: { error: 'email param missing' }, status: :unprocessable_entity and return if params[:email].blank?
+    render json: { error: 'email param missing' }, status: :unprocessable_content and return if params[:email].blank?
 
     ConversationReplyMailer.with(account: @conversation.account).conversation_transcript(@conversation, params[:email])&.deliver_later
     head :ok
@@ -185,7 +185,7 @@ class Api::V1::Accounts::ConversationsController < Api::V1::Accounts::BaseContro
     @contact_inbox ||= ::ContactInbox.find_by!(source_id: params[:source_id])
     authorize @contact_inbox.inbox, :show?
   rescue ActiveRecord::RecordNotUnique
-    render json: { error: 'source_id should be unique' }, status: :unprocessable_entity
+    render json: { error: 'source_id should be unique' }, status: :unprocessable_content
   end
 
   def build_contact_inbox

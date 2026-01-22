@@ -1,7 +1,7 @@
 # =========================
 # NODE BASE (somente para copiar binários)
 # =========================
-FROM node:24-slim AS node
+FROM node:23-slim AS node
 
 # =========================
 # PRE-BUILDER

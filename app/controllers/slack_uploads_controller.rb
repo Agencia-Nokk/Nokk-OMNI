@@ -1,5 +1,6 @@
 class SlackUploadsController < ApplicationController
   include Rails.application.routes.url_helpers
+
   before_action :set_blob, only: [:show]
 
   def show

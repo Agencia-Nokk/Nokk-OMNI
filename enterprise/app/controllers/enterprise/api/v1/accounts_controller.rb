@@ -1,5 +1,6 @@
 class Enterprise::Api::V1::AccountsController < Api::BaseController
   include BillingHelper
+
   before_action :fetch_account
   before_action :check_authorization
   before_action :check_cloud_env, only: [:limits, :toggle_deletion]
@@ -51,12 +52,12 @@ class Enterprise::Api::V1::AccountsController < Api::BaseController
     when 'undelete'
       unmark_for_deletion
     else
-      render json: { error: 'Invalid action_type. Must be either "delete" or "undelete"' }, status: :unprocessable_entity
+      render json: { error: 'Invalid action_type. Must be either "delete" or "undelete"' }, status: :unprocessable_content
     end
   end
 
   def topup_checkout
-    return render json: { error: I18n.t('errors.topup.credits_required') }, status: :unprocessable_entity if params[:credits].blank?
+    return render json: { error: I18n.t('errors.topup.credits_required') }, status: :unprocessable_content if params[:credits].blank?
 
     service = Enterprise::Billing::TopupCheckoutService.new(account: @account)
     result = service.create_checkout_session(credits: params[:credits].to_i)
@@ -104,7 +105,7 @@ class Enterprise::Api::V1::AccountsController < Api::BaseController
     if @account.mark_for_deletion(reason)
       render json: { message: 'Account marked for deletion' }, status: :ok
     else
-      render json: { message: @account.errors.full_messages.join(', ') }, status: :unprocessable_entity
+      render json: { message: @account.errors.full_messages.join(', ') }, status: :unprocessable_content
     end
   end
 
@@ -112,7 +113,7 @@ class Enterprise::Api::V1::AccountsController < Api::BaseController
     if @account.unmark_for_deletion
       render json: { message: 'Account unmarked for deletion' }, status: :ok
     else
-      render json: { message: @account.errors.full_messages.join(', ') }, status: :unprocessable_entity
+      render json: { message: @account.errors.full_messages.join(', ') }, status: :unprocessable_content
     end
   end
 
