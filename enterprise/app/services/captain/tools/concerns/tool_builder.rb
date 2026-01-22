@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/ModuleLength
 module Captain::Tools::Concerns::ToolBuilder
   extend ActiveSupport::Concern
 
@@ -102,8 +103,22 @@ module Captain::Tools::Concerns::ToolBuilder
     ].map { |klass| klass.new(@assistant, user: tool_user) }
   end
 
+  def custom_tool_tools
+    [
+      Captain::Tools::Copilot::SearchApiDocumentationService,
+      Captain::Tools::Copilot::ReadApiDocumentationService,
+      Captain::Tools::Copilot::AnalyzeApiSpecService,
+      Captain::Tools::Copilot::ListCustomToolsService,
+      Captain::Tools::Copilot::GetCustomToolService,
+      Captain::Tools::Copilot::CreateCustomToolService,
+      Captain::Tools::Copilot::UpdateCustomToolService,
+      Captain::Tools::Copilot::DeleteCustomToolService
+    ].map { |klass| klass.new(@assistant, user: tool_user) }
+  end
+
   # Override in subclass to provide correct user
   def tool_user
     nil
   end
 end
+# rubocop:enable Metrics/ModuleLength

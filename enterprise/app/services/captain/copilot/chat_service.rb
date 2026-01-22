@@ -84,7 +84,8 @@ class Captain::Copilot::ChatService < Llm::BaseAiService
   end
 
   def settings_tools
-    label_tools + canned_response_tools + agent_bot_tools + custom_attribute_tools + custom_role_tools + sla_policy_tools + audit_log_tools
+    label_tools + canned_response_tools + agent_bot_tools + custom_attribute_tools + custom_role_tools + sla_policy_tools +
+      audit_log_tools + custom_tool_tools
   end
 
   def agent_bot_tools
