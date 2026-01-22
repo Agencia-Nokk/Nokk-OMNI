@@ -397,6 +397,38 @@
         "CREATE_AUTOMATION": {
           "LABEL": "Create automation assign VIP",
           "CONTENT": "Create automation 'Auto-assign VIP': event 'conversation created', condition 'contact label' equals 'VIP', action 'assign to team' Support."
+        },
+        "CREATE_SLA_POLICY": {
+          "LABEL": "Create Premium SLA",
+          "CONTENT": "Create an SLA policy named 'Premium' with first response in 1 hour, next response in 2 hours and resolution in 24 hours, valid only during business hours."
+        },
+        "CREATE_TEAM": {
+          "LABEL": "Create support team",
+          "CONTENT": "Create a team named 'tech-support' with description 'L2 technical support team' and enable automatic conversation distribution."
+        },
+        "CREATE_LABEL": {
+          "LABEL": "Create urgent label",
+          "CONTENT": "Create a label 'urgent' with red color (#e53e3e), description 'Cases that need immediate attention' and show on sidebar."
+        },
+        "CREATE_CANNED_RESPONSE": {
+          "LABEL": "Create quick reply",
+          "CONTENT": "Create a canned response with code 'welcome' and content 'Hello {{ contact.name }}, thank you for reaching out! How can I help you today?'"
+        },
+        "CREATE_CUSTOM_ATTRIBUTE": {
+          "LABEL": "Create plan attribute",
+          "CONTENT": "Create a custom attribute for contacts named 'Subscription Plan' of type list with options: Free, Starter, Pro and Enterprise."
+        },
+        "CREATE_CUSTOM_ROLE": {
+          "LABEL": "Create leader role",
+          "CONTENT": "Create a custom role 'Support Lead' with permissions to manage conversations and view reports."
+        },
+        "CREATE_AGENT": {
+          "LABEL": "Invite new agent",
+          "CONTENT": "Invite a new agent with email 'new.agent@company.com', name 'John Smith' and role 'agent'."
+        },
+        "CREATE_AGENT_BOT": {
+          "LABEL": "Create welcome bot",
+          "CONTENT": "Create a bot named 'Welcome Bot' with description 'Greets customers and collects initial information'."
         }
       }
     },

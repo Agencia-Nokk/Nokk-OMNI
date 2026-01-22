@@ -400,6 +400,38 @@
         "CREATE_AUTOMATION": {
           "LABEL": "Criar automação atribuir VIP",
           "CONTENT": "Crie uma automação 'Auto-atribuir VIP': evento 'conversa criada', condição 'etiqueta do contato' igual a 'VIP', ação 'atribuir ao time' Suporte."
+        },
+        "CREATE_SLA_POLICY": {
+          "LABEL": "Criar SLA Premium",
+          "CONTENT": "Crie uma política SLA chamada 'Premium' com primeira resposta em 1 hora, próxima resposta em 2 horas e resolução em 24 horas, válida apenas durante horário comercial."
+        },
+        "CREATE_TEAM": {
+          "LABEL": "Criar time de suporte",
+          "CONTENT": "Crie um time chamado 'suporte-tecnico' com descrição 'Time de suporte técnico L2' e ative a distribuição automática de conversas."
+        },
+        "CREATE_LABEL": {
+          "LABEL": "Criar etiqueta urgente",
+          "CONTENT": "Crie uma etiqueta 'urgente' com cor vermelha (#e53e3e), descrição 'Casos que precisam de atenção imediata' e mostre na barra lateral."
+        },
+        "CREATE_CANNED_RESPONSE": {
+          "LABEL": "Criar resposta rápida",
+          "CONTENT": "Crie uma resposta rápida com código 'boas-vindas' e conteúdo 'Olá {{ contact.name }}, obrigado por entrar em contato! Como posso ajudá-lo hoje?'"
+        },
+        "CREATE_CUSTOM_ATTRIBUTE": {
+          "LABEL": "Criar atributo de plano",
+          "CONTENT": "Crie um atributo personalizado para contatos chamado 'Plano de Assinatura' do tipo lista com opções: Free, Starter, Pro e Enterprise."
+        },
+        "CREATE_CUSTOM_ROLE": {
+          "LABEL": "Criar função de líder",
+          "CONTENT": "Crie uma função personalizada 'Líder de Suporte' com permissões para gerenciar conversas e visualizar relatórios."
+        },
+        "CREATE_AGENT": {
+          "LABEL": "Convidar novo agente",
+          "CONTENT": "Convide um novo agente com email 'novo.agente@empresa.com', nome 'João Silva' e função 'agente'."
+        },
+        "CREATE_AGENT_BOT": {
+          "LABEL": "Criar bot de boas-vindas",
+          "CONTENT": "Crie um bot chamado 'Bot de Boas-vindas' com descrição 'Recebe clientes e coleta informações iniciais'."
         }
       }
     },

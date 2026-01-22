@@ -6,23 +6,46 @@ class Captain::Tools::Copilot::CreateCustomAttributeService < Captain::Tools::Ba
   end
 
   description <<~DESC
-    Create a new custom attribute definition for conversations or contacts.
+    Create a new custom attribute definition for conversations or contacts. Custom attributes allow you to store additional data specific to your business needs.
 
-    **Parameters:**
-    - attribute_display_name: Required. Display name shown in the UI.
-    - attribute_key: Required. Unique key for the attribute (lowercase, no spaces, use underscores).
-    - attribute_model: Required. Either "conversation" or "contact".
-    - attribute_display_type: Required. Type of the attribute:
-      - "text" - Free text field
-      - "number" - Numeric value
-      - "currency" - Currency amount
-      - "percent" - Percentage value
-      - "link" - URL link
-      - "date" - Date picker
-      - "list" - Dropdown list (requires attribute_values)
-      - "checkbox" - Boolean checkbox
-    - attribute_description: Optional. Description of the attribute.
-    - attribute_values: Optional. JSON array of values for "list" type (e.g., '["High", "Medium", "Low"]').
+    **When to use:** Use this tool when you need to track custom data on contacts or conversations. For example: subscription plans, customer segments, order numbers, or satisfaction scores.
+
+    **Complete Example:**
+    To create a "Subscription Plan" dropdown for contacts:
+    {
+      "attribute_display_name": "Subscription Plan",
+      "attribute_key": "subscription_plan",
+      "attribute_model": "contact",
+      "attribute_display_type": "list",
+      "attribute_description": "Customer's current subscription tier",
+      "attribute_values": '["Free", "Starter", "Pro", "Enterprise"]'
+    }
+
+    **Display Types:**
+    - text: Free text field (names, notes, IDs)
+    - number: Numeric value (quantities, scores)
+    - currency: Currency amount (order value, lifetime value)
+    - percent: Percentage value (discount, completion rate)
+    - link: URL link (profile links, external references)
+    - date: Date picker (signup date, renewal date)
+    - list: Dropdown with predefined options (requires attribute_values)
+    - checkbox: Boolean yes/no (verified, VIP status)
+
+    **Common Use Cases for Contacts:**
+    1. Subscription: type="list", values=["Free", "Pro", "Enterprise"]
+    2. Customer Since: type="date"
+    3. Lifetime Value: type="currency"
+    4. VIP Status: type="checkbox"
+    5. LinkedIn Profile: type="link"
+
+    **Common Use Cases for Conversations:**
+    1. Priority Score: type="number"
+    2. Issue Category: type="list", values=["Bug", "Feature", "Question"]
+    3. Escalation Level: type="list", values=["L1", "L2", "L3"]
+    4. Order Number: type="text"
+    5. Resolution Date: type="date"
+
+    For more details: https://www.chatwoot.com/docs/product/features/custom-attributes
   DESC
 
   param :attribute_display_name, type: :string, desc: 'Display name for the attribute'

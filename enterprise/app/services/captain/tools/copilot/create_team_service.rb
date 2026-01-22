@@ -6,13 +6,33 @@ class Captain::Tools::Copilot::CreateTeamService < Captain::Tools::BaseTool
   end
 
   description <<~DESC
-    Create a new team in the account. Teams are used to group agents and route conversations.
+    Create a new team in the account. Teams are used to group agents and route conversations efficiently.
+
+    **When to use:** Use this tool when you need to organize agents into groups for better conversation routing. For example: creating specialized support teams, regional teams, or skill-based groups.
+
+    **Complete Example:**
+    To create a billing support team with specific members:
+    {
+      "name": "billing-support",
+      "description": "Handles payment and subscription issues",
+      "allow_auto_assign": true,
+      "member_ids": "[1, 5, 12]"
+    }
 
     **Parameters:**
-    - name: Required. Team name (will be converted to lowercase).
-    - description: Optional. Description of the team's purpose.
-    - allow_auto_assign: Optional. Enable auto-assignment of conversations (default: true).
-    - member_ids: Optional. JSON array of agent IDs to add as members (e.g., "[1, 2, 3]").
+    - name: Team name (will be converted to lowercase, use hyphens for spaces)
+    - description: Purpose of the team
+    - allow_auto_assign: Auto-distribute new conversations among team members (default: true)
+    - member_ids: JSON array of agent IDs (use list_agents to find IDs)
+
+    **Common Use Cases:**
+    1. Sales Team: name="sales", allow_auto_assign=true, member_ids="[1, 2, 3]"
+    2. Technical Support: name="tech-support", description="L2 technical issues", allow_auto_assign=true
+    3. VIP Support: name="vip-support", description="Premium customers only", allow_auto_assign=false
+    4. Regional Team: name="latam-support", description="Latin America support team"
+
+    **Tip:** Use allow_auto_assign=false for teams where conversations need manual assignment (e.g., VIP support).
+    For more details: https://www.chatwoot.com/docs/product/features/teams
   DESC
 
   param :name, type: :string, desc: 'Team name'
@@ -39,7 +59,7 @@ class Captain::Tools::Copilot::CreateTeamService < Captain::Tools::BaseTool
     return 'Team name is required' if name.blank?
 
     existing = @assistant.account.teams.find_by(name: name.downcase)
-    return unless existing.present?
+    return if existing.blank?
 
     {
       'content' => "A team with name '#{name}' already exists.",
@@ -66,7 +86,7 @@ class Captain::Tools::Copilot::CreateTeamService < Captain::Tools::BaseTool
   end
 
   def add_team_members(team, member_ids)
-    return unless member_ids.present?
+    return if member_ids.blank?
 
     ids = parse_member_ids(member_ids)
     team.add_members(ids) if ids.any?

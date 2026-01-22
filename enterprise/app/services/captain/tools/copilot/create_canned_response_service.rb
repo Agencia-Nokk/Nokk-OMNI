@@ -6,13 +6,33 @@ class Captain::Tools::Copilot::CreateCannedResponseService < Captain::Tools::Bas
   description <<~DESC
     Create a new canned response (quick reply) in the account. Canned responses allow agents to quickly insert pre-written messages using short codes.
 
-    **Parameters:**
-    - short_code: Required. The trigger code (e.g., "greeting", "thanks"). Agents type /short_code to insert.
-    - content: Required. The message content. Can include variables like {{ contact.name }}.
+    **When to use:** Use this tool when you need to create reusable message templates for common responses. For example: greetings, thank you messages, FAQ answers, or escalation notices.
 
-    **Examples:**
-    - short_code: "greeting", content: "Hello {{ contact.name }}, how can I help you today?"
-    - short_code: "closing", content: "Thank you for contacting us. Have a great day!"
+    **Complete Example:**
+    To create a greeting response with personalization:
+    {
+      "short_code": "greeting",
+      "content": "Hello {{ contact.name }}, thank you for contacting us! How can I help you today?"
+    }
+
+    **How to Use:** Agents type /short_code in the message box to insert the response.
+
+    **Available Variables:**
+    - {{ contact.name }} - Customer's name
+    - {{ contact.email }} - Customer's email
+    - {{ contact.phone_number }} - Customer's phone
+    - {{ conversation.id }} - Conversation ID
+    - {{ agent.name }} - Agent's name
+
+    **Common Use Cases:**
+    1. Greeting: short_code="hi", content="Hello {{ contact.name }}, how can I help you today?"
+    2. Thank You: short_code="thanks", content="Thank you for contacting us. Have a great day!"
+    3. Hold Message: short_code="hold", content="Please hold while I check this for you."
+    4. Escalation: short_code="escalate", content="I'm transferring you to a specialist who can better assist."
+    5. Business Hours: short_code="hours", content="Our support hours are Mon-Fri 9AM-6PM. We'll respond soon!"
+    6. Refund Info: short_code="refund", content="Refunds are processed within 5-7 business days."
+
+    For more details: https://www.chatwoot.com/docs/product/features/canned-responses
   DESC
 
   param :short_code, type: :string, desc: 'Short code trigger (e.g., "greeting")'
@@ -42,7 +62,7 @@ class Captain::Tools::Copilot::CreateCannedResponseService < Captain::Tools::Bas
 
   def check_existing(short_code)
     existing = @assistant.account.canned_responses.find_by(short_code: short_code)
-    return nil unless existing.present?
+    return nil if existing.blank?
 
     {
       'content' => "A canned response with short code '#{short_code}' already exists (ID: #{existing.id}). " \

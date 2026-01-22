@@ -4,20 +4,34 @@ class Captain::Tools::Copilot::CreateCustomRoleService < Captain::Tools::BaseToo
   end
 
   description <<~DESC
-    Create a new custom role with specific permissions. Custom roles allow fine-grained access control for agents.
+    Create a new custom role with specific permissions. Custom roles allow fine-grained access control for agents beyond the default "agent" and "administrator" roles.
+
+    **When to use:** Use this tool when you need to create specialized roles with limited access. For example: support-only agents, team leads with reporting access, or content managers for knowledge base.
+
+    **Complete Example:**
+    To create a "Support Lead" role that can manage conversations and view reports:
+    {
+      "name": "Support Lead",
+      "description": "Team leads who manage conversations and view reports",
+      "permissions": ["conversation_manage", "report_manage"]
+    }
 
     **Available Permissions:**
-    - conversation_manage: Can manage all conversations
-    - conversation_unassigned_manage: Can manage unassigned conversations and assign to self
-    - conversation_participating_manage: Can manage conversations they are participating in
-    - contact_manage: Can manage contacts
-    - report_manage: Can manage reports
-    - knowledge_base_manage: Can manage knowledge base portals
+    - conversation_manage: Full access to all conversations (view, assign, resolve)
+    - conversation_unassigned_manage: Can only manage unassigned conversations and assign to self
+    - conversation_participating_manage: Can only manage conversations they are participating in
+    - contact_manage: Can view, create, edit, and delete contacts
+    - report_manage: Can access and export reports
+    - knowledge_base_manage: Can manage help center portals and articles
 
-    **Parameters:**
-    - name: Required. The name of the custom role
-    - description: Optional. Description of what this role is for
-    - permissions: Required. JSON array of permission strings from the list above
+    **Common Use Cases:**
+    1. Basic Agent: ["conversation_participating_manage"] - Only handle assigned conversations
+    2. Support Lead: ["conversation_manage", "report_manage"] - Manage all conversations + reports
+    3. Content Manager: ["knowledge_base_manage"] - Only manage help center content
+    4. Full Support: ["conversation_manage", "contact_manage"] - Conversations + contacts
+    5. Team Manager: ["conversation_manage", "contact_manage", "report_manage"] - Full support access
+
+    For more details: https://www.chatwoot.com/docs/product/features/custom-roles
   DESC
 
   param :name, type: :string, desc: 'Name of the custom role'

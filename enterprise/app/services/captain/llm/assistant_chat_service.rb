@@ -28,54 +28,109 @@ class Captain::Llm::AssistantChatService < Llm::BaseAiService
   private
 
   def build_tools
-    tools = []
-    tools << Captain::Tools::SearchDocumentationService.new(@assistant, user: nil)
-
-    # Macro tools
-    tools << Captain::Tools::Copilot::CreateMacroService.new(@assistant, user: nil)
-    tools << Captain::Tools::Copilot::ListMacrosService.new(@assistant, user: nil)
-    tools << Captain::Tools::Copilot::GetMacroService.new(@assistant, user: nil)
-    tools << Captain::Tools::Copilot::UpdateMacroService.new(@assistant, user: nil)
-    tools << Captain::Tools::Copilot::DeleteMacroService.new(@assistant, user: nil)
-
-    # Automation tools
-    tools << Captain::Tools::Copilot::CreateAutomationRuleService.new(@assistant, user: nil)
-    tools << Captain::Tools::Copilot::ListAutomationRulesService.new(@assistant, user: nil)
-    tools << Captain::Tools::Copilot::GetAutomationRuleService.new(@assistant, user: nil)
-    tools << Captain::Tools::Copilot::UpdateAutomationRuleService.new(@assistant, user: nil)
-    tools << Captain::Tools::Copilot::DeleteAutomationRuleService.new(@assistant, user: nil)
-
-    # Agent tools
-    tools << Captain::Tools::Copilot::CreateAgentService.new(@assistant, user: nil)
-    tools << Captain::Tools::Copilot::GetAgentService.new(@assistant, user: nil)
-    tools << Captain::Tools::Copilot::UpdateAgentService.new(@assistant, user: nil)
-    tools << Captain::Tools::Copilot::DeleteAgentService.new(@assistant, user: nil)
-    tools << Captain::Tools::Copilot::ListAgentsService.new(@assistant, user: nil)
-
-    # Team tools
-    tools << Captain::Tools::Copilot::CreateTeamService.new(@assistant, user: nil)
-    tools << Captain::Tools::Copilot::GetTeamService.new(@assistant, user: nil)
-    tools << Captain::Tools::Copilot::UpdateTeamService.new(@assistant, user: nil)
-    tools << Captain::Tools::Copilot::DeleteTeamService.new(@assistant, user: nil)
-    tools << Captain::Tools::Copilot::ListTeamsService.new(@assistant, user: nil)
-
-    # Label tools
-    tools << Captain::Tools::Copilot::CreateLabelService.new(@assistant, user: nil)
-    tools << Captain::Tools::Copilot::UpdateLabelService.new(@assistant, user: nil)
-    tools << Captain::Tools::Copilot::DeleteLabelService.new(@assistant, user: nil)
-    tools << Captain::Tools::Copilot::ListLabelsService.new(@assistant, user: nil)
-
-    # Canned Response tools
-    tools << Captain::Tools::Copilot::CreateCannedResponseService.new(@assistant, user: nil)
-    tools << Captain::Tools::Copilot::UpdateCannedResponseService.new(@assistant, user: nil)
-    tools << Captain::Tools::Copilot::DeleteCannedResponseService.new(@assistant, user: nil)
-
-    # Custom Attribute tools
-    tools << Captain::Tools::Copilot::CreateCustomAttributeService.new(@assistant, user: nil)
-    tools << Captain::Tools::Copilot::UpdateCustomAttributeService.new(@assistant, user: nil)
-    tools << Captain::Tools::Copilot::DeleteCustomAttributeService.new(@assistant, user: nil)
-
+    tools = [Captain::Tools::SearchDocumentationService.new(@assistant, user: nil)]
+    tools.concat(macro_tools)
+    tools.concat(automation_tools)
+    tools.concat(agent_tools)
+    tools.concat(team_tools)
+    tools.concat(settings_tools)
     tools.select(&:active?)
+  end
+
+  def macro_tools
+    [
+      Captain::Tools::Copilot::CreateMacroService,
+      Captain::Tools::Copilot::ListMacrosService,
+      Captain::Tools::Copilot::GetMacroService,
+      Captain::Tools::Copilot::UpdateMacroService,
+      Captain::Tools::Copilot::DeleteMacroService
+    ].map { |klass| klass.new(@assistant, user: nil) }
+  end
+
+  def automation_tools
+    [
+      Captain::Tools::Copilot::CreateAutomationRuleService,
+      Captain::Tools::Copilot::ListAutomationRulesService,
+      Captain::Tools::Copilot::GetAutomationRuleService,
+      Captain::Tools::Copilot::UpdateAutomationRuleService,
+      Captain::Tools::Copilot::DeleteAutomationRuleService
+    ].map { |klass| klass.new(@assistant, user: nil) }
+  end
+
+  def agent_tools
+    [
+      Captain::Tools::Copilot::CreateAgentService,
+      Captain::Tools::Copilot::GetAgentService,
+      Captain::Tools::Copilot::UpdateAgentService,
+      Captain::Tools::Copilot::DeleteAgentService,
+      Captain::Tools::Copilot::ListAgentsService
+    ].map { |klass| klass.new(@assistant, user: nil) }
+  end
+
+  def team_tools
+    [
+      Captain::Tools::Copilot::CreateTeamService,
+      Captain::Tools::Copilot::GetTeamService,
+      Captain::Tools::Copilot::UpdateTeamService,
+      Captain::Tools::Copilot::DeleteTeamService,
+      Captain::Tools::Copilot::ListTeamsService
+    ].map { |klass| klass.new(@assistant, user: nil) }
+  end
+
+  def settings_tools
+    label_tools + canned_response_tools + custom_attribute_tools + custom_role_tools + sla_policy_tools + audit_log_tools
+  end
+
+  def label_tools
+    [
+      Captain::Tools::Copilot::CreateLabelService,
+      Captain::Tools::Copilot::UpdateLabelService,
+      Captain::Tools::Copilot::DeleteLabelService,
+      Captain::Tools::Copilot::ListLabelsService
+    ].map { |klass| klass.new(@assistant, user: nil) }
+  end
+
+  def canned_response_tools
+    [
+      Captain::Tools::Copilot::CreateCannedResponseService,
+      Captain::Tools::Copilot::UpdateCannedResponseService,
+      Captain::Tools::Copilot::DeleteCannedResponseService
+    ].map { |klass| klass.new(@assistant, user: nil) }
+  end
+
+  def custom_attribute_tools
+    [
+      Captain::Tools::Copilot::CreateCustomAttributeService,
+      Captain::Tools::Copilot::UpdateCustomAttributeService,
+      Captain::Tools::Copilot::DeleteCustomAttributeService
+    ].map { |klass| klass.new(@assistant, user: nil) }
+  end
+
+  def custom_role_tools
+    [
+      Captain::Tools::Copilot::CreateCustomRoleService,
+      Captain::Tools::Copilot::GetCustomRoleService,
+      Captain::Tools::Copilot::ListCustomRolesService,
+      Captain::Tools::Copilot::UpdateCustomRoleService,
+      Captain::Tools::Copilot::DeleteCustomRoleService
+    ].map { |klass| klass.new(@assistant, user: nil) }
+  end
+
+  def sla_policy_tools
+    [
+      Captain::Tools::Copilot::CreateSlaPolicyService,
+      Captain::Tools::Copilot::GetSlaPolicyService,
+      Captain::Tools::Copilot::ListSlaPoliciesService,
+      Captain::Tools::Copilot::UpdateSlaPolicyService,
+      Captain::Tools::Copilot::DeleteSlaPolicyService
+    ].map { |klass| klass.new(@assistant, user: nil) }
+  end
+
+  def audit_log_tools
+    [
+      Captain::Tools::Copilot::ListAuditLogsService,
+      Captain::Tools::Copilot::GetAuditLogService
+    ].map { |klass| klass.new(@assistant, user: nil) }
   end
 
   def system_message

@@ -8,12 +8,26 @@ class Captain::Tools::Copilot::CreateAgentService < Captain::Tools::BaseTool
   description <<~DESC
     Invite a new agent to the account. An invitation email will be sent to the provided email address.
 
-    **Parameters:**
-    - email: Required. Email address of the agent to invite.
-    - name: Optional. Name of the agent (defaults to email prefix if not provided).
-    - role: Optional. Role of the agent: 'agent' or 'administrator' (default: 'agent').
+    **When to use:** Use this tool when you need to add new team members to the support system. For example: onboarding new hires, adding managers, or expanding the support team.
 
-    **Note:** The invited user will receive an email to set up their password and access the account.
+    **Complete Example:**
+    To invite a new support agent:
+    {
+      "email": "john.doe@company.com",
+      "name": "John Doe",
+      "role": "agent"
+    }
+
+    **Roles:**
+    - agent: Can handle conversations and manage contacts (default)
+    - administrator: Full access including settings, reports, and team management
+
+    **Common Use Cases:**
+    1. New Support Agent: email="support@company.com", role="agent"
+    2. Team Manager: email="manager@company.com", role="administrator"
+    3. Quick Invite: email="user@company.com" (uses email prefix as name, role defaults to agent)
+
+    **Note:** The invited user will receive an email to set up their password and access the account. They can start handling conversations immediately after setup.
   DESC
 
   param :email, type: :string, desc: 'Email address of the agent to invite'
@@ -51,8 +65,8 @@ class Captain::Tools::Copilot::CreateAgentService < Captain::Tools::BaseTool
   end
 
   def check_existing_agent(email)
-    existing_user = @assistant.account.users.find_by(email: email)
-    return nil unless existing_user.present?
+    existing_user = @assistant.account.users.from_email(email)
+    return nil if existing_user.blank?
 
     {
       'content' => "An agent with email '#{email}' already exists in this account.",

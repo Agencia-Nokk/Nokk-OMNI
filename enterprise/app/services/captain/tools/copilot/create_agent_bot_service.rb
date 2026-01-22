@@ -4,15 +4,37 @@ class Captain::Tools::Copilot::CreateAgentBotService < Captain::Tools::BaseTool
   end
 
   description <<~DESC
-    Create a new agent bot in the account. Agent bots are automated assistants that
-    handle conversations via webhooks.
+    Create a new agent bot in the account. Agent bots are automated assistants that handle conversations via webhooks or built-in AI capabilities.
 
-    **Parameters:**
-    - name: Required. Name of the bot.
-    - description: Optional. Description of what the bot does.
-    - outgoing_url: Optional. Webhook URL where the bot will receive events.
+    **When to use:** Use this tool when you need to create an automated bot to handle conversations. For example: welcome bots, FAQ bots, lead qualification bots, or custom integrations with external systems.
 
-    **Note:** After creating the bot, you can connect it to inboxes through the settings page.
+    **Complete Example:**
+    To create a welcome bot that greets customers:
+    {
+      "name": "Welcome Bot",
+      "description": "Greets new customers and collects initial information",
+      "outgoing_url": "https://api.example.com/webhook/chatwoot"
+    }
+
+    **Bot Types:**
+    - Webhook Bot: Sends events to your URL and receives responses (requires outgoing_url)
+    - Captain Bot: Uses built-in AI (configure separately after creation)
+
+    **Webhook Events Received:**
+    - conversation_created: New conversation started
+    - conversation_status_changed: Status changed (open/resolved/pending)
+    - message_created: New message received
+    - message_updated: Message was edited
+
+    **Common Use Cases:**
+    1. Welcome Bot: Greet customers and collect initial info
+    2. FAQ Bot: Answer common questions automatically
+    3. Lead Qualifier: Collect contact info before routing to agent
+    4. After-Hours Bot: Handle conversations outside business hours
+    5. Integration Bot: Connect to external CRM/ticketing systems
+
+    **Note:** After creating the bot, connect it to inboxes in Settings > Inboxes > Select inbox > Agent Bot.
+    For webhook integration: https://www.chatwoot.com/docs/product/features/agent-bots
   DESC
 
   param :name, type: :string, desc: 'Name of the agent bot'
