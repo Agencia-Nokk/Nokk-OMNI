@@ -19,9 +19,9 @@
     "story:build": "histoire build",
     "story:preview": "histoire preview",
     "sync:i18n": "bin/sync_i18n_file_change",
-    "assets:precompile": "bundle exec rails assets:precompile",
-    "build:production": "NODE_ENV=production pnpm build:sdk && NODE_ENV=production bin/vite build && SECRET_KEY_BASE=${SECRET_KEY_BASE:-precompile_placeholder} RAILS_ENV=production bundle exec rails assets:precompile",
-    "start:production": "RAILS_ENV=production bundle exec rails server -b 0.0.0.0 -p ${PORT:-3000}",
+    "assets:precompile": "eval \"$(rbenv init -)\" && bundle exec rails assets:precompile",
+    "build:production": "NODE_ENV=production pnpm build:sdk && NODE_ENV=production bin/vite build && eval \"$(rbenv init -)\" && SECRET_KEY_BASE=${SECRET_KEY_BASE:-precompile_placeholder} RAILS_ENV=production bundle exec rails assets:precompile",
+    "start:production": "eval \"$(rbenv init -)\" && RAILS_ENV=production bundle exec rails server -b 0.0.0.0 -p ${PORT:-3000}",
     "production": "pnpm build:production && pnpm start:production",
     "healthcheck:dev": "curl -f -s -o /dev/null -w 'Health check: HTTP %{http_code} - %{time_total}s\\n' http://localhost:3000/ && echo '✅ Health check passed - Application is healthy' || (echo '❌ Health check failed - Application is not responding' && exit 1)",
     "healthcheck:production": "curl -f -s -o /dev/null -w 'Health check: HTTP %{http_code} - %{time_total}s\\n' http://localhost:${PORT:-3000}/ && echo '✅ Health check passed - Application is healthy' || (echo '❌ Health check failed - Application is not responding' && exit 1)"
