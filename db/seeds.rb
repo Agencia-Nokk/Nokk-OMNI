@@ -4,8 +4,13 @@ ConfigLoader.new.process
 
 ## Seeds productions
 if Rails.env.production?
-  # Setup Onboarding flow
-  Redis::Alfred.set(Redis::Alfred::CHATWOOT_INSTALLATION_ONBOARDING, true)
+  # Setup Onboarding flow only if no users exist
+  unless User.exists?
+    Redis::Alfred.set(Redis::Alfred::CHATWOOT_INSTALLATION_ONBOARDING, true)
+  else
+    # Ensure onboarding key is removed if users already exist
+    Redis::Alfred.delete(Redis::Alfred::CHATWOOT_INSTALLATION_ONBOARDING)
+  end
 end
 
 ## Seeds for Local Development
