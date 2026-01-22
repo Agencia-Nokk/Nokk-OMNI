@@ -14,7 +14,7 @@ class Api::V1::Accounts::Shop::CategoriesController < Api::V1::Accounts::BaseCon
     if @category.save
       render :show, status: :created
     else
-      render json: { errors: @category.errors }, status: :unprocessable_entity
+      render json: { errors: @category.errors }, status: :unprocessable_content
     end
   end
 
@@ -22,7 +22,7 @@ class Api::V1::Accounts::Shop::CategoriesController < Api::V1::Accounts::BaseCon
     if @category.update(category_params)
       render :show
     else
-      render json: { errors: @category.errors }, status: :unprocessable_entity
+      render json: { errors: @category.errors }, status: :unprocessable_content
     end
   end
 

@@ -425,7 +425,7 @@ RSpec.describe 'WhatsApp Authorization API', type: :request do
 
       context 'when channel is not WhatsApp' do
         let(:facebook_channel) do
-          stub_request(:post, 'https://graph.facebook.com/v3.2/me/subscribed_apps')
+          stub_request(:post, %r{https://graph\.facebook\.com/v\d+\.\d+/me/subscribed_apps})
             .to_return(status: 200, body: '{}', headers: {})
 
           channel = create(:channel_facebook_page, account: account)

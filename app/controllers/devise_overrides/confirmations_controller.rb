@@ -1,5 +1,6 @@
 class DeviseOverrides::ConfirmationsController < Devise::ConfirmationsController
   include AuthHelper
+
   skip_before_action :require_no_authentication, raise: false
   skip_before_action :authenticate_user!, raise: false
 
@@ -19,11 +20,11 @@ class DeviseOverrides::ConfirmationsController < Devise::ConfirmationsController
 
   def render_confirmation_error
     if @confirmable.blank?
-      render json: { message: 'Invalid token', redirect_url: '/' }, status: :unprocessable_entity
+      render json: { message: 'Invalid token', redirect_url: '/' }, status: :unprocessable_content
     elsif @confirmable.confirmed_at
-      render json: { message: 'Already confirmed', redirect_url: '/' }, status: :unprocessable_entity
+      render json: { message: 'Already confirmed', redirect_url: '/' }, status: :unprocessable_content
     else
-      render json: { message: 'Failure', redirect_url: '/' }, status: :unprocessable_entity
+      render json: { message: 'Failure', redirect_url: '/' }, status: :unprocessable_content
     end
   end
 

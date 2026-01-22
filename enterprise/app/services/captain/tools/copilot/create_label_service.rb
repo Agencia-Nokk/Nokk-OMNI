@@ -4,13 +4,40 @@ class Captain::Tools::Copilot::CreateLabelService < Captain::Tools::BaseTool
   end
 
   description <<~DESC
-    Create a new label in the account. Labels are used to categorize and organize conversations.
+    Create a new label in the account. Labels are used to categorize and organize conversations for easy filtering and reporting.
+
+    **When to use:** Use this tool when you need to categorize conversations by topic, priority, or status. For example: tagging support categories, marking VIP customers, or tracking issues.
+
+    **Complete Example:**
+    To create a "billing" label with a red color:
+    {
+      "title": "billing",
+      "color": "#e53e3e",
+      "description": "Payment and subscription issues",
+      "show_on_sidebar": true
+    }
 
     **Parameters:**
-    - title: Required. Label name (lowercase, alphanumeric, hyphens, underscores only)
-    - color: Optional. Hex color code (default: #7a4aff)
-    - description: Optional. Description of the label
-    - show_on_sidebar: Optional. Whether to show on sidebar (default: false)
+    - title: Label name (lowercase, alphanumeric, hyphens, underscores only)
+    - color: Hex color code for visual identification
+    - description: What this label represents
+    - show_on_sidebar: Quick access from sidebar (useful for frequent labels)
+
+    **Common Color Codes:**
+    - Red: #e53e3e (urgent, billing issues)
+    - Orange: #ed8936 (warning, follow-up needed)
+    - Green: #48bb78 (resolved, positive feedback)
+    - Blue: #4299e1 (technical, feature request)
+    - Purple: #9f7aea (VIP, premium)
+    - Gray: #a0aec0 (archived, low priority)
+
+    **Common Use Cases:**
+    1. Support Categories: "billing", "technical", "sales", "general"
+    2. Priority Tags: "urgent", "high-priority", "follow-up"
+    3. Customer Segments: "vip", "enterprise", "trial"
+    4. Issue Types: "bug-report", "feature-request", "feedback"
+
+    For more details: https://www.chatwoot.com/docs/product/features/labels
   DESC
 
   param :title, type: :string, desc: 'Label title (lowercase, alphanumeric, hyphens, underscores)'

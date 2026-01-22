@@ -42,7 +42,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['update:automationData']);
+const emit = defineEmits(['update:automationData', 'save', 'cancel']);
 
 const { t } = useI18n();
 
@@ -244,6 +244,8 @@ onUnmounted(() => {
     <NodePalette
       :event-name="automation.event_name"
       @add-node="handleAddNode"
+      @save="emit('save')"
+      @cancel="emit('cancel')"
     />
 
     <!-- Painel de configuração - ao lado da paleta -->

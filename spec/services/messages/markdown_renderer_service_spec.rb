@@ -338,7 +338,9 @@ RSpec.describe Messages::MarkdownRendererService, type: :service do
         content = "1. first\n2. second"
         result = described_class.new(content, channel_type).render
         expect(result).to include('<ol>')
-        expect(result).to include('<li>first</li>')
+        expect(result).to include('<li>')
+        expect(result).to include('first')
+        expect(result).to include('second')
       end
 
       it 'converts strikethrough to HTML' do

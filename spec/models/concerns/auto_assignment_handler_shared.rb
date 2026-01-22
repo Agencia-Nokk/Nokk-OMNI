@@ -19,7 +19,10 @@ shared_examples_for 'auto_assignment_handler' do
 
     before do
       create(:inbox_member, inbox: inbox, user: agent)
-      allow(Redis::Alfred).to receive(:rpoplpush).and_return(agent.id)
+      allow(OnlineStatusTracker).to receive(:get_available_users).and_return({ agent.id.to_s => 'online' })
+      # Mock feature_enabled? to use legacy assignment system (not v2) on any Account instance
+      allow_any_instance_of(Account).to receive(:feature_enabled?).and_call_original
+      allow_any_instance_of(Account).to receive(:feature_enabled?).with('assignment_v2').and_return(false)
     end
 
     it 'runs round robin on after_save callbacks' do
@@ -54,10 +57,16 @@ shared_examples_for 'auto_assignment_handler' do
       # round robin changes assignee in this case since agent doesn't have access to inbox
       agent2 = create(:user, email: 'agent2@example.com', account: account, auto_offline: false)
       create(:inbox_member, inbox: inbox, user: agent2)
-      allow(Redis::Alfred).to receive(:rpoplpush).and_return(agent2.id)
-      conversation.status = 'open'
-      conversation.save!
-      expect(conversation.reload.assignee).to eq(agent2)
+      allow(OnlineStatusTracker).to receive(:get_available_users).and_return({ agent2.id.to_s => 'online' })
+
+      # Work with fresh conversation to avoid cached associations
+      fresh_conversation = Conversation.find(conversation.id)
+      fresh_conversation.inbox.association(:members).reset
+      fresh_conversation.inbox.association(:inbox_members).reset
+
+      fresh_conversation.status = 'open'
+      fresh_conversation.save!
+      expect(fresh_conversation.reload.assignee).to eq(agent2)
     end
   end
 end

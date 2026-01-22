@@ -1,18 +1,18 @@
 {
   "AGENT_MGMT": {
-    "HEADER": "Agentes",
-    "HEADER_BTN_TXT": "Adicionar Agente",
-    "LOADING": "Buscando lista de agente",
-    "DESCRIPTION": "Um agente é um membro de seu time de atendimento ao cliente que pode visualizar e responder às mensagens de usuários. A lista abaixo mostra todos os agentes de sua conta.",
+    "HEADER": "Usuários",
+    "HEADER_BTN_TXT": "Adicionar Usuário",
+    "LOADING": "Buscando lista de usuários",
+    "DESCRIPTION": "Um usuário é um membro de seu time de atendimento ao cliente que pode visualizar e responder às mensagens. A lista abaixo mostra todos os usuários de sua conta.",
     "LEARN_MORE": "Saiba mais sobre as funções do usuário",
     "AGENT_TYPES": {
       "ADMINISTRATOR": "Administrador",
-      "AGENT": "Agente"
+      "AGENT": "Atendente"
     },
     "LIST": {
-      "404": "Não existem agentes associados a esta conta",
-      "TITLE": "Gerenciar agentes de seu time",
-      "DESC": "Você pode adicionar e/ou remover agentes de um time.",
+      "404": "Não existem usuários associados a esta conta",
+      "TITLE": "Gerenciar usuários de seu time",
+      "DESC": "Você pode adicionar e/ou remover usuários de um time.",
       "NAME": "Nome",
       "EMAIL": "E-mail",
       "STATUS": "Status",
@@ -22,13 +22,13 @@
       "AVAILABLE_CUSTOM_ROLE": "Permissões de função personalizada disponíveis"
     },
     "ADD": {
-      "TITLE": "Adicionar agente a seu time",
+      "TITLE": "Adicionar usuário ao time",
       "DESC": "Você pode adicionar pessoas que poderão acompanhar o suporte de suas caixas de entrada.",
       "CANCEL_BUTTON_TEXT": "Cancelar",
       "FORM": {
         "NAME": {
-          "LABEL": "Nome do Agente",
-          "PLACEHOLDER": "Por favor, insira o nome do agente"
+          "LABEL": "Nome do Usuário",
+          "PLACEHOLDER": "Por favor, insira o nome do usuário"
         },
         "AGENT_TYPE": {
           "LABEL": "Função",
@@ -37,35 +37,35 @@
         },
         "EMAIL": {
           "LABEL": "Endereço de e-mail",
-          "PLACEHOLDER": "Por favor, insira um endereço de e-mail do agente"
+          "PLACEHOLDER": "Por favor, insira um endereço de e-mail do usuário"
         },
-        "SUBMIT": "Adicionar agente"
+        "SUBMIT": "Adicionar usuário"
       },
       "API": {
-        "SUCCESS_MESSAGE": "Agente adicionado com sucesso",
-        "EXIST_MESSAGE": "O E-mail do informado já está uso, por favor tente outro endereço de e-mail",
-        "ERROR_MESSAGE": "Não foi possível conectar ao servidor Woot, por favor tente novamente mais tarde"
+        "SUCCESS_MESSAGE": "Usuário adicionado com sucesso",
+        "EXIST_MESSAGE": "O e-mail informado já está em uso, por favor tente outro endereço de e-mail",
+        "ERROR_MESSAGE": "Não foi possível conectar ao servidor, por favor tente novamente mais tarde"
       }
     },
     "DELETE": {
       "BUTTON_TEXT": "Excluir",
       "API": {
-        "SUCCESS_MESSAGE": "Agente excluído com sucesso",
-        "ERROR_MESSAGE": "Não foi possível conectar ao servidor Woot, por favor tente novamente mais tarde"
+        "SUCCESS_MESSAGE": "Usuário excluído com sucesso",
+        "ERROR_MESSAGE": "Não foi possível conectar ao servidor, por favor tente novamente mais tarde"
       },
       "CONFIRM": {
         "TITLE": "Confirmar exclusão",
         "MESSAGE": "Você tem certeza que deseja excluir ",
         "YES": "Sim, excluir ",
-        "NO": "Não, Mantenha "
+        "NO": "Não, Manter "
       }
     },
     "EDIT": {
-      "TITLE": "Editar Agente",
+      "TITLE": "Editar Usuário",
       "FORM": {
         "NAME": {
-          "LABEL": "Nome do Agente",
-          "PLACEHOLDER": "Por favor, insira um nome do agente"
+          "LABEL": "Nome do Usuário",
+          "PLACEHOLDER": "Por favor, insira o nome do usuário"
         },
         "AGENT_TYPE": {
           "LABEL": "Função",
@@ -73,27 +73,27 @@
           "ERROR": "É necessária uma função"
         },
         "EMAIL": {
-          "LABEL": "Endereço de email",
-          "PLACEHOLDER": "Por favor, insira um endereço de e-mail do agente"
+          "LABEL": "Endereço de e-mail",
+          "PLACEHOLDER": "Por favor, insira um endereço de e-mail do usuário"
         },
         "AGENT_AVAILABILITY": {
           "LABEL": "Disponibilidade",
-          "PLACEHOLDER": "Por favor, selecione a disponibilidade do agente",
+          "PLACEHOLDER": "Por favor, selecione a disponibilidade do usuário",
           "ERROR": "A disponibilidade é necessária"
         },
-        "SUBMIT": "Editar agente"
+        "SUBMIT": "Salvar usuário"
       },
       "BUTTON_TEXT": "Alterar",
       "CANCEL_BUTTON_TEXT": "Cancelar",
       "API": {
-        "SUCCESS_MESSAGE": "Agente atualizado com sucesso",
-        "ERROR_MESSAGE": "Não foi possível conectar ao servidor Woot, por favor tente novamente mais tarde"
+        "SUCCESS_MESSAGE": "Usuário atualizado com sucesso",
+        "ERROR_MESSAGE": "Não foi possível conectar ao servidor, por favor tente novamente mais tarde"
       },
       "PASSWORD_RESET": {
         "ADMIN_RESET_BUTTON": "Redefinir a senha",
-        "ADMIN_SUCCESS_MESSAGE": "Um e-mail com instruções de redefinição de senha foi enviado para o agente",
-        "SUCCESS_MESSAGE": "Senha do agente redefinida com sucesso",
-        "ERROR_MESSAGE": "Não foi possível conectar ao servidor Woot, por favor tente novamente mais tarde"
+        "ADMIN_SUCCESS_MESSAGE": "Um e-mail com instruções de redefinição de senha foi enviado para o usuário",
+        "SUCCESS_MESSAGE": "Senha do usuário redefinida com sucesso",
+        "ERROR_MESSAGE": "Não foi possível conectar ao servidor, por favor tente novamente mais tarde"
       }
     },
     "SEARCH": {
@@ -102,7 +102,7 @@
     "MULTI_SELECTOR": {
       "PLACEHOLDER": "Nenhum",
       "TITLE": {
-        "AGENT": "Selecionar agente",
+        "AGENT": "Selecionar usuário",
         "TEAM": "Selecionar time"
       },
       "LIST": {
@@ -110,13 +110,13 @@
       },
       "SEARCH": {
         "NO_RESULTS": {
-          "AGENT": "Nenhum agente encontrado",
+          "AGENT": "Nenhum usuário encontrado",
           "TEAM": "Nenhum time encontrado"
         },
         "PLACEHOLDER": {
-          "AGENT": "Pesquisar agentes",
+          "AGENT": "Pesquisar usuários",
           "TEAM": "Pesquisar times",
-          "INPUT": "Pesquisar por agentes"
+          "INPUT": "Pesquisar por usuários"
         }
       }
     }

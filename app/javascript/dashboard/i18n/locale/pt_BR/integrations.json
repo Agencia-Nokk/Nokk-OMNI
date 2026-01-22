@@ -111,7 +111,7 @@
       },
       "HELP_TEXT": {
         "TITLE": "Usando a integração com Slack",
-        "BODY": "Com essa integração, todas as suas conversas recebidas serão sincronizadas com o canal ***{selectedChannelName}*** em seu espaço de trabalho Slack. Você pode gerenciar todas as suas conversas com clientes diretamente no canal e nunca perder uma mensagem.\n\nAqui estão os principais recursos da integração:\n\n**Responda a conversas de dentro do Slack:** Para responder a uma conversa no canal ***{selectedChannelName}*** Slack, simplesmente digite a sua mensagem e envie-a como um tópico. Isso criará uma resposta ao cliente através do Chatwoot. É tão simples!\n\n **Crie notas privadas:** Se você quiser criar notas privadas em vez de respostas, inicie sua mensagem com ***`nota:`***. Isso garante que sua mensagem seja privada e não seja visível para o cliente.\n\n**Associar um perfil de agente:** Se a pessoa que respondeu no Slack tem um perfil de agente no Chatwoot sob o mesmo e-mail, as respostas serão associadas automaticamente com esse perfil de agente. Isso significa que você pode facilmente controlar quem disse o quê e quando. Por outro lado, quando o respondente não tiver um perfil de agente associado, as respostas aparecerão do perfil do bot para o cliente.",
+        "BODY": "Com essa integração, todas as suas conversas recebidas serão sincronizadas com o canal ***{selectedChannelName}*** em seu espaço de trabalho Slack. Você pode gerenciar todas as suas conversas com clientes diretamente no canal e nunca perder uma mensagem.\n\nAqui estão os principais recursos da integração:\n\n**Responda a conversas de dentro do Slack:** Para responder a uma conversa no canal ***{selectedChannelName}*** Slack, simplesmente digite a sua mensagem e envie-a como um tópico. Isso criará uma resposta ao cliente através da Nokk. É tão simples!\n\n **Crie notas privadas:** Se você quiser criar notas privadas em vez de respostas, inicie sua mensagem com ***`nota:`***. Isso garante que sua mensagem seja privada e não seja visível para o cliente.\n\n**Associar um perfil de usuário:** Se a pessoa que respondeu no Slack tem um perfil de usuário na Nokk sob o mesmo e-mail, as respostas serão associadas automaticamente com esse perfil de usuário. Isso significa que você pode facilmente controlar quem disse o quê e quando. Por outro lado, quando o respondente não tiver um perfil de usuário associado, as respostas aparecerão do perfil do bot para o cliente.",
         "SELECTED": "selecionar"
       },
       "SELECT_CHANNEL": {
@@ -198,8 +198,8 @@
     "DASHBOARD_APPS": {
       "TITLE": "Painel de Aplicativos",
       "HEADER_BTN_TXT": "Adicionar um novo aplicativo",
-      "SIDEBAR_TXT": "<p><b>Painel de Aplicativos</b></p><p>O Painel de Aplicativos permite que as organizações incorporem um aplicativo dentro do Painel de Aplicativos do Chatwoot para fornecer o contexto para agentes de suporte ao cliente. Este recurso permite-lhe criar uma aplicação independente e incorporá-la dentro da dashboard para fornecer informações do usuário, seus pedidos ou seu histórico de pagamentos anteriores.</p><p>Quando você incorpora seu aplicativo usando o Painel de Aplicativos do Chatwoot, sua aplicação irá obter o contexto da conversa e entrar em contato como um evento de janela. Implementar um ouvinte para o evento de mensagem em sua página receber o contexto.</p><p>Para adicionar um novo aplicativo no Painel de Aplicativos, clique no botão 'Adicionar um novo aplicativo'.</p>",
-      "DESCRIPTION": "O Painel de Aplicativos permite que organizações incorporem um aplicativo dentro do painel para fornecer o contexto para agentes de suporte ao cliente. Este recurso permite que você crie uma aplicação independente e incorpore para fornecer informações de usuário, seus pedidos ou seu histórico de pagamentos anteriores.",
+      "SIDEBAR_TXT": "<p><b>Painel de Aplicativos</b></p><p>O Painel de Aplicativos permite que as organizações incorporem um aplicativo dentro do Painel de Aplicativos da Nokk para fornecer o contexto para usuários de suporte ao cliente. Este recurso permite-lhe criar uma aplicação independente e incorporá-la dentro da dashboard para fornecer informações do usuário, seus pedidos ou seu histórico de pagamentos anteriores.</p><p>Quando você incorpora seu aplicativo usando o Painel de Aplicativos da Nokk, sua aplicação irá obter o contexto da conversa e entrar em contato como um evento de janela. Implementar um ouvinte para o evento de mensagem em sua página receber o contexto.</p><p>Para adicionar um novo aplicativo no Painel de Aplicativos, clique no botão 'Adicionar um novo aplicativo'.</p>",
+      "DESCRIPTION": "O Painel de Aplicativos permite que organizações incorporem um aplicativo dentro do painel para fornecer o contexto para usuários de suporte ao cliente. Este recurso permite que você crie uma aplicação independente e incorpore para fornecer informações de usuário, seus pedidos ou seu histórico de pagamentos anteriores.",
       "LEARN_MORE": "Saiba mais sobre o Painel de Aplicativos",
       "LIST": {
         "404": "Ainda não há aplicativos nesta conta",
@@ -346,7 +346,7 @@
     }
   },
   "CAPTAIN": {
-    "NAME": "Capitão",
+    "NAME": "Elai Robot",
     "HEADER_KNOW_MORE": "Know more",
     "ASSISTANT_SWITCHER": {
       "ASSISTANTS": "Assistentes",
@@ -355,13 +355,13 @@
       "EMPTY_LIST": "No assistants found, please create one to get started"
     },
     "COPILOT": {
-      "TITLE": "Copiloto",
+      "TITLE": "Elai Robot",
       "TRY_THESE_PROMPTS": "Experimente estes comandos",
-      "PANEL_TITLE": "Comece a usar o Copiloto",
-      "KICK_OFF_MESSAGE": "Precisa de um resumo rápido, quer verificar conversas passadas ou redigir uma resposta melhor? O Copiloto está aqui para acelerar as coisas.",
+      "PANEL_TITLE": "Comece a usar o Elai",
+      "KICK_OFF_MESSAGE": "Precisa de um resumo rápido, quer verificar conversas passadas ou redigir uma resposta melhor? O Elai está aqui para acelerar as coisas.",
       "SEND_MESSAGE": "Enviar mensagem...",
       "EMPTY_MESSAGE": "Houve um erro ao gerar a resposta. Por favor, tente novamente.",
-      "LOADER": "Capitão está pensando",
+      "LOADER": "Elai Robot está pensando",
       "YOU": "Você",
       "USE": "Use isto",
       "RESET": "Reiniciar",
@@ -375,7 +375,7 @@
       "PROMPTS": {
         "SUMMARIZE": {
           "LABEL": "Resumir esta conversa",
-          "CONTENT": "Resuma os pontos-chave discutidos entre o cliente e o agente de suporte, incluindo as preocupações do cliente, as questões e as soluções ou respostas dadas pelo agente de suporte"
+          "CONTENT": "Resuma os pontos-chave discutidos entre o cliente e o atendente, incluindo as preocupações do cliente, as questões e as soluções ou respostas dadas pelo atendente"
         },
         "SUGGEST": {
           "LABEL": "Sugerir uma resposta",
@@ -387,7 +387,7 @@
         },
         "HIGH_PRIORITY": {
           "LABEL": "Conversas de alta prioridade",
-          "CONTENT": "Dê um resumo de todas as conversas abertas com prioridade alta. Incluir o ID da conversa, nome do cliente (se disponível), o conteúdo da última mensagem e o agente atribuído. O grupo por status, se relevante."
+          "CONTENT": "Dê um resumo de todas as conversas abertas com prioridade alta. Incluir o ID da conversa, nome do cliente (se disponível), o conteúdo da última mensagem e o usuário atribuído. O grupo por status, se relevante."
         },
         "LIST_CONTACTS": {
           "LABEL": "Listar contatos",
@@ -400,6 +400,38 @@
         "CREATE_AUTOMATION": {
           "LABEL": "Criar automação atribuir VIP",
           "CONTENT": "Crie uma automação 'Auto-atribuir VIP': evento 'conversa criada', condição 'etiqueta do contato' igual a 'VIP', ação 'atribuir ao time' Suporte."
+        },
+        "CREATE_SLA_POLICY": {
+          "LABEL": "Criar SLA Premium",
+          "CONTENT": "Crie uma política SLA chamada 'Premium' com primeira resposta em 1 hora, próxima resposta em 2 horas e resolução em 24 horas, válida apenas durante horário comercial."
+        },
+        "CREATE_TEAM": {
+          "LABEL": "Criar time de suporte",
+          "CONTENT": "Crie um time chamado 'suporte-tecnico' com descrição 'Time de suporte técnico L2' e ative a distribuição automática de conversas."
+        },
+        "CREATE_LABEL": {
+          "LABEL": "Criar etiqueta urgente",
+          "CONTENT": "Crie uma etiqueta 'urgente' com cor vermelha (#e53e3e), descrição 'Casos que precisam de atenção imediata' e mostre na barra lateral."
+        },
+        "CREATE_CANNED_RESPONSE": {
+          "LABEL": "Criar resposta rápida",
+          "CONTENT": "Crie uma resposta rápida com código 'boas-vindas' e conteúdo 'Olá {{ contact.name }}, obrigado por entrar em contato! Como posso ajudá-lo hoje?'"
+        },
+        "CREATE_CUSTOM_ATTRIBUTE": {
+          "LABEL": "Criar atributo de plano",
+          "CONTENT": "Crie um atributo personalizado para contatos chamado 'Plano de Assinatura' do tipo lista com opções: Free, Starter, Pro e Enterprise."
+        },
+        "CREATE_CUSTOM_ROLE": {
+          "LABEL": "Criar função de líder",
+          "CONTENT": "Crie uma função personalizada 'Líder de Suporte' com permissões para gerenciar conversas e visualizar relatórios."
+        },
+        "CREATE_AGENT": {
+          "LABEL": "Convidar novo agente",
+          "CONTENT": "Convide um novo agente com email 'novo.agente@empresa.com', nome 'João Silva' e função 'agente'."
+        },
+        "CREATE_AGENT_BOT": {
+          "LABEL": "Criar bot de boas-vindas",
+          "CONTENT": "Crie um bot chamado 'Bot de Boas-vindas' com descrição 'Recebe clientes e coleta informações iniciais'."
         }
       }
     },
@@ -409,11 +441,11 @@
       "MESSAGE_PLACEHOLDER": "Digite sua mensagem...",
       "HEADER": "Playground",
       "DESCRIPTION": "Use este playground para enviar mensagens para seu assistente e verificar se ele responde com precisão, rápido e no tom que você espera.",
-      "CREDIT_NOTE": "As mensagens enviadas aqui usam os créditos do seu Capitão."
+      "CREDIT_NOTE": "As mensagens enviadas aqui usam os créditos do seu Elai Robot."
     },
     "PAYWALL": {
-      "TITLE": "Atualize para usar o Capitão IA",
-      "AVAILABLE_ON": "O Capitão não está disponível no plano gratuito.",
+      "TITLE": "Atualize para usar o Elai Robot",
+      "AVAILABLE_ON": "O Elai Robot não está disponível no plano gratuito.",
       "UPGRADE_PROMPT": "Atualize seu plano para ter acesso aos nossos assistentes, copilotos e muito mais.",
       "UPGRADE_NOW": "Atualizar agora",
       "CANCEL_ANYTIME": "Você pode alterar ou cancelar seu plano a qualquer momento"
@@ -423,8 +455,8 @@
       "ASK_ADMIN": "Entre em contato com seu administrador para fazer a atualização."
     },
     "BANNER": {
-      "RESPONSES": "Você usou mais de 80% do seu limite de respostas. Para continuar usando o Capitão AI, faça o upgrade.",
-      "DOCUMENTS": "Limite de documentos atingido. Atualize para continuar usando o Capitão AI."
+      "RESPONSES": "Você usou mais de 80% do seu limite de respostas. Para continuar usando o Elai Robot, faça o upgrade.",
+      "DOCUMENTS": "Limite de documentos atingido. Atualize para continuar usando o Elai Robot."
     },
     "FORM": {
       "CANCEL": "Cancelar",

@@ -4,11 +4,11 @@ describe BaseMarkdownRenderer do
   let(:renderer) { described_class.new }
 
   def render_markdown(markdown)
-    doc = CommonMarker.render_doc(markdown, :DEFAULT)
+    doc = Commonmarker.parse(markdown)
     renderer.render(doc)
   end
 
-  describe '#image' do
+  describe '#render_image' do
     context 'when image has a height' do
       it 'renders the img tag with the correct attributes' do
         markdown = '![Sample Title](https://example.com/image.jpg?cw_image_height=100)'

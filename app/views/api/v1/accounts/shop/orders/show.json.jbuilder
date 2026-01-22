@@ -37,7 +37,7 @@ json.items @order.items do |item|
   json.quantity item.quantity
   json.unit_price item.unit_price
   json.total_price item.total_price
-  
+
   json.product do
     json.id item.product.id
     json.primary_image do
@@ -51,4 +51,3 @@ end
 
 json.created_at @order.created_at
 json.updated_at @order.updated_at
-

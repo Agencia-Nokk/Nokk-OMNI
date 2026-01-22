@@ -79,9 +79,7 @@ class AutomationRules::ActionService < ActionService
 
   def determine_macro_user
     # First, try to use the current assignee (if belongs to the account)
-    if @conversation.assignee.present? && @conversation.assignee.account_users.exists?(account_id: @account.id)
-      return @conversation.assignee
-    end
+    return @conversation.assignee if @conversation.assignee.present? && @conversation.assignee.account_users.exists?(account_id: @account.id)
 
     # If no assignee, try to find the last agent who sent a message in this conversation
     last_agent_message = @conversation.messages

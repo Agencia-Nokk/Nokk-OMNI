@@ -3,21 +3,21 @@ json.array! @carts do |cart|
   json.status cart.status
   json.subtotal cart.subtotal
   json.total_items cart.total_items
-  
+
   json.contact do
     if cart.contact
       json.id cart.contact.id
       json.name cart.contact.name
     end
   end
-  
+
   json.conversation do
     if cart.conversation
       json.id cart.conversation.id
       json.display_id cart.conversation.display_id
     end
   end
-  
+
   json.items cart.items do |item|
     json.id item.id
     json.quantity item.quantity
@@ -35,8 +35,7 @@ json.array! @carts do |cart|
       end
     end
   end
-  
+
   json.created_at cart.created_at
   json.updated_at cart.updated_at
 end
-

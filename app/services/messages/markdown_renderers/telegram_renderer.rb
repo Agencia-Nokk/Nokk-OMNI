@@ -4,57 +4,71 @@ class Messages::MarkdownRenderers::TelegramRenderer < Messages::MarkdownRenderer
     @list_item_number = 0
   end
 
-  def strong(_node)
-    out('<strong>', :children, '</strong>')
+  def render_strong(node)
+    out('<strong>')
+    node.each { |child| traverse(child) }
+    out('</strong>')
   end
 
-  def emph(_node)
-    out('<em>', :children, '</em>')
+  def render_emph(node)
+    out('<em>')
+    node.each { |child| traverse(child) }
+    out('</em>')
   end
 
-  def code(node)
+  def render_code(node)
     out('<code>', node.string_content, '</code>')
   end
 
-  def link(node)
-    out('<a href="', node.url, '">', :children, '</a>')
+  def render_link(node)
+    out('<a href="', node.url, '">')
+    node.each { |child| traverse(child) }
+    out('</a>')
   end
 
-  def strikethrough(_node)
-    out('<del>', :children, '</del>')
+  def render_strikethrough(node)
+    out('<del>')
+    node.each { |child| traverse(child) }
+    out('</del>')
   end
 
-  def blockquote(_node)
-    out('<blockquote>', :children, '</blockquote>')
+  def render_block_quote(node)
+    out('<blockquote>')
+    node.each { |child| traverse(child) }
+    out('</blockquote>')
   end
 
-  def code_block(node)
+  def render_code_block(node)
     out('<pre>', node.string_content, '</pre>')
   end
 
-  def list(node)
+  def render_list(node)
     @list_type = node.list_type
-    @list_item_number = @list_type == :ordered_list ? node.list_start : 0
-    out(:children)
+    @list_item_number = @list_type == :ordered ? node.list_start : 0
+    node.each { |child| traverse(child) }
     cr
   end
 
-  def list_item(_node)
-    if @list_type == :ordered_list
-      out("#{@list_item_number}. ", :children)
+  def render_item(node)
+    if @list_type == :ordered
+      out("#{@list_item_number}. ")
+      node.each { |child| traverse(child) }
       @list_item_number += 1
     else
-      out('• ', :children)
+      out('• ')
+      node.each { |child| traverse(child) }
     end
     cr
   end
 
-  def header(_node)
-    out('<strong>', :children, '</strong>')
+  def render_heading(node)
+    out('<strong>')
+    node.each { |child| traverse(child) }
+    out('</strong>')
     cr
   end
 
-  def softbreak(_node)
+  def render_softbreak(_node)
     out("\n")
   end
 end

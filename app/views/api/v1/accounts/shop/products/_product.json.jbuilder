@@ -1,9 +1,8 @@
-json.extract! product, :id, :name, :slug, :description, :price, :compare_at_price, :sku, :stock_quantity, :track_inventory, :active, :featured, :created_at, :updated_at
+json.extract! product, :id, :name, :slug, :description, :price, :compare_at_price, :sku, :stock_quantity, :track_inventory, :active, :featured,
+              :created_at, :updated_at
 
 json.category do
-  if product.category
-    json.extract! product.category, :id, :name, :slug
-  end
+  json.extract! product.category, :id, :name, :slug if product.category
 end
 
 json.images do
@@ -38,4 +37,3 @@ json.variants product.variants.active do |variant|
   json.active variant.active
   json.in_stock variant.in_stock?
 end
-

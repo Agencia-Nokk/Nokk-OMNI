@@ -1,7 +1,7 @@
 <script setup>
 import Button from 'dashboard/components-next/button/Button.vue';
 
-const emit = defineEmits(['addNode']);
+const emit = defineEmits(['addNode', 'save', 'cancel']);
 
 const addCondition = () => {
   emit('addNode', {
@@ -29,9 +29,9 @@ const addAction = () => {
 
 <template>
   <div
-    class="h-full w-64 flex-shrink-0 bg-n-slate-1 dark:bg-n-solid-1 border-r border-n-strong overflow-y-auto"
+    class="h-full w-64 flex-shrink-0 bg-n-slate-1 dark:bg-n-solid-1 border-r border-n-strong overflow-y-auto flex flex-col"
   >
-    <div class="p-4">
+    <div class="p-4 flex flex-col flex-1">
       <h3 class="text-lg font-semibold text-n-slate-12 mb-4">
         {{ $t('AUTOMATION.FLOW.NODE_PALETTE') }}
       </h3>
@@ -135,6 +135,26 @@ const addAction = () => {
             />
           </div>
         </div>
+      </div>
+
+      <!-- Botões de Salvar/Cancelar -->
+      <div class="mt-auto pt-4 border-t border-n-strong space-y-2">
+        <Button
+          icon="i-lucide-save"
+          blue
+          sm
+          class="w-full"
+          :label="$t('AUTOMATION.FORM.SAVE')"
+          @click="emit('save')"
+        />
+        <Button
+          icon="i-lucide-x"
+          faded
+          sm
+          class="w-full"
+          :label="$t('AUTOMATION.FORM.CANCEL')"
+          @click="emit('cancel')"
+        />
       </div>
     </div>
   </div>

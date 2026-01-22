@@ -3,10 +3,10 @@
     "NEW_TEAM": "Criar novo time",
     "HEADER": "Times",
     "LOADING": "Buscando times",
-    "DESCRIPTION": "Os times permitem que você organize agentes em grupos com base em suas responsabilidades. Um agente pode pertencer a vários times. Ao trabalhar de forma colaborativa, você pode atribuir conversas a times específicos.",
+    "DESCRIPTION": "Os times permitem que você organize usuários em grupos com base em suas responsabilidades. Um usuário pode pertencer a vários times. Ao trabalhar de forma colaborativa, você pode atribuir conversas a times específicos.",
     "LEARN_MORE": "Saiba mais sobre times",
     "LIST": {
-      "404": "Não existem agentes associados a esta conta.",
+      "404": "Não existem usuários associados a esta conta.",
       "EDIT_TEAM": "Editar time",
       "NONE": "Nenhuma"
     },
@@ -16,17 +16,17 @@
         "DESC": "Adicione um título e uma descrição a seu novo time."
       },
       "AGENTS": {
-        "BUTTON_TEXT": "Adicionar agente a seu time",
-        "TITLE": "Adicionar agentes ao time: {teamName}",
-        "DESC": "Adicione agentes a seu time recém-criado. Isso permite que você colabore como um time em conversas, seja notificado sobre novos eventos na mesma conversa."
+        "BUTTON_TEXT": "Adicionar usuário a seu time",
+        "TITLE": "Adicionar usuários ao time: {teamName}",
+        "DESC": "Adicione usuários a seu time recém-criado. Isso permite que você colabore como um time em conversas, seja notificado sobre novos eventos na mesma conversa."
       },
       "WIZARD_CREATE": {
         "TITLE": "Criar",
-        "BODY": "Criar um novo time de agentes."
+        "BODY": "Criar um novo time de usuários."
       },
       "WIZARD_ADD_AGENTS": {
-        "TITLE": "Adicionar Agentes",
-        "BODY": "Adicionar agentes ao time."
+        "TITLE": "Adicionar Usuários",
+        "BODY": "Adicionar usuários ao time."
       },
       "WIZARD_FINISH": {
         "TITLE": "Finalizar",
@@ -40,9 +40,9 @@
         "BUTTON_TEXT": "Atualizar time"
       },
       "AGENTS": {
-        "BUTTON_TEXT": "Atualizar agentes no time",
-        "TITLE": "Adicionar agentes ao time: {teamName}",
-        "DESC": "Adicionar agentes ao seu time recém-criado. Todos os agentes adicionados serão notificados quando uma conversa for atribuída a este time."
+        "BUTTON_TEXT": "Atualizar usuários no time",
+        "TITLE": "Adicionar usuários ao time: {teamName}",
+        "DESC": "Adicionar usuários ao seu time recém-criado. Todos os usuários adicionados serão notificados quando uma conversa for atribuída a este time."
       },
       "EDIT_WIZARD_DETAILS": {
         "TITLE": "Detalhes do time",
@@ -50,9 +50,9 @@
         "BODY": "Alterar nome, descrição e outros detalhes."
       },
       "EDIT_WIZARD_AGENTS": {
-        "TITLE": "Alterar agentes",
+        "TITLE": "Alterar usuários",
         "ROUTE": "ajustes_times_editar_membros",
-        "BODY": "Gerenciar agentes do seu time."
+        "BODY": "Gerenciar usuários do seu time."
       },
       "EDIT_WIZARD_FINISH": {
         "TITLE": "Finalizar",
@@ -64,22 +64,22 @@
       "ERROR_MESSAGE": "Não foi possível salvar os detalhes do time. Tente novamente."
     },
     "AGENTS": {
-      "AGENT": "AGENTE",
+      "AGENT": "USUÁRIO",
       "EMAIL": "E-mail",
-      "BUTTON_TEXT": "Adicionar agentes",
-      "ADD_AGENTS": "Adicionando agentes à sua caixa de entrada...",
+      "BUTTON_TEXT": "Adicionar usuários",
+      "ADD_AGENTS": "Adicionando usuários à sua caixa de entrada...",
       "SELECT": "Selecionar",
-      "SELECT_ALL": "Selecionar todos os agentes",
-      "SELECTED_COUNT": "{selected} de {total} agentes selecionados."
+      "SELECT_ALL": "Selecionar todos os usuários",
+      "SELECTED_COUNT": "{selected} de {total} usuários selecionados."
     },
     "ADD": {
-      "TITLE": "Adicionar agentes ao time: {teamName}",
-      "DESC": "Adicione agentes ao time recém-criado. Isso permite que você colabore como um time em conversas, seja notificado sobre novos eventos na mesma conversa.",
+      "TITLE": "Adicionar usuários ao time: {teamName}",
+      "DESC": "Adicione usuários ao time recém-criado. Isso permite que você colabore como um time em conversas, seja notificado sobre novos eventos na mesma conversa.",
       "SELECT": "Selecionar",
-      "SELECT_ALL": "Selecionar todos os agentes",
-      "SELECTED_COUNT": "{selected} de {total} agentes selecionados.",
-      "BUTTON_TEXT": "Adicionar agentes",
-      "AGENT_VALIDATION_ERROR": "Selecione pelo menos um agente."
+      "SELECT_ALL": "Selecionar todos os usuários",
+      "SELECTED_COUNT": "{selected} de {total} usuários selecionados.",
+      "BUTTON_TEXT": "Adicionar usuários",
+      "AGENT_VALIDATION_ERROR": "Selecione pelo menos um usuário."
     },
     "FINISH": {
       "TITLE": "Sua caixa de entrada está pronta!",
@@ -89,7 +89,7 @@
     "DELETE": {
       "BUTTON_TEXT": "Excluir",
       "API": {
-        "SUCCESS_MESSAGE": "Agente excluído com sucesso.",
+        "SUCCESS_MESSAGE": "Usuário excluído com sucesso.",
         "ERROR_MESSAGE": "Não foi possível excluir o time. Tente novamente."
       },
       "CONFIRM": {

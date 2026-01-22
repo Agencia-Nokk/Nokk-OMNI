@@ -36,7 +36,7 @@ class Captain::Tools::Copilot::GetAgentBotService < Captain::Tools::BaseTool
 
   def build_bot_details(bot)
     inboxes_list = bot.inboxes.where(account_id: @assistant.account.id).pluck(:name).join(', ')
-    inboxes_section = inboxes_list.present? ? inboxes_list : 'None'
+    inboxes_section = (inboxes_list.presence || 'None')
 
     <<~DETAILS.strip
       Agent bot details:

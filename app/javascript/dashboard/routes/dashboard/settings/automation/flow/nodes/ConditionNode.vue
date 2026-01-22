@@ -29,6 +29,7 @@ const conditionSummary = computed(() => {
     return t('AUTOMATION.FLOW.CONDITION_EMPTY');
   }
 
+  // eslint-disable-next-line @intlify/vue-i18n/no-dynamic-keys
   const attributeLabel =
     t(`AUTOMATION.ATTRIBUTES.${attribute_key.toUpperCase()}`) || attribute_key;
   const operatorLabel = filter_operator || '';
@@ -51,7 +52,7 @@ const handleDelete = event => {
 
 <template>
   <div
-    class="relative bg-black text-white rounded-lg shadow-lg border-2 min-w-[200px] max-w-[280px] group z-10"
+    class="relative text-white rounded-lg shadow-lg border-2 min-w-[200px] max-w-[280px] group z-10 !bg-black"
     :class="[
       selected
         ? 'border-n-yellow-9 ring-2 ring-n-yellow-9'

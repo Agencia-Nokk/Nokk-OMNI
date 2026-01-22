@@ -15,13 +15,13 @@ class Api::V1::Accounts::Captain::BulkActionsController < Api::V1::Accounts::Bas
   def validate_params
     return if params[:type].present? && params[:ids].present? && params[:fields].present?
 
-    render json: { success: false }, status: :unprocessable_entity
+    render json: { success: false }, status: :unprocessable_content
   end
 
   def type_matches?
     return if MODEL_TYPE.include?(params[:type])
 
-    render json: { success: false }, status: :unprocessable_entity
+    render json: { success: false }, status: :unprocessable_content
   end
 
   def process_bulk_action

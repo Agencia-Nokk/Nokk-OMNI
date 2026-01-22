@@ -10,6 +10,7 @@ import { useSidebarKeyboardShortcuts } from './useSidebarKeyboardShortcuts';
 import { vOnClickOutside } from '@vueuse/components';
 import { emitter } from 'shared/helpers/mitt';
 import { BUS_EVENTS } from 'shared/constants/busEvents';
+import { useResizableSidebar } from 'dashboard/composables/useResizableSidebar';
 
 import Button from 'dashboard/components-next/button/Button.vue';
 import SidebarGroup from './SidebarGroup.vue';
@@ -53,6 +54,11 @@ const toggleShortcutModalFn = show => {
 };
 
 useSidebarKeyboardShortcuts(toggleShortcutModalFn);
+
+const { widthStyle, resizeHandleClass, handleMouseDown } = useResizableSidebar(
+  'left',
+  320
+);
 
 const expandedItem = ref(null);
 
@@ -225,7 +231,7 @@ const menuItems = computed(() => {
     },
     {
       name: 'Captain',
-      icon: 'i-woot-captain',
+      icon: 'i-lucide-bot',
       label: t('SIDEBAR.CAPTAIN'),
       activeOn: ['captain_assistants_create_index'],
       children: [
@@ -631,7 +637,8 @@ const filteredMenuItems = computed(() => {
       closeMobileSidebar,
       { ignore: ['#mobile-sidebar-launcher'] },
     ]"
-    class="bg-n-solid-2 rtl:border-l ltr:border-r border-n-weak flex flex-col text-sm pb-1 fixed top-0 ltr:left-0 rtl:right-0 h-full z-40 transition-transform duration-200 ease-in-out md:static w-[200px] basis-[200px] md:flex-shrink-0 md:ltr:translate-x-0 md:rtl:-translate-x-0"
+    class="bg-n-solid-2 rtl:border-l ltr:border-r border-n-weak flex flex-col text-base pb-1 fixed top-0 ltr:left-0 rtl:right-0 h-full z-40 transition-transform duration-200 ease-in-out md:static w-[200px] md:flex-shrink-0 md:ltr:translate-x-0 md:rtl:-translate-x-0 relative"
+    :style="widthStyle"
     :class="[
       {
         'shadow-lg md:shadow-none': isMobileSidebarOpen,
@@ -639,7 +646,8 @@ const filteredMenuItems = computed(() => {
       },
     ]"
   >
-    <section class="grid gap-2 mt-2 mb-4">
+    <div :class="resizeHandleClass" @mousedown="handleMouseDown" />
+    <section class="grid gap-4 ml-4 mr-4 mt-6 mb-3">
       <div class="flex gap-2 items-center px-2 min-w-0">
         <div class="grid flex-shrink-0 place-content-center size-8">
           <Logo class="size-6" />
@@ -683,7 +691,9 @@ const filteredMenuItems = computed(() => {
         </ComposeConversation>
       </div>
     </section>
-    <nav class="grid overflow-y-scroll flex-grow gap-2 px-2 pb-5 no-scrollbar">
+    <nav
+      class="grid overflow-y-scroll flex-grow gap-2 px-4 pt-2 pb-5 no-scrollbar"
+    >
       <ul class="flex flex-col gap-1.5 m-0 list-none">
         <SidebarGroup
           v-for="item in filteredMenuItems"

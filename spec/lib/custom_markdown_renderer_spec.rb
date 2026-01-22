@@ -4,7 +4,7 @@ describe CustomMarkdownRenderer do
   let(:renderer) { described_class.new }
 
   def render_markdown(markdown)
-    doc = CommonMarker.render_doc(markdown, :DEFAULT)
+    doc = Commonmarker.parse(markdown)
     renderer.render(doc)
   end
 
@@ -50,7 +50,7 @@ describe CustomMarkdownRenderer do
 
   describe '#link' do
     def render_markdown_link(link)
-      doc = CommonMarker.render_doc("[link](#{link})", :DEFAULT)
+      doc = Commonmarker.parse("[link](#{link})")
       renderer.render(doc)
     end
 

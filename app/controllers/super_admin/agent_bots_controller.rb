@@ -45,7 +45,7 @@ class SuperAdmin::AgentBotsController < SuperAdmin::ApplicationController
   def destroy_avatar
     avatar = requested_resource.avatar
     avatar.purge
-    redirect_back(fallback_location: super_admin_agent_bots_path)
+    redirect_back_or_to(super_admin_agent_bots_path)
   end
 
   def scoped_resource

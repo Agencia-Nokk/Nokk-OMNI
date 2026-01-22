@@ -15,7 +15,7 @@ class Api::V1::Accounts::Shop::SettingsController < Api::V1::Accounts::BaseContr
     if @setting.update(setting_params)
       render :show
     else
-      render json: { errors: @setting.errors }, status: :unprocessable_entity
+      render json: { errors: @setting.errors }, status: :unprocessable_content
     end
   end
 

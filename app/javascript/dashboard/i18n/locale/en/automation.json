@@ -85,7 +85,8 @@
       "DELETE": "Delete",
       "CANCEL": "Cancel",
       "RESET_MESSAGE": "Changing event type will reset the conditions and events you have added below",
-      "EDIT_NOTE": "Changes to automation rules will apply to new conversations only."
+      "EDIT_NOTE": "Changes to automation rules will apply to new conversations only.",
+      "SAVE": "Save"
     },
     "CONDITION": {
       "DELETE_MESSAGE": "You need to have atleast one condition to save",
@@ -201,9 +202,6 @@
       "DELETE_NODE": "Delete node",
       "CANNOT_REMOVE_TRIGGER": "Cannot remove trigger node",
       "INVALID_CONNECTION": "Invalid connection. Trigger can only connect to conditions, conditions can connect to conditions or actions, and actions can connect to actions."
-    },
-    "FORM": {
-      "SAVE": "Save"
     }
   }
 }

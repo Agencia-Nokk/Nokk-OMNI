@@ -1,4 +1,6 @@
 class Captain::Tools::Copilot::UpdateAgentService < Captain::Tools::BaseTool
+  include Captain::Tools::Concerns::AgentHelpers
+
   def self.name
     'update_agent'
   end
@@ -21,44 +23,14 @@ class Captain::Tools::Copilot::UpdateAgentService < Captain::Tools::BaseTool
   param :auto_offline, type: :boolean, desc: 'Auto offline when inactive', required: false
 
   def execute(agent_id:, name: nil, role: nil, availability: nil, auto_offline: nil)
-    agent = find_agent(agent_id)
-    return 'Agent not found' unless agent
+    result = find_and_validate_agent(agent_id)
+    return result if result.is_a?(String)
 
-    account_user = agent.account_users.find { |au| au.account_id == @assistant.account.id }
-    return 'Agent not found in this account' unless account_user
+    agent, account_user = result
+    changes = build_changes(name, role, availability, auto_offline)
+    return changes if changes.is_a?(String)
 
-    user_attrs = {}
-    account_user_attrs = {}
-
-    user_attrs[:name] = name.strip if name.present?
-
-    if role.present?
-      validated_role = validate_role(role)
-      return 'Invalid role. Must be "agent" or "administrator"' unless validated_role
-
-      account_user_attrs[:role] = validated_role
-    end
-
-    if availability.present?
-      validated_availability = validate_availability(availability)
-      return 'Invalid availability. Must be "online", "offline", or "busy"' unless validated_availability
-
-      account_user_attrs[:availability] = validated_availability
-    end
-
-    account_user_attrs[:auto_offline] = auto_offline unless auto_offline.nil?
-
-    return 'No changes provided' if user_attrs.empty? && account_user_attrs.empty?
-
-    agent.update!(user_attrs) if user_attrs.present?
-    account_user.update!(account_user_attrs) if account_user_attrs.present?
-
-    {
-      'content' => "Agent '#{agent.reload.available_name || agent.name}' updated successfully",
-      'entities' => [format_agent_entity(agent.reload)]
-    }
-  rescue ActiveRecord::RecordInvalid => e
-    "Failed to update agent: #{e.message}"
+    apply_changes(agent, account_user, changes)
   end
 
   def active?
@@ -67,38 +39,68 @@ class Captain::Tools::Copilot::UpdateAgentService < Captain::Tools::BaseTool
 
   private
 
-  def find_agent(agent_id)
-    @assistant.account.users.includes(:account_users)
-              .where(account_users: { role: [:agent, :administrator] })
-              .find_by(id: agent_id)
+  def find_and_validate_agent(agent_id)
+    agent = find_agent(agent_id)
+    return 'Agent not found' unless agent
+
+    account_user = find_account_user(agent)
+    return 'Agent not found in this account' unless account_user
+
+    [agent, account_user]
   end
 
-  def validate_role(role)
-    role = role.to_s.downcase.strip
-    return :agent if role == 'agent'
-    return :administrator if %w[administrator admin].include?(role)
+  def build_changes(name, role, availability, auto_offline)
+    user_attrs = build_user_attrs(name)
+    account_user_attrs = build_account_user_attrs(role, availability, auto_offline)
+    return account_user_attrs if account_user_attrs.is_a?(String)
 
-    nil
+    return 'No changes provided' if user_attrs.empty? && account_user_attrs.empty?
+
+    { user: user_attrs, account_user: account_user_attrs }
   end
 
-  def validate_availability(availability)
-    availability = availability.to_s.downcase.strip
-    return :online if availability == 'online'
-    return :offline if availability == 'offline'
-    return :busy if availability == 'busy'
-
-    nil
+  def build_user_attrs(name)
+    attrs = {}
+    attrs[:name] = name.strip if name.present?
+    attrs
   end
 
-  def format_agent_entity(agent)
-    account_user = agent.account_users.find { |au| au.account_id == @assistant.account.id }
+  def build_account_user_attrs(role, availability, auto_offline)
+    attrs = {}
+    return add_role_attr(attrs, role, availability, auto_offline) if role.present?
+
+    add_availability_and_auto_offline(attrs, availability, auto_offline)
+  end
+
+  def add_role_attr(attrs, role, availability, auto_offline)
+    validated_role = validate_role(role)
+    return 'Invalid role. Must be "agent" or "administrator"' unless validated_role
+
+    attrs[:role] = validated_role
+    add_availability_and_auto_offline(attrs, availability, auto_offline)
+  end
+
+  def add_availability_and_auto_offline(attrs, availability, auto_offline)
+    if availability.present?
+      validated = validate_availability(availability)
+      return 'Invalid availability. Must be "online", "offline", or "busy"' unless validated
+
+      attrs[:availability] = validated
+    end
+
+    attrs[:auto_offline] = auto_offline unless auto_offline.nil?
+    attrs
+  end
+
+  def apply_changes(agent, account_user, changes)
+    agent.update!(changes[:user]) if changes[:user].present?
+    account_user.update!(changes[:account_user]) if changes[:account_user].present?
+
     {
-      'type' => 'agent',
-      'id' => agent.id,
-      'name' => agent.available_name || agent.name,
-      'email' => agent.email,
-      'role' => account_user&.role,
-      'availability' => account_user&.availability
+      'content' => "Agent '#{agent.reload.available_name || agent.name}' updated successfully",
+      'entities' => [format_agent_entity(agent.reload)]
     }
+  rescue ActiveRecord::RecordInvalid => e
+    "Failed to update agent: #{e.message}"
   end
 end
